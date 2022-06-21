@@ -36,7 +36,8 @@ jobs:
       use_isort: true
       use_flake8: true
       use_pylint: true
-      python_version: 3.9
+      python_versions: >-
+        [ "3.9", "3.10" ]
 
   frontend_linters:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
@@ -47,5 +48,6 @@ jobs:
         use_eslint: true
         use_stylelint: true
         use_prettier: true
-        node_version: 15
+        node_versions: >-
+          [ "15", "14", "13" ]
         package_lock_path: frontend/package-lock.json
