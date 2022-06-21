@@ -6,8 +6,8 @@ on:
         description: Path to the package.lock file
         type: string
         required: true
-      node_version:
-        description: Node version to use
+      node_versions:
+        description: Node versions to use
         type: string
         required: true
       directory_to_lint:
@@ -35,13 +35,16 @@ on:
 jobs:
     linters:
         runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            node-version: ${{ fromJson(inputs.node_versions) }}
         steps:
           - uses: actions/checkout@v3
 
           - name: Set up NodeJS
             uses: actions/setup-node@v3
             with:
-              node-version: ${{ inputs.node_version }}
+              node-version: ${{ matrix.node_version }}
 
           - name: Cache node modules
             uses: actions/cache@v3
