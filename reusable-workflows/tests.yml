@@ -1,0 +1,58 @@
+name: Reusable python tests workflow
+on:
+  workflow_call:
+    inputs:
+      python_versions:
+        description: Python versions to use
+        type: string
+        required: true
+      directory_to_lint:
+        description: Directory that must be run against the linters
+        type: string
+        required: true
+
+      use_tox:
+        description: Use tox suite
+        default: false
+        type: boolean
+        required: false
+      use_unittest:
+        description: Use unittest suite
+        default: false
+        type: boolean
+        required: false
+      use_pytest:
+        description: Use pytest suite
+        default: false
+        type: boolean
+        required: false
+
+jobs:
+    linters:
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            python_version: ${{ fromJson(inputs.python_versions) }}
+        env:
+          LINTER_REQUIREMENTS_PATH: linter-${{ python_version }}-requirements.txt
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v3
+              with:
+                python-version: ${{ matrix.python_version }}
+
+            - name: Run tox tests
+              if: ${{ input.use_tox }}
+              run: |
+                tox
+            - name: Run unittest
+              if: ${{ input.use_unittest }}
+              run: |
+                python -m unittest discover
+            - name: Run pytest
+              if: ${{ input.use_pytest }}
+              run: |
+                  python -m pytest
+
