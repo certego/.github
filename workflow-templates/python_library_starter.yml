@@ -1,0 +1,40 @@
+name: Certego Python Library CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - dev
+  pull_request:
+    branches:
+      - master
+      - main
+      - develop
+      - dev
+
+# discard previous execution if you commit to a branch that is already running
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python_linters:
+    uses: certego/.github/reusable-workflows/python_linter.yml@master
+    with:
+      linter_python_directory: backend
+      use_black: true
+      use_isort: true
+      use_flake8: true
+      use_pylint: true
+      python_versions: >-
+        ["3.8", "3.9", "3.10"]
+  tests:
+     uses: certego/.github/reusable-workflows/tests.yml@master
+     with:
+      tox: true
+      pytest: false
+      unittest: false
+      python_versions: >-
+        ["3.8", "3.9", "3.10"]
