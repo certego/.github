@@ -1,0 +1,7 @@
+{
+  "name": "Django",
+  "description": "Certego Django CI Workflow",
+  "categories": [
+    "Python", "TypeScript"
+  ]
+}
