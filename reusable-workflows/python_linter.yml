@@ -2,8 +2,8 @@ name: Reusable python linter workflow
 on:
   workflow_call:
     inputs:
-      python_version:
-        description: Python version to use
+      python_versions:
+        description: Python versions to use
         type: string
         required: true
       directory_to_lint:
@@ -34,16 +34,19 @@ on:
 
 jobs:
     linters:
-        env:
-          LINTER_REQUIREMENTS_PATH: linter-requirements.txt
         runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            python_version: ${{ fromJson(inputs.python_versions) }}
+        env:
+          LINTER_REQUIREMENTS_PATH: linter-${{ python_version }}-requirements.txt
         steps:
             - uses: actions/checkout@v3
 
             - name: Set up Python
               uses: actions/setup-python@v3
               with:
-                python-version: ${{ inputs.python_version }}
+                python-version: ${{ matrix.python_version }}
 
             # not the best solution because i do not think that dependabot supports this
             - name: Write requirements to file for caching
