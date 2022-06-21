@@ -26,6 +26,11 @@ on:
         default: true
         type: boolean
         required: false
+      use_pylint:
+        description: Use pylint linter
+        default: true
+        type: boolean
+        required: false
 
 jobs:
     linters:
@@ -77,3 +82,8 @@ jobs:
               if: ${{ inputs.use_isort }}
               run: |
                 isort ${{ inputs.directory_to_lint }} --profile black --filter-files --check-only --diff
+
+            - name: pylint
+              if: ${{ inputs.use_pylint }}
+              run: |
+                  pylint ${{ inputs.directory_to_lint }}
