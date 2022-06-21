@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   detect-changes:
-    uses: certego/quokka/.github/workflows/detect_changes.yml@master
+    uses: certego/.github/reusable-workflows/detect_changes.yml@master
     with:
         backend_directory: backend
         frontend_directory: frontend
@@ -29,7 +29,7 @@ jobs:
   python_linters:
     if: ${{ needs.detect-changes.outputs.backend > 0 }}
     needs: detect-changes
-    uses: certego/quokka/.github/workflows/python_linters.yml@master
+    uses: certego/.github/reusable-workflows/python_linter.yml@master
     with:
       linter_python_directory: backend
       use_black: true
@@ -39,10 +39,10 @@ jobs:
       python_versions: >-
         [ "3.9", "3.10" ]
 
-  frontend_linters:
+  node_linters:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     needs: detect-changes
-    uses: certego/quokka/.github/workflows/frontend_linters.yml@master
+    uses: certego/.github/reusable-workflows/node_linter.yml@master
     with:
         linter_frontend_directory: frontend
         use_eslint: true
