@@ -1,0 +1,79 @@
+name: Reusable python linter workflow
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: Python version to use
+        type: string
+        required: true
+      directory_to_lint:
+        description: Directory that must be run against the linters
+        type: string
+        required: true
+
+      use_black:
+        description: Use black formatter
+        default: true
+        type: boolean
+        required: false
+      use_isort:
+        description: Use isort formatter
+        default: true
+        type: boolean
+        required: false
+      use_flake8:
+        description: Use flake8 linter
+        default: true
+        type: boolean
+        required: false
+
+jobs:
+    linters:
+        env:
+          LINTER_REQUIREMENTS_PATH: linter-requirements.txt
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v3
+              with:
+                python-version: ${{ inputs.python_version }}
+
+            # not the best solution because i do not think that dependabot supports this
+            - name: Write requirements to file for caching
+              run: |
+                echo "black==22.3.0" > $LINTER_REQUIREMENTS_PATH
+                echo "isort==5.10.1" >> $LINTER_REQUIREMENTS_PATH
+                echo "flake8==4.0.1" >> $LINTER_REQUIREMENTS_PATH
+
+            - name: Cache venv
+              id: cache_venv
+              uses: actions/cache@v3
+              with:
+                path: venv
+                key: pip-${{ inputs.python_version }}-${{ hashFiles(env.LINTER_REQUIREMENTS_PATH) }}
+
+            - name: "Install dependencies"
+              if: steps.cache_venv.outputs.cache-hit != 'true'
+              run: |
+                if [ -d "venv" ]; then rm -rf venv; fi
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install --upgrade pip
+                pip install -r $LINTER_REQUIREMENTS_PATH
+
+            - name: Black formatter
+              if: ${{ inputs.use_black }}
+              run: |
+                black ${{ inputs.directory_to_lint }} --check --diff
+
+            - name: Lint with flake8 (PEP8 enforcer + linter)
+              if: ${{ inputs.use_flake8 }}
+              run: |
+                flake8 ${{ inputs.directory_to_lint }}  --show-source
+
+            - name: isort
+              if: ${{ inputs.use_isort }}
+              run: |
+                isort ${{ inputs.directory_to_lint }} --profile black --filter-files --check-only --diff
