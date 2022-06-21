@@ -1,0 +1,44 @@
+name: Certego Django CI
+
+on:
+  push:
+    # we can otherwise use "branches: [ master, main develop, dev  ]" if people do not protect their branches
+    branches: [ $protected-branches ]
+  pull_request:
+    branches: [ $protected-branches ]
+
+# discard previous execution if you commit to a branch that is already running
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    uses: certego/.github/reusable_workflows/detect_changes.yml@master
+    with:
+        backend_directory: backend
+        frontend_directory: frontend
+
+  python_linters:
+    if: ${{ needs.detect-changes.outputs.backend > 0 }}
+    needs: detect-changes
+    uses: certego/.github/reusable_workflows/python_linters.yml@master
+    with:
+      linter_python_directory: backend
+      use_black: true
+      use_isort: true
+      use_flake8: true
+      python_version: 3.9
+      requirements_path: requirements.txt
+
+  frontend_linters:
+    if: ${{ needs.detect-changes.outputs.frontend > 0 }}
+    needs: detect-changes
+    uses: certego/.github/reusable_workflows/frontend_linters.yml@master
+    with:
+        linter_frontend_directory: frontend
+        use_eslint: true
+        use_stylelint: true
+        use_prettier: true
+        node_version: 15
+        package_lock_path: frontend/package-lock.json
