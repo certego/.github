@@ -61,9 +61,9 @@ jobs:
               uses: actions/cache@v3
               with:
                 path: venv
-                key: pip-${{ inputs.python_version }}-${{ hashFiles(env.LINTER_REQUIREMENTS_PATH) }}
+                key: pip-${{ matrix.python_version }}-${{ hashFiles(env.LINTER_REQUIREMENTS_PATH) }}
 
-            - name: "Install dependencies"
+            - name: Install dependencies
               if: steps.cache_venv.outputs.cache-hit != 'true'
               run: |
                 if [ -d "venv" ]; then rm -rf venv; fi
