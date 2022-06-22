@@ -39,7 +39,7 @@ jobs:
           matrix:
             python_version: ${{ fromJson(inputs.python_versions) }}
         env:
-          LINTER_REQUIREMENTS_PATH: linter-${{ python_version }}-requirements.txt
+          LINTER_REQUIREMENTS_PATH: linter-${{ matrix.python_version }}-requirements.txt
         steps:
             - uses: actions/checkout@v3
 
