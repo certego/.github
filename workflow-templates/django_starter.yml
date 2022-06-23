@@ -49,5 +49,5 @@ jobs:
         use_stylelint: true
         use_prettier: true
         node_versions: >-
-          [ "15", "14", "13" ]
+          [ "16", "15", "14", "13" ]
         package_lock_path: frontend/package-lock.json

@@ -1,0 +1,37 @@
+name: Certego Node.js Library CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - dev
+  pull_request:
+    branches:
+      - master
+      - main
+      - develop
+      - dev
+
+# discard previous execution if you commit to a branch that is already running
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node_linters:
+    uses: certego/.github/reusable-workflows/node_linter.yml@master
+    with:
+      working-directory: frontend
+      use_eslint: true
+      use_stylelint: true
+      node_versions: >-
+          [ "16" ]
+  node_tests:
+    uses: certego/.github/reusable-workflows/node_tests.yml@master
+    with:
+      working-directory: frontend
+      use_jest: true
+      node_versions: >-
+          [ "16" ]

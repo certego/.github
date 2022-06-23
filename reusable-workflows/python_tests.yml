@@ -6,6 +6,10 @@ on:
         description: Python versions to use
         type: string
         required: true
+      working_directory:
+        description: Directory that must be run against the linters
+        type: string
+        required: true
       requirements_path:
         description: Path to the requirements.txt file
         type: string
@@ -28,7 +32,8 @@ on:
         required: false
 
 jobs:
-    linters:
+    tests:
+        name: Run python tests
         runs-on: ubuntu-latest
         strategy:
           matrix:
@@ -61,12 +66,15 @@ jobs:
               if: ${{ inputs.use_tox }}
               run: |
                 tox
+              working-directory: ${{ inputs.working_directory }}
             - name: Run unittest
               if: ${{ inputs.use_unittest }}
               run: |
                 python -m unittest discover
+              working-directory: ${{ inputs.working_directory }}
             - name: Run pytest
               if: ${{ inputs.use_pytest }}
               run: |
                   python -m pytest
+              working-directory: ${{ inputs.working_directory }}
 

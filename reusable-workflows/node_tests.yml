@@ -1,0 +1,44 @@
+name: Reusable node tests workflow
+on:
+  workflow_call:
+    inputs:
+      node_versions:
+        description: Node versions to use
+        type: string
+        required: true
+      working_directory:
+        description: Path to the package.json file
+        type: string
+        required: true
+
+      use_jest:
+        description: Use jest suite
+        default: false
+        type: boolean
+        required: false
+
+jobs:
+    linters:
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            node_version: ${{ fromJson(inputs.node_versions) }}
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: ${{ matrix.node_version }}
+                cache: 'npm'
+
+            - name: Install dependencies
+              run: |
+                npm ci
+              working-directory: ${{ inputs.working_directory }}
+
+            - name: Run jest tests
+              if: ${{ inputs.use_jest }}
+              run: |
+                npm run test
+              working-directory: ${{ inputs.working_directory }}

@@ -6,7 +6,7 @@ on:
         description: Python versions to use
         type: string
         required: true
-      directory_to_lint:
+      working_directory:
         description: Directory that must be run against the linters
         type: string
         required: true
@@ -76,18 +76,22 @@ jobs:
               if: ${{ inputs.use_black }}
               run: |
                 black ${{ inputs.directory_to_lint }} --check --diff
+              working-directory: ${{ inputs.working_directory }}
 
             - name: Lint with flake8 (PEP8 enforcer + linter)
               if: ${{ inputs.use_flake8 }}
               run: |
                 flake8 ${{ inputs.directory_to_lint }}  --show-source
+              working-directory: ${{ inputs.working_directory }}
 
             - name: isort
               if: ${{ inputs.use_isort }}
               run: |
                 isort ${{ inputs.directory_to_lint }} --profile black --filter-files --check-only --diff
+              working-directory: ${{ inputs.working_directory }}
 
             - name: pylint
               if: ${{ inputs.use_pylint }}
               run: |
                   pylint ${{ inputs.directory_to_lint }}
+              working-directory: ${{ inputs.working_directory }}
