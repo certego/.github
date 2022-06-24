@@ -1,6 +1,8 @@
 import unittest
-
-from .source import A
+try:
+    from .source import A
+except ImportError:
+    from source import A
 
 
 class TestA(unittest.TestCase):
