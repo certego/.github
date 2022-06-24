@@ -64,7 +64,9 @@ jobs:
 
             - name: Install apt packages
               if: ${{ inputs.binary_packages }}
-              run: apt-get install -y ${{ inputs.binary_packages }}
+              run: |
+                sudo apt update
+                sudo apt-get install -y ${{ inputs.binary_packages }}
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
