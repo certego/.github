@@ -1,0 +1,43 @@
+name: Ci
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - dev
+  pull_request:
+    branches:
+      - master
+      - main
+      - develop
+      - dev
+
+# discard previous execution if you commit to a branch that is already running
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python_linters:
+    uses: certego/.github/reusable-workflows/python_linter.yml@master
+    with:
+      working_directory: test/python_test
+      use_black: true
+      use_isort: true
+      use_flake8: true
+      use_pylint: true
+      python_versions: >-
+        ["3.10", "3.9", "3.8"]
+
+  python_tests:
+     uses: certego/.github/reusable-workflows/python_tests.yml@master
+     with:
+      working_directory: test/python_test
+      requirements_path: test.requirements.txt
+      tox: true
+      pytest: true
+      unittest: true
+      python_versions: >-
+        ["3.10", "3.9", "3.8"]
