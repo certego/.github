@@ -35,7 +35,7 @@ jobs:
      uses: ./.github/workflows/python_tests.yml
      with:
       working_directory: test/python_test
-      requirements_path: test.requirements.txt
+      requirements_path: test/python_test/requirements.txt
       use_tox: true
       use_pytest: true
       use_unittest: true
