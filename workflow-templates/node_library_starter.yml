@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   node_linters:
-    uses: certego/.github/.github/workflows/node_linter.yml@master
+    uses: certego/.github/.github/workflows/node_linter.yml@main
     with:
       working-directory: frontend
       use_eslint: true
@@ -29,7 +29,7 @@ jobs:
       node_versions: >-
           [ "16" ]
   node_tests:
-    uses: certego/.github/.github/workflows/node_tests.yml@master
+    uses: certego/.github/.github/workflows/node_tests.yml@main
     with:
       working-directory: frontend
       use_jest: true
