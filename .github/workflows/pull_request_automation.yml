@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   python_linters:
-    uses: certego/.github/.github/workflows/python_linter.yml@${{ github.ref }}
+    uses: ./.github/workflows/python_tests.yml
     with:
       working_directory: test/python_test
       use_black: true
@@ -32,7 +32,7 @@ jobs:
         ["3.10", "3.9", "3.8"]
 
   python_tests:
-     uses: certego/.github/.github/workflows/python_tests.yml@${{ github.ref }}
+     uses: ./.github/workflows/python_tests.yml
      with:
       working_directory: test/python_test
       requirements_path: test.requirements.txt
