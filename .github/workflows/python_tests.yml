@@ -54,7 +54,7 @@ jobs:
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-            - run: pip install -r requirements.txt
+            - run: pip install -r ${{ inputs.requirements_path }}
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - name: Run tox tests
