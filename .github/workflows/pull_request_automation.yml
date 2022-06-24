@@ -36,6 +36,7 @@ jobs:
      with:
       working_directory: test/python_test
       requirements_path: test/python_test/requirements.txt
+      binary_packages: libldap2-dev libsasl2-dev
       use_tox: true
       use_pytest: true
       use_unittest: true
