@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   python_linters:
-    uses: ./.github/workflows/python_tests.yml
+    uses: ./.github/workflows/python_linter.yml
     with:
       working_directory: test/python_test
       use_black: true
