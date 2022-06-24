@@ -1,4 +1,5 @@
 import unittest
+
 try:
     from .source import A
 except ImportError:
