@@ -46,21 +46,16 @@ jobs:
               with:
                 python-version: ${{ matrix.python_version }}
 
-            - name: Cache venv
-              id: cache_venv
-              uses: actions/cache@v3
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
               with:
-                path: venv
-                key: pip-${{ matrix.python_version }}-${{ hashFiles(inputs.requirements_path) }}
+                requirement_files: ${{ inputs.requirements_path }}
 
-            - name: Install dependencies
-              if: steps.cache_venv.outputs.cache-hit != 'true'
-              run: |
-                if [ -d "venv" ]; then rm -rf venv; fi
-                python3 -m venv venv
-                source venv/bin/activate
-                pip install --upgrade pip
-                pip install -r ${{ inputs.requirements_path }}
+            - uses: syphar/restore-pip-download-cache@v1
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - run: pip install -r requirements.txt
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
