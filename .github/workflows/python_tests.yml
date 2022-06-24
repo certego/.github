@@ -14,8 +14,8 @@ on:
         description: Path to the requirements.txt file
         type: string
         required: true
-      binary_packages:
-        description: Binary packages to install separated by spaces
+      packages_path:
+        description: Path to the packages.txt file
         type: string
         required: false
 
@@ -63,10 +63,10 @@ jobs:
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - name: Install apt packages
-              if: ${{ inputs.binary_packages }}
+              if: ${{ inputs.packages_path }}
               run: |
                 sudo apt update
-                sudo apt-get install -y ${{ inputs.binary_packages }}
+                cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
