@@ -62,23 +62,23 @@ jobs:
             - name: Black formatter
               if: ${{ inputs.use_black }}
               run: |
-                black ${{ inputs.directory_to_lint }} --check --diff
+                black . --check --diff
               working-directory: ${{ inputs.working_directory }}
 
             - name: Lint with flake8 (PEP8 enforcer + linter)
               if: ${{ inputs.use_flake8 }}
               run: |
-                flake8 ${{ inputs.directory_to_lint }}  --show-source
+                flake8 .  --show-source
               working-directory: ${{ inputs.working_directory }}
 
             - name: isort
               if: ${{ inputs.use_isort }}
               run: |
-                isort ${{ inputs.directory_to_lint }} --profile black --filter-files --check-only --diff
+                isort . --profile black --filter-files --check-only --diff
               working-directory: ${{ inputs.working_directory }}
 
             - name: pylint
               if: ${{ inputs.use_pylint }}
               run: |
-                  pylint ${{ inputs.directory_to_lint }}
+                  pylint .
               working-directory: ${{ inputs.working_directory }}
