@@ -46,10 +46,10 @@ jobs:
             # not the best solution because i do not think that dependabot supports this
             - name: Write requirements to file for caching
               run: |
-                echo "black==22.3.0" > $LINTER_REQUIREMENTS_PATH
-                echo "isort==5.10.1" >> $LINTER_REQUIREMENTS_PATH
-                echo "flake8==4.0.1" >> $LINTER_REQUIREMENTS_PATH
-                echo "pylint==2.14.3" >> $LINTER_REQUIREMENTS_PATH
+                echo "black==22.3.0" > ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo "isort==5.10.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo "flake8==4.0.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo "pylint==2.14.3" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
 
             - name: Set up Python
               uses: actions/setup-python@v4
@@ -70,7 +70,7 @@ jobs:
                 python3 -m venv venv
                 source venv/bin/activate
                 pip install --upgrade pip
-                pip install -r ${{ LINTER_REQUIREMENTS_PATH }}
+                pip install -r ${{ env.LINTER_REQUIREMENTS_PATH }}
 
 
             - name: Black formatter
