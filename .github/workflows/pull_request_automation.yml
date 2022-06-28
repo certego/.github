@@ -20,6 +20,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+  node_linters:
+    uses: ./github/workflows/node_linter.yml
+    with:
+      working_directory: test/node_test
+      use_eslint: true
+      use_prettier: true
+      use_stylelint: true
+      node_versions: >-
+      ["16"]
+
+  node_tests:
+    uses: ./github/workflows/node_linter.yml
+    with:
+      working_directory: test/node_test
+      use_jest: true
+      node_versions: >-
+      ["16"]
+
   python_linters:
     uses: ./.github/workflows/python_linter.yml
     with:

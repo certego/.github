@@ -40,5 +40,5 @@ jobs:
             - name: Run jest tests
               if: ${{ inputs.use_jest }}
               run: |
-                npm run test
+                npm test
               working-directory: ${{ inputs.working_directory }}

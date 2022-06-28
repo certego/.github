@@ -1,0 +1,21 @@
+{
+    "name": "node_test",
+    "version": "2.35.0",
+    "description": "Node Test",
+    "main": "source.js",
+    "private": true,
+    "scripts": {
+        "lint": "eslint source.js",
+        "lint-sass": "stylelint '**/*.css'",
+        "prettier:check": "prettier --check source.js",
+        "test": "jest"
+    },
+    "devDependencies": {
+        "eslint": "^8.18.0",
+        "eslint-config-prettier": "^8.5.0",
+        "jest": "^28.1.1",
+        "prettier": "2.7.1",
+        "stylelint": "^14.9.1",
+        "stylelint-config-standard": "^26.0.0"
+    }
+}
