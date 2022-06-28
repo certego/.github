@@ -57,7 +57,7 @@ jobs:
       working_directory: test/python_test
       requirements_path: test/python_test/requirements.txt
       packages_path: test/python_test/packages.txt
-      django_settings_module: python_test/settings.py
+      django_settings_module: python_test.settings
       check_migrations: true
 
       use_postgres: true
