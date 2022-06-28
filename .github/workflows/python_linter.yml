@@ -66,7 +66,7 @@ jobs:
                   echo "pylint==2.14.3" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
                 fi
                 if [[ ${{ inputs.use_bandit}} ]]; then
-                  echo "bandit=1.7.4" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                  echo "bandit==1.7.4" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
                 fi
 
 
