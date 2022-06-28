@@ -28,6 +28,7 @@ jobs:
       use_isort: true
       use_flake8: true
       use_pylint: true
+      use_bandit: true
       python_versions: >-
         ["3.10", "3.9", "3.8"]
 

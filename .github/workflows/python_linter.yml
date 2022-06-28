@@ -31,6 +31,11 @@ on:
         default: true
         type: boolean
         required: false
+      use_bandit:
+        description: Use bandit linter
+        default: true
+        type: boolean
+        required: false
 
 jobs:
     linters:
@@ -91,4 +96,10 @@ jobs:
               if: ${{ inputs.use_pylint }}
               run: |
                   pylint .
+              working-directory: ${{ inputs.working_directory }}
+
+            - name: bandit
+              if: ${{ inputs.use_bandit }}
+              run: |
+                  bandit */ -r
               working-directory: ${{ inputs.working_directory }}
