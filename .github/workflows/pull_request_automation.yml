@@ -48,7 +48,7 @@ jobs:
       use_flake8: true
       use_pylint: true
       python_versions: >-
-        ["3.10", "3.9", "3.8"]
+        ["3.9"]
 
   python_tests:
      uses: ./.github/workflows/python_tests.yml
@@ -66,4 +66,4 @@ jobs:
       use_unittest: true
       custom_command: whoami; ls -la
       python_versions: >-
-        ["3.10", "3.9", "3.8"]
+        ["3.9"]
