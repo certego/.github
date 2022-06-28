@@ -175,10 +175,10 @@ jobs:
             - name: Create dev-requirements.txt
               run: |
                 echo > dev-requirements.txt
-                if [[ ${{ use_tox }} != 'false' ]]; then
+                if [[ ${{ inputs.use_tox }} != 'false' ]]; then
                   echo "tox>=3.0.0" >> dev-requirements.txt
                 fi
-                if [[ ${{ use_pytest }} != 'false' ]]; then
+                if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
                   echo "pytest>=7.0.0" >> dev-requirements.txt
                 fi
               shell: bash
