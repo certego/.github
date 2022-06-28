@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   detect-changes:
-    uses: certego/.github/reusable-workflows/detect_changes.yml@master
+    uses: certego/.github/.github/workflows/detect_changes.yml@main
     with:
         backend_directory: backend
         frontend_directory: frontend
@@ -29,7 +29,7 @@ jobs:
   python_linters:
     if: ${{ needs.detect-changes.outputs.backend > 0 }}
     needs: detect-changes
-    uses: certego/.github/reusable-workflows/python_linter.yml@master
+    uses: certego/.github/.github/workflows/python_linter.yml@main
     with:
       linter_python_directory: backend
       use_black: true
@@ -42,7 +42,7 @@ jobs:
   node_linters:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     needs: detect-changes
-    uses: certego/.github/reusable-workflows/node_linter.yml@master
+    uses: certego/.github/.github/workflows/node_linter.yml@main
     with:
         linter_frontend_directory: frontend
         use_eslint: true

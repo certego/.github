@@ -1,4 +1,4 @@
-name: Certego Python Library CI
+name: Ci
 
 on:
   push:
@@ -21,9 +21,9 @@ concurrency:
 
 jobs:
   python_linters:
-    uses: certego/.github/.github/workflows/python_linter.yml@main
+    uses: ./.github/workflows/python_linter.yml
     with:
-      working_directory: backend
+      working_directory: test/python_test
       use_black: true
       use_isort: true
       use_flake8: true
@@ -32,13 +32,13 @@ jobs:
         ["3.10", "3.9", "3.8"]
 
   python_tests:
-     uses: certego/.github/.github/workflows/python_tests.yml@main
+     uses: ./.github/workflows/python_tests.yml
      with:
-      working_directory: backend
-      requirements_path: backend/requirements.txt
+      working_directory: test/python_test
+      requirements_path: test/python_test/requirements.txt
       packages_path: test/python_test/packages.txt
       use_tox: true
-      use_pytest: false
-      use_unittest: false
+      use_pytest: true
+      use_unittest: true
       python_versions: >-
         ["3.10", "3.9", "3.8"]

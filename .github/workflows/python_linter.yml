@@ -43,55 +43,51 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - name: Set up Python
-              uses: actions/setup-python@v3
-              with:
-                python-version: ${{ matrix.python_version }}
-
             # not the best solution because i do not think that dependabot supports this
             - name: Write requirements to file for caching
               run: |
-                echo "black==22.3.0" > $LINTER_REQUIREMENTS_PATH
-                echo "isort==5.10.1" >> $LINTER_REQUIREMENTS_PATH
-                echo "flake8==4.0.1" >> $LINTER_REQUIREMENTS_PATH
-                echo "pylint==2.14.3" >> $LINTER_REQUIREMENTS_PATH
+                echo "black==22.3.0" > ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo "isort==5.10.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo "flake8==4.0.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo "pylint==2.14.3" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
 
-            - name: Cache venv
-              id: cache_venv
-              uses: actions/cache@v3
+            - name: Set up Python
+              uses: actions/setup-python@v4
               with:
-                path: venv
-                key: pip-${{ matrix.python_version }}-${{ hashFiles(env.LINTER_REQUIREMENTS_PATH) }}
+                python-version: ${{ matrix.python_version }}
 
-            - name: Install dependencies
-              if: steps.cache_venv.outputs.cache-hit != 'true'
-              run: |
-                if [ -d "venv" ]; then rm -rf venv; fi
-                python3 -m venv venv
-                source venv/bin/activate
-                pip install --upgrade pip
-                pip install -r $LINTER_REQUIREMENTS_PATH
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
+              with:
+                requirement_files: ${{ env.LINTER_REQUIREMENTS_PATH }}
+
+            - uses: syphar/restore-pip-download-cache@v1
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - run: pip install -r ${{ env.LINTER_REQUIREMENTS_PATH }}
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
 
             - name: Black formatter
               if: ${{ inputs.use_black }}
-              run: |
-                black ${{ inputs.directory_to_lint }} --check --diff
+              run:
+                black . --check --diff
               working-directory: ${{ inputs.working_directory }}
 
             - name: Lint with flake8 (PEP8 enforcer + linter)
               if: ${{ inputs.use_flake8 }}
               run: |
-                flake8 ${{ inputs.directory_to_lint }}  --show-source
+                flake8 .  --show-source
               working-directory: ${{ inputs.working_directory }}
 
             - name: isort
               if: ${{ inputs.use_isort }}
               run: |
-                isort ${{ inputs.directory_to_lint }} --profile black --filter-files --check-only --diff
+                isort . --profile black --filter-files --check-only --diff
               working-directory: ${{ inputs.working_directory }}
 
             - name: pylint
               if: ${{ inputs.use_pylint }}
               run: |
-                  pylint ${{ inputs.directory_to_lint }}
+                  pylint .
               working-directory: ${{ inputs.working_directory }}

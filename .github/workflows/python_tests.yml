@@ -14,6 +14,11 @@ on:
         description: Path to the requirements.txt file
         type: string
         required: true
+      packages_path:
+        description: Path to the packages.txt file
+        type: string
+        required: false
+
 
       use_tox:
         description: Use tox suite
@@ -42,25 +47,26 @@ jobs:
             - uses: actions/checkout@v3
 
             - name: Set up Python
-              uses: actions/setup-python@v3
+              uses: actions/setup-python@v4
               with:
                 python-version: ${{ matrix.python_version }}
 
-            - name: Cache venv
-              id: cache_venv
-              uses: actions/cache@v3
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
               with:
-                path: venv
-                key: pip-${{ matrix.python_version }}-${{ hashFiles(inputs.requirements_path) }}
+                requirement_files: ${{ inputs.requirements_path }}
 
-            - name: Install dependencies
-              if: steps.cache_venv.outputs.cache-hit != 'true'
+            - uses: syphar/restore-pip-download-cache@v1
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - run: pip install -r ${{ inputs.requirements_path }}
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - name: Install apt packages
+              if: ${{ inputs.packages_path }}
               run: |
-                if [ -d "venv" ]; then rm -rf venv; fi
-                python3 -m venv venv
-                source venv/bin/activate
-                pip install --upgrade pip
-                pip install -r ${{ inputs.requirements_path }}
+                sudo apt update
+                cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
