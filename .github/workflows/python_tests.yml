@@ -97,7 +97,7 @@ jobs:
               run: |
                 CLI=docker-compose
                 if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
-                  CLI=${{ CLI }} -f postgres.yml
+                  CLI=$CLI -f postgres.yml
                 fi
                 # add other containers here
                 echo "Running: $CLI up -d"
