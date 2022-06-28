@@ -40,5 +40,7 @@ jobs:
       use_tox: true
       use_pytest: true
       use_unittest: true
+      custom_commands: >-
+        ["whoami", "ls"]
       python_versions: >-
         ["3.10", "3.9", "3.8"]

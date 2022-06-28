@@ -20,6 +20,10 @@ on:
         required: false
 
 
+      custom_commands:
+        description: Array of custom commands to run
+        type: string
+        required: false
       use_tox:
         description: Use tox suite
         default: false
@@ -67,6 +71,15 @@ jobs:
               run: |
                 sudo apt update
                 cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
+
+            - name: Custom commands
+              if: ${{ inputs.custom_commands }}
+              run: |
+                for command in ${{ fromJson(inputs.custom_commands) }}
+                do
+                  echo "Running command: $command"
+                  $command
+                done
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
