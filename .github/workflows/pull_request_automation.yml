@@ -40,7 +40,7 @@ jobs:
 
       use_postgres: true
       use_memcached: true
-      use_elasticsearch: true
+      use_elastic_search: true
 
       use_tox: true
       use_pytest: true

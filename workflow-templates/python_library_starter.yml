@@ -42,7 +42,10 @@ jobs:
 
       custom_command: whoami; ls -la
 
-      use_postgres: true
+      use_postgres: false
+      use_memcached: false
+      use_elastic_search: false
+
 
       use_tox: true
       use_pytest: false
