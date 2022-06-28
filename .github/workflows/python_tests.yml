@@ -75,9 +75,10 @@ jobs:
             - name: Custom command
               if: ${{ inputs.custom_command }}
               run: |
-                  COMMAND =${{ inputs.custom_command }}
+                  COMMAND=${{ inputs.custom_command }}
                   echo "Running command: $COMMAND"
                   $COMMAND
+              shell: bash
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
