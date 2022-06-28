@@ -52,7 +52,7 @@ jobs:
             # not the best solution because i do not think that dependabot supports this
             - name: Write requirements to file for caching
               run: |
-                echo > ${ {env.LINTER_REQUIREMENTS_PATH }}
+                echo > ${{ env.LINTER_REQUIREMENTS_PATH }}
                 if [[ ${{ inputs.use_black}} ]]; then
                   echo "black==22.3.0" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
                 fi
