@@ -57,10 +57,12 @@ jobs:
       working_directory: test/python_test
       requirements_path: test/python_test/requirements.txt
       packages_path: test/python_test/packages.txt
+      django_settings_module: python_test.settings
+      check_migrations: true
 
       use_postgres: true
-      use_memcached: true
-      use_elastic_search: true
+      use_memcached: false
+      use_elastic_search: false
 
       use_tox: true
       use_pytest: true
