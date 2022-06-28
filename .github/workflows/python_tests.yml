@@ -243,7 +243,7 @@ jobs:
               run: |
                 echo "Checking migrations"
                 echo "django_settings_module = $DJANGO_SETTINGS_MODULE"
-                echo "pythonpath = $PYTHONPATH
+                echo "pythonpath = $PYTHONPATH"
                 django-admin makemigrations --dry-run >/dev/null
               working-directory: ${{ inputs.working_directory }}
               env:
