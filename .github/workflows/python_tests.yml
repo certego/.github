@@ -96,7 +96,7 @@ jobs:
                 bash
 
             - name: Create elasticsearch docker-compose file
-              if: ${{ inputs.use_elasticsearch }}
+              if: ${{ inputs.use_elastic_search }}
               run: |
                 echo "version: '3.7'" > elasticsearch.yml
                 echo "services:" >> elasticsearch.yml
