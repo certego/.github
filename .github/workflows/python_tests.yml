@@ -75,7 +75,7 @@ jobs:
             - name: Custom commands
               if: ${{ inputs.custom_commands }}
               run: |
-                for command in ${{ fromJson(inputs.custom_commands) }}
+                for command in ${{ inputs.custom_commands }}
                 do
                   echo "Running command: $command"
                   $command

@@ -41,6 +41,6 @@ jobs:
       use_pytest: true
       use_unittest: true
       custom_commands: >-
-        ["whoami", "ls"]
+        ["whoami", "ls -a"]
       python_versions: >-
         ["3.10", "3.9", "3.8"]
