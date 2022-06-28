@@ -20,8 +20,8 @@ on:
         required: false
 
 
-      custom_commands:
-        description: Array of custom commands to run
+      custom_command:
+        description: String of custom command to run
         type: string
         required: false
       use_tox:
@@ -72,16 +72,12 @@ jobs:
                 sudo apt update
                 cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
 
-            - name: Custom commands
-              if: ${{ inputs.custom_commands }}
+            - name: Custom command
+              if: ${{ inputs.custom_command }}
               run: |
-                COMMANDS=${{ fromJson(inputs.custom_commands) }}
-                echo $COMMANDS
-                for command in $COMMANDS;
-                do
-                  echo "Running command: $command"
-                  $command
-                done
+                  COMMAND =${{ inputs.custom_command }}
+                  echo "Running command: $COMMAND"
+                  $COMMAND
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}

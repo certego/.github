@@ -40,5 +40,6 @@ jobs:
       use_tox: true
       use_pytest: false
       use_unittest: false
+      custom_command: whoami; ls -la
       python_versions: >-
         ["3.10", "3.9", "3.8"]
