@@ -119,8 +119,8 @@ jobs:
                 echo "  elastic_search:" >> elastic_search.yml
                 echo "    image: elastic_search:7.10.1" >> elastic_search.yml
                 echo "    environment:" >> elastic_search.yml
-                echo "      - ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elastic_search.yml
-                echo "      - discovery.type: single-node" >> elastic_search.yml
+                echo "      ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elastic_search.yml
+                echo "      discovery.type: single-node" >> elastic_search.yml
                 echo "    ports:" >> elastic_search.yml
                 echo "      - 59200:9200" >> elastic_search.yml
                 echo "    user: elastic_search" >> elastic_search.yml
