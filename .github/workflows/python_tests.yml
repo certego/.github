@@ -24,6 +24,15 @@ on:
         description: String of custom command to run
         type: string
         required: false
+
+
+      use_postgres:
+        description: Use postgres
+        default: false
+        type: boolean
+        required: false
+
+
       use_tox:
         description: Use tox suite
         default: false
@@ -66,6 +75,36 @@ jobs:
               uses: actions/setup-python@v4
               with:
                 python-version: ${{ matrix.python_version }}
+
+            - name: Create postgres docker-compose file
+              if: ${{ inputs.use_postgres }}
+              run: |
+                echo "version: '3.7'" > postgres.yml
+                echo "services:" >> postgres.yml
+                echo "  postgres:" >> postgres.yml
+                echo "    image: library/postgres:10.14-alpine" >> postgres.yml
+                echo "    environment:" >> postgres.yml
+                echo "      POSTGRES_DB: db" >> postgres.yml
+                echo "      POSTGRES_USER: user" >> postgres.yml
+                echo "      POSTGRES_PASSWORD: password" >> postgres.yml
+                echo "    ports:" >> postgres.yml
+                echo "      - 5432:5432" >> postgres.yml
+              shell:
+                bash
+
+            - name: Execute docker-compose up
+              if: ${{ inputs.use_postgres }}
+              run: |
+                CLI=docker-compose
+                if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
+                  CLI=${{ CLI }} -f postgres.yml
+                fi
+                # add other containers here
+                echo "Running: $CLI up -d"
+                $CLI up --build -d
+              shell:
+                bash
+
 
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
