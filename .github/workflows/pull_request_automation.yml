@@ -37,6 +37,7 @@ jobs:
       working_directory: test/python_test
       requirements_path: test/python_test/requirements.txt
       packages_path: test/python_test/packages.txt
+      use_postgres: true
       use_tox: true
       use_pytest: true
       use_unittest: true
