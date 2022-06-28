@@ -85,6 +85,12 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
+            - name: Install apt packages
+              if: ${{ inputs.packages_path }}
+              run: |
+                sudo apt update
+                cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
+
             - name: Set up Python
               uses: actions/setup-python@v4
               with:
@@ -166,22 +172,33 @@ jobs:
                 bash
 
 
+            - name: Create dev-requirements.txt
+              run: |
+                echo > dev-requirements.txt
+                if [[ ${{ inputs.use_tox }} != 'false' ]]; then
+                  echo "tox>=3.0.0" >> dev-requirements.txt
+                fi
+                if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
+                  echo "pytest>=7.0.0" >> dev-requirements.txt
+                fi
+              shell: bash
+
+
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
               with:
-                requirement_files: ${{ inputs.requirements_path }}
+                requirement_files: |
+                  ${{ inputs.requirements_path }}
+                  dev-requirements.txt
 
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-            - run: pip install -r ${{ inputs.requirements_path }}
+            - run: |
+                pip install -r ${{ inputs.requirements_path }}
+                pip install -r dev-requirements.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-            - name: Install apt packages
-              if: ${{ inputs.packages_path }}
-              run: |
-                sudo apt update
-                cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
 
             - name: Custom command
               if: ${{ inputs.custom_command }}
@@ -191,16 +208,19 @@ jobs:
                   $COMMAND
               shell: bash
 
+
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
               run: |
                 tox
               working-directory: ${{ inputs.working_directory }}
+
             - name: Run unittest
               if: ${{ inputs.use_unittest }}
               run: |
                 python -m unittest discover
               working-directory: ${{ inputs.working_directory }}
+
             - name: Run pytest
               if: ${{ inputs.use_pytest }}
               run: |
