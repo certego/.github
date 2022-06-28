@@ -24,6 +24,24 @@ on:
         description: String of custom command to run
         type: string
         required: false
+
+
+      use_postgres:
+        description: Use postgres service
+        default: false
+        type: boolean
+        required: false
+      use_elastic_search:
+        description: Use elastic_search service
+        default: false
+        type: boolean
+        required: false
+      use_memcached:
+        description: Use memcached service
+        default: false
+        type: boolean
+        required: false
+
       use_tox:
         description: Use tox suite
         default: false
@@ -40,6 +58,22 @@ on:
         type: boolean
         required: false
 
+      postgres_db:
+        description: Postgres service db. Requires use_postgres to be true
+        type: string
+        required: false
+        default: db
+      postgres_user:
+        description: Postgres service user. Requires use_postgres to be true
+        type: string
+        required: false
+        default: user
+      postgres_password:
+        description: Postgres service password. Requires use_postgres to be true
+        type: string
+        required: false
+        default: password
+
 jobs:
     tests:
         name: Run python tests
@@ -55,6 +89,82 @@ jobs:
               uses: actions/setup-python@v4
               with:
                 python-version: ${{ matrix.python_version }}
+
+            - name: Create postgres docker-compose file
+              if: ${{ inputs.use_postgres }}
+              run: |
+                echo "version: '3.7'" > postgres.yml
+                echo "services:" >> postgres.yml
+                echo "  postgres:" >> postgres.yml
+                echo "    image: library/postgres:10.14-alpine" >> postgres.yml
+                echo "    environment:" >> postgres.yml
+                echo "      POSTGRES_DB: ${{ inputs.postgres_db }}" >> postgres.yml
+                echo "      POSTGRES_USER: ${{ inputs.postgres_user }}" >> postgres.yml
+                echo "      POSTGRES_PASSWORD: ${{ inputs.postgres_password }}" >> postgres.yml
+                echo "    ports:" >> postgres.yml
+                echo "      - 5432:5432" >> postgres.yml
+                echo "    healthcheck:" >> postgres.yml
+                echo "      test: pg_isready" >> postgres.yml
+                echo "      interval: 10s" >> postgres.yml
+                echo "      timeout: 5s" >> postgres.yml
+                echo "      retries: 5" >> postgres.yml
+              shell:
+                bash
+
+            - name: Create elasticsearch docker-compose file
+              if: ${{ inputs.use_elastic_search }}
+              run: |
+                echo "version: '3.7'" > elastic_search.yml
+                echo "services:" >> elastic_search.yml
+                echo "  elastic_search:" >> elastic_search.yml
+                echo "    image: elasticsearch:7.10.1" >> elastic_search.yml
+                echo "    environment:" >> elastic_search.yml
+                echo "      ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elastic_search.yml
+                echo "      discovery.type: single-node" >> elastic_search.yml
+                echo "    ports:" >> elastic_search.yml
+                echo "      - 59200:9200" >> elastic_search.yml
+                echo "    healthcheck:" >> elastic_search.yml
+                echo "      test: curl -X GET 'localhost:9200/_cluster/health?wait_for_status=yellow&timeout=180s&pretty'" >> elastic_search.yml
+                echo "      interval: 10s" >> elastic_search.yml
+                echo "      timeout: 180s" >> elastic_search.yml
+                echo "      retries: 5" >> elastic_search.yml
+              shell:
+                bash
+
+            - name: Create memcached docker-compose file
+              if: ${{ inputs.use_memcached }}
+              run: |
+                echo "version: '3.7'" > memcached.yml
+                echo "services:" >> memcached.yml
+                echo "  memcached:" >> memcached.yml
+                echo "    image: memcached:1.6.9-alpine" >> memcached.yml
+                echo "    ports:" >> memcached.yml
+                echo "      - 11211:11211" >> memcached.yml
+              shell:
+                bash
+
+
+            - name: Execute docker-compose up
+              if: ${{ inputs.use_postgres }} || ${{ inputs.use_elastic_search }} || ${{ inputs.use_memcached }}
+              run: |
+                CLI=docker-compose
+                if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
+                  CLI="${CLI} -f postgres.yml"
+                fi
+                if [[ ${{ inputs.use_elastic_search }} != 'false' ]]; then
+                  CLI="${CLI} -f elastic_search.yml"
+                fi
+                if [[ ${{ inputs.use_memcached }} != 'false' ]]; then
+                  CLI="${CLI} -f memcached.yml"
+                fi
+
+                # add other containers here
+                echo "Running: ${CLI} up -d"
+                $CLI up -d
+                $CLI ps
+              shell:
+                bash
+
 
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
