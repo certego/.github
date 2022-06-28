@@ -88,7 +88,7 @@ jobs:
                 echo "    ports:" >> postgres.yml
                 echo "      - 5432:5432" >> postgres.yml
                 echo "    healthcheck:" >> postgres.yml
-                echo "      test: pg_isready >> postgres.yml
+                echo "      test: pg_isready" >> postgres.yml
                 echo "      interval: 10s" >> postgres.yml
                 echo "      timeout: 5s" >> postgres.yml
                 echo "      retries: 5" >> postgres.yml
@@ -103,8 +103,8 @@ jobs:
                 echo "  elasticsearch:" >> elasticsearch.yml
                 echo "    image: elasticsearch:7.10.1" >> elasticsearch.yml
                 echo "    environment:" >> elasticsearch.yml
-                echo "      - ES_JAVA_OPTS: -Xms1g -Xmx1g >> elasticsearch.yml
-                echo "      - discovery.type: single-node >> elasticsearch.yml
+                echo "      - ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elasticsearch.yml
+                echo "      - discovery.type: single-node" >> elasticsearch.yml
                 echo "    ports:" >> elasticsearch.yml
                 echo "      - 59200:9200" >> elasticsearch.yml
                 echo "    user: elasticsearch" >> elasticsearch.yml
@@ -124,7 +124,7 @@ jobs:
                 echo "  memcached:" >> memcached.yml
                 echo "    image: memcached:1.6.9-alpine" >> memcached.yml
                 echo "    ports:" >> memcached.yml
-                echo "      - "11211:11211"" >> memcached.yml
+                echo "      - 11211:11211" >> memcached.yml
               shell:
                 bash
 
