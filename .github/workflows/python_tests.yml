@@ -194,7 +194,9 @@ jobs:
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-            - run: pip install -r ${{ inputs.requirements_path }}
+            - run: |
+                pip install -r ${{ inputs.requirements_path }}
+                pip install -r dev-requirements.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
 
