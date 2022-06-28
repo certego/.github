@@ -22,7 +22,7 @@ concurrency:
 jobs:
 
   node_linters:
-    uses: ./github/workflows/node_linter.yml
+    uses: ./.github/workflows/node_linter.yml
     with:
       working_directory: test/node_test
       use_eslint: true
@@ -32,7 +32,7 @@ jobs:
         ["16"]
 
   node_tests:
-    uses: ./github/workflows/node_linter.yml
+    uses: ./.github/workflows/node_tests.yml
     with:
       working_directory: test/node_test
       use_jest: true
