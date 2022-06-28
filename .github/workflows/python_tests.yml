@@ -27,11 +27,20 @@ on:
 
 
       use_postgres:
-        description: Use postgres
+        description: Use postgres service
         default: false
         type: boolean
         required: false
-
+      use_elastic_search:
+        description: Use elastic_search service
+        default: false
+        type: boolean
+        required: false
+      use_memcached:
+        description: Use memcached service
+        default: false
+        type: boolean
+        required: false
 
       use_tox:
         description: Use tox suite
@@ -78,19 +87,66 @@ jobs:
                 echo "      POSTGRES_PASSWORD: password" >> postgres.yml
                 echo "    ports:" >> postgres.yml
                 echo "      - 5432:5432" >> postgres.yml
+                echo "    healthcheck:" >> postgres.yml
+                echo "      test: pg_isready >> postgres.yml
+                echo "      interval: 10s" >> postgres.yml
+                echo "      timeout: 5s" >> postgres.yml
+                echo "      retries: 5" >> postgres.yml
               shell:
                 bash
 
+            - name: Create elasticsearch docker-compose file
+              if: ${{ inputs.use_elasticsearch }}
+              run: |
+                echo "version: '3.7'" > elasticsearch.yml
+                echo "services:" >> elasticsearch.yml
+                echo "  elasticsearch:" >> elasticsearch.yml
+                echo "    image: elasticsearch:7.10.1" >> elasticsearch.yml
+                echo "    environment:" >> elasticsearch.yml
+                echo "      - ES_JAVA_OPTS: -Xms1g -Xmx1g >> elasticsearch.yml
+                echo "      - discovery.type: single-node >> elasticsearch.yml
+                echo "    ports:" >> elasticsearch.yml
+                echo "      - 59200:9200" >> elasticsearch.yml
+                echo "    user: elasticsearch" >> elasticsearch.yml
+                echo "    healthcheck:" >> elasticsearch.yml
+                echo "      test: curl -X GET 'localhost:9200/_cluster/health?wait_for_status=yellow&timeout=180s&pretty >> elasticsearch.yml
+                echo "      interval: 10s" >> elasticsearch.yml
+                echo "      timeout: 180s" >> elasticsearch.yml
+                echo "      retries: 5" >> elasticsearch.yml
+              shell:
+                bash
+
+            - name: Create memcached docker-compose file
+              if: ${{ inputs.use_memcached }}
+              run: |
+                echo "version: '3.7'" > memcached.yml
+                echo "services:" >> memcached.yml
+                echo "  memcached:" >> memcached.yml
+                echo "    image: memcached:1.6.9-alpine" >> memcached.yml
+                echo "    ports:" >> memcached.yml
+                echo "      - "11211:11211"" >> memcached.yml
+              shell:
+                bash
+
+
             - name: Execute docker-compose up
-              if: ${{ inputs.use_postgres }}
+              if: ${{ inputs.use_postgres }} || ${{ inputs.use_elastic_search }} || ${{ inputs.use_memcached }}
               run: |
                 CLI=docker-compose
                 if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
                   CLI="${CLI} -f postgres.yml"
                 fi
+                if [[ ${{ inputs.use_elastic_search }} != 'false' ]]; then
+                  CLI="${CLI} -f elastic_search.yml"
+                fi
+                if [[ ${{ inputs.use_memcached }} != 'false' ]]; then
+                  CLI="${CLI} -f memcached.yml"
+                fi
+
                 # add other containers here
                 echo "Running: ${CLI} up -d"
                 $CLI up --build -d
+                docker-compose ps
               shell:
                 bash
 
