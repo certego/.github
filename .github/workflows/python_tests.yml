@@ -58,6 +58,22 @@ on:
         type: boolean
         required: false
 
+      postgres_db:
+        description: Postgres service db. Requires use_postgres to be true
+        type: string
+        required: false
+        default: db
+      postgres_user:
+        description: Postgres service user. Requires use_postgres to be true
+        type: string
+        required: false
+        default: user
+      postgres_password:
+        description: Postgres service password. Requires use_postgres to be true
+        type: string
+        required: false
+        default: password
+
 jobs:
     tests:
         name: Run python tests
@@ -82,9 +98,9 @@ jobs:
                 echo "  postgres:" >> postgres.yml
                 echo "    image: library/postgres:10.14-alpine" >> postgres.yml
                 echo "    environment:" >> postgres.yml
-                echo "      POSTGRES_DB: db" >> postgres.yml
-                echo "      POSTGRES_USER: user" >> postgres.yml
-                echo "      POSTGRES_PASSWORD: password" >> postgres.yml
+                echo "      POSTGRES_DB: ${{ inputs.postgres_db }}" >> postgres.yml
+                echo "      POSTGRES_USER: ${{ inputs.postgres_user }}" >> postgres.yml
+                echo "      POSTGRES_PASSWORD: ${{ inputs.postgres_password }}" >> postgres.yml
                 echo "    ports:" >> postgres.yml
                 echo "      - 5432:5432" >> postgres.yml
                 echo "    healthcheck:" >> postgres.yml
@@ -109,7 +125,7 @@ jobs:
                 echo "      - 59200:9200" >> elastic_search.yml
                 echo "    user: elastic_search" >> elastic_search.yml
                 echo "    healthcheck:" >> elastic_search.yml
-                echo "      test: curl -X GET 'localhost:9200/_cluster/health?wait_for_status=yellow&timeout=180s&pretty >> elastic_search.yml
+                echo "      test: curl -X GET 'localhost:9200/_cluster/health?wait_for_status=yellow&timeout=180s&pretty'" >> elastic_search.yml
                 echo "      interval: 10s" >> elastic_search.yml
                 echo "      timeout: 180s" >> elastic_search.yml
                 echo "      retries: 5" >> elastic_search.yml
