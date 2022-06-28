@@ -36,6 +36,11 @@ on:
         default: true
         type: boolean
         required: false
+      bandit_config_file:
+        description: Path to the bandit config file from the working dir
+        type: string
+        required: false
+        default: .bandit.yaml
 
 jobs:
     linters:
@@ -114,5 +119,5 @@ jobs:
             - name: bandit
               if: ${{ inputs.use_bandit }}
               run: |
-                  bandit */ -r
+                  bandit */ -r -c ${{ inputs.bandit_config_file }}
               working-directory: ${{ inputs.working_directory }}
