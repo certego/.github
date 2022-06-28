@@ -160,8 +160,8 @@ jobs:
 
                 # add other containers here
                 echo "Running: ${CLI} up -d"
-                $CLI up --build -d
-                docker-compose ps
+                $CLI up -d
+                $CLI ps
               shell:
                 bash
 
