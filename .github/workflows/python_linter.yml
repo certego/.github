@@ -31,6 +31,16 @@ on:
         default: true
         type: boolean
         required: false
+      use_bandit:
+        description: Use bandit linter
+        default: true
+        type: boolean
+        required: false
+      bandit_config_file:
+        description: Path to the bandit config file from the working dir
+        type: string
+        required: false
+        default: .bandit.yaml
 
 jobs:
     linters:
@@ -47,10 +57,23 @@ jobs:
             # not the best solution because i do not think that dependabot supports this
             - name: Write requirements to file for caching
               run: |
-                echo "black==22.3.0" > ${{ env.LINTER_REQUIREMENTS_PATH }}
-                echo "isort==5.10.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
-                echo "flake8==4.0.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
-                echo "pylint==2.14.3" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                echo > ${{ env.LINTER_REQUIREMENTS_PATH }}
+                if [[ ${{ inputs.use_black}} ]]; then
+                  echo "black==22.3.0" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                fi
+                if [[ ${{ inputs.use_isort}} ]]; then
+                  echo "isort==5.10.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                fi
+                if [[ ${{ inputs.use_flake8}} ]]; then
+                  echo "flake8==4.0.1" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                fi
+                if [[ ${{ inputs.use_pylint}} ]]; then
+                  echo "pylint==2.14.3" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                fi
+                if [[ ${{ inputs.use_bandit}} ]]; then
+                  echo "bandit==1.7.4" >> ${{ env.LINTER_REQUIREMENTS_PATH }}
+                fi
+
 
             - name: Set up Python
               uses: actions/setup-python@v4
@@ -92,3 +115,11 @@ jobs:
               run: |
                   pylint .
               working-directory: ${{ inputs.working_directory }}
+
+            - name: bandit
+              if: ${{ inputs.use_bandit }}
+              run: |
+                  bandit . -r -c ${{ inputs.bandit_config_file }}
+              working-directory: ${{ inputs.working_directory }}
+              shell:
+                bash
