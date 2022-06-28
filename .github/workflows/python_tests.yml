@@ -248,7 +248,7 @@ jobs:
               working-directory: ${{ inputs.working_directory }}
               env:
                 DJANGO_SETTINGS_MODULE: ${{ inputs.django_settings_module }}
-                PYTHONPATH: $GITHUB_WORKSPACE/${{ inputs.working_directory }}:$PYTHONPATH
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
