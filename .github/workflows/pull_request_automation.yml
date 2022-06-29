@@ -67,6 +67,7 @@ jobs:
       use_tox: true
       use_pytest: true
       use_unittest: true
+      use_coverage: true
       custom_command: whoami; ls -la
       python_versions: >-
         ["3.9"]

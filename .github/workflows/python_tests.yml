@@ -273,9 +273,10 @@ jobs:
               if: ${{ inputs.use_tox }}
               run: |
                 CMD="tox"
-                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-                  CMD="$CMD --cov"
-                echo "Running command: $CMD"
+                if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+                  CMD="${CMD} --cov"
+                fi
+                echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
@@ -285,11 +286,11 @@ jobs:
               if: ${{ inputs.use_unittest }}
               run: |
                 CMD="python"
-                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
                     CMD="coverage run"
                 fi
-                CMD="$CMD -m unittest discover"
-                echo "Running command: $CMD"
+                CMD="${CMD} -m unittest discover"
+                echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
@@ -298,15 +299,15 @@ jobs:
             - name: Run pytest
               if: ${{ inputs.use_pytest }}
               run: |
-                  if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                  if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
                     CMD=py.test --l --colore=yes --cov --no-cov-on-fail --durations=15
                     if [[ -z ${{ inputs.django_settings_module }} ]]; then
-                      CMD="$CMD --ds=$DJANGO_SETTINGS_MODULE"
+                      CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                     fi
                   else
                     CMD="python -m pytest"
                   fi
-                  echo "Running command: $CMD"
+                  echo "Running command: ${CMD}"
                   $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
