@@ -58,11 +58,6 @@ on:
         required: false
 
 
-      use_tox:
-        description: Use tox suite
-        default: false
-        type: boolean
-        required: false
       use_unittest:
         description: Use unittest suite
         default: false
@@ -75,7 +70,7 @@ on:
         required: false
 
       use_coverage:
-        description: Use coverage.py. Require pytest or  unittest or tox to be set.
+        description: Use coverage.py. Require pytest or  unittest to be set.
         default: false
         type: boolean
         required: false
@@ -212,9 +207,6 @@ jobs:
             - name: Create dev-requirements.txt
               run: |
                 echo > dev-requirements.txt
-                if [[ ${{ inputs.use_tox }} != 'false' ]]; then
-                  echo "tox>=3.0.0" >> dev-requirements.txt
-                fi
                 if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
                   echo "pytest>=7.0.0" >> dev-requirements.txt
                   if [[ -z ${{ inputs.django_settings_module }} ]]; then
@@ -265,19 +257,6 @@ jobs:
                 echo "django_settings_module = $DJANGO_SETTINGS_MODULE"
                 echo "pythonpath = $PYTHONPATH"
                 django-admin makemigrations --dry-run >/dev/null
-              working-directory: ${{ inputs.working_directory }}
-              env:
-                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
-
-            - name: Run tox tests
-              if: ${{ inputs.use_tox }}
-              run: |
-                CMD="tox"
-                if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                  CMD="${CMD} --cov"
-                fi
-                echo "Running command: ${CMD}"
-                $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
