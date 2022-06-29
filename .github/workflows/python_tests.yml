@@ -74,6 +74,13 @@ on:
         type: boolean
         required: false
 
+      use_coverage:
+        description: Use coverage.py. Require pytest or  unittest or tox to be set.
+        default: false
+        type: boolean
+        required: false
+
+
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
         type: string
@@ -210,6 +217,15 @@ jobs:
                 fi
                 if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
                   echo "pytest>=7.0.0" >> dev-requirements.txt
+                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                    echo "pytest-django>=4.5.2" >> dev-requirements.txt
+                  fi
+                fi
+                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                  echo "coverage>=6.4.1" >> dev-requirements.txt
+                  if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
+                    echo "pytest-cov>=3.0.0" >> dev-requirements.txt
+                  fi
                 fi
               shell: bash
 
@@ -229,6 +245,10 @@ jobs:
                 pip install -r dev-requirements.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
+            - name: Inject django settings module to environ
+              if: ${{ inputs.django_settings_module }}
+              run: |
+                echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
 
             - name: Custom command
               if: ${{ inputs.custom_command }}
@@ -247,24 +267,48 @@ jobs:
                 django-admin makemigrations --dry-run >/dev/null
               working-directory: ${{ inputs.working_directory }}
               env:
-                DJANGO_SETTINGS_MODULE: ${{ inputs.django_settings_module }}
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run tox tests
               if: ${{ inputs.use_tox }}
               run: |
-                tox
+                CMD="tox"
+                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                  CMD="$CMD --cov"
+                echo "Running command: $CMD"
+                $CMD
               working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run unittest
               if: ${{ inputs.use_unittest }}
               run: |
-                python -m unittest discover
+                CMD="python"
+                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                    CMD="coverage run"
+                fi
+                CMD="$CMD -m unittest discover"
+                echo "Running command: $CMD"
+                $CMD
               working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run pytest
               if: ${{ inputs.use_pytest }}
               run: |
-                  python -m pytest
+                  if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                    CMD=py.test --l --colore=yes --cov --no-cov-on-fail --durations=15
+                    if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                      CMD="$CMD --ds=$DJANGO_SETTINGS_MODULE"
+                    fi
+                  else
+                    CMD="python -m pytest"
+                  fi
+                  echo "Running command: $CMD"
+                  $CMD
               working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
