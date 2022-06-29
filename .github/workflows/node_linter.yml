@@ -30,6 +30,7 @@ on:
 
 jobs:
     linters:
+        name: Run node.js linters
         runs-on: ubuntu-latest
         strategy:
           matrix:

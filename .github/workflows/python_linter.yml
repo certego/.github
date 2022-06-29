@@ -44,6 +44,7 @@ on:
 
 jobs:
     linters:
+        name: Run python linters
         timeout-minutes: 5
         runs-on: ubuntu-latest
         strategy:
