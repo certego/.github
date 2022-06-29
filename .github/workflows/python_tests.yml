@@ -279,7 +279,7 @@ jobs:
               if: ${{ inputs.use_pytest }}
               run: |
                   if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                    CMD=py.test --l --colore=yes --cov --no-cov-on-fail --durations=15
+                    CMD="py.test --l --colore=yes --cov --no-cov-on-fail --durations=15"
                     if [[ -z ${{ inputs.django_settings_module }} ]]; then
                       CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                     fi
