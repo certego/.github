@@ -315,6 +315,7 @@ jobs:
 
             - name: Create coverage output
               if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              id: coverage-output
               run: |
                 echo ::set-output name=coverage_content::=$(docker exec quokka_uwsgi coverage report -m | awk '{print $1,  $6}' | awk '{printf "%s<br />", $0}' )
 
@@ -333,5 +334,5 @@ jobs:
               with:
                 comment-id: ${{ steps.fc.outputs.comment-id }}
                 issue-number: ${{ github.event.pull_request.number }}
-                body: ${{ steps.get-comment-body.outputs.body }}
+                body: ${{ steps.coverage-output.outputs.coverage_content }}
                 edit-mode: replace
