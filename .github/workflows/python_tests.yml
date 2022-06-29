@@ -56,6 +56,11 @@ on:
         default: false
         type: boolean
         required: false
+      use_rabbitmq:
+        description: Use rabbitmq service
+        default: false
+        type: boolean
+        required: false
 
 
       use_unittest:
@@ -183,8 +188,20 @@ jobs:
               shell:
                 bash
 
+            - name: Create rabbitmq docker-compose file
+              if: ${{ inputs.use_rabbitmq }}
+              run: |
+                echo "version: '3.7'" > rabbitmq.yml
+                echo "services:" >> rabbitmq.yml
+                echo "  rabbitmq:" >> rabbitmq.yml
+                echo "    image: library/rabbitmq:3.9-management-alpine" >> rabbitmq.yml
+                echo "    ports:" >> rabbitmq.yml
+                echo "      - 15672:15672" >> rabbitmq.yml
+              shell:
+                bash
+
             - name: Execute docker-compose up
-              if: ${{ inputs.use_postgres }} || ${{ inputs.use_elastic_search }} || ${{ inputs.use_memcached }} ||  ${{ inputs.use_redis }}
+              if: ${{ inputs.use_postgres }} || ${{ inputs.use_elastic_search }} || ${{ inputs.use_memcached }} ||  ${{ inputs.use_redis }} || ${{ inputs.use_rabbitmq }}
               run: |
                 CLI=docker-compose
                 if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
@@ -198,6 +215,9 @@ jobs:
                 fi
                 if [[ ${{ inputs.use_redis }} != 'false' ]]; then
                   CLI="${CLI} -f redis.yml"
+                fi
+                if [[ ${{ inputs.use_rabbitmq }} != 'false' ]]; then
+                  CLI="${CLI} -f rabbitmq.yml"
                 fi
 
                 # add other containers here

@@ -63,6 +63,7 @@ jobs:
       use_postgres: true
       use_memcached: false
       use_elastic_search: false
+      use_rabbitmq: true
 
       use_pytest: true
       use_unittest: true
