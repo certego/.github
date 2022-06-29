@@ -261,10 +261,6 @@ jobs:
                 pip install -r dev-requirements.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
-            - name: Inject pythonpath
-              run: |
-                echo "${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH" >> $GITHUB_ENV
-
             - name: Inject django settings module to environ
               if: ${{ inputs.django_settings_module }}
               run: |
@@ -283,6 +279,8 @@ jobs:
               run: |
                 django-admin makemigrations --dry-run >/dev/null
               working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run unittest
               if: ${{ inputs.use_unittest }}
@@ -295,6 +293,8 @@ jobs:
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run pytest
               if: ${{ inputs.use_pytest }}
@@ -310,6 +310,8 @@ jobs:
                   echo "Running command: ${CMD}"
                   $CMD
               working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Create coverage output
               if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
@@ -318,6 +320,9 @@ jobs:
                 echo "Creating coverage output"
                 echo "$(coverage report -m)"
                 echo ::set-output name=coverage_content::=$(coverage report -m | awk '{print $1,  $6}' | awk '{printf "%s<br />", $0}' )
+              working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Find Comment
               uses: peter-evans/find-comment@v2
