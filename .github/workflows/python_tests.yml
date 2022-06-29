@@ -275,11 +275,8 @@ jobs:
               shell: bash
 
             - name: Check migrations
-              if : ${{ inputs.check_migrations }}
+              if : ${{ inputs.check_migrations }} && ${{ inputs.django_settings_module }}
               run: |
-                echo "Checking migrations"
-                echo "django_settings_module = $DJANGO_SETTINGS_MODULE"
-                echo "pythonpath = $PYTHONPATH"
                 django-admin makemigrations --dry-run >/dev/null
               working-directory: ${{ inputs.working_directory }}
               env:
@@ -316,3 +313,31 @@ jobs:
               env:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
+            - name: Create coverage output
+              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              id: coverage-output
+              run: |
+                echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+              working-directory: ${{ inputs.working_directory }}
+              env:
+                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
+
+            - name: Find Comment
+              uses: peter-evans/find-comment@v2
+              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              id: fc
+              with:
+                issue-number: ${{ github.event.pull_request.number }}
+                comment-author: 'github-actions[bot]'
+                direction: first
+
+            - name: Create or update coverage to PR comment
+              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              uses: peter-evans/create-or-update-comment@v2
+              with:
+                comment-id: ${{ steps.fc.outputs.comment-id }}
+                issue-number: ${{ github.event.pull_request.number }}
+                body: |
+                  Coverage report:
+                  ${{ steps.coverage-output.outputs.coverage_content }}
+                edit-mode: replace
