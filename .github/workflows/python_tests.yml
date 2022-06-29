@@ -74,7 +74,11 @@ on:
         default: false
         type: boolean
         required: false
-
+      coverage_config_path:
+        description: Path to the coverage.py config file
+        type: string
+        required: false
+        default: .coveragerc
 
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
@@ -279,7 +283,7 @@ jobs:
               if: ${{ inputs.use_pytest }}
               run: |
                   if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                    CMD="py.test --l --color=yes --cov --no-cov-on-fail --durations=15"
+                    CMD="py.test --l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
                     if [[ -z ${{ inputs.django_settings_module }} ]]; then
                       CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                     fi
