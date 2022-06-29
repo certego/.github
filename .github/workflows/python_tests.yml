@@ -334,5 +334,7 @@ jobs:
               with:
                 comment-id: ${{ steps.fc.outputs.comment-id }}
                 issue-number: ${{ github.event.pull_request.number }}
-                body: ${{ steps.coverage-output.outputs.coverage_content }}
+                body: |
+                  Coverage report:
+                  ${{ steps.coverage-output.outputs.coverage_content }}
                 edit-mode: replace
