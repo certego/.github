@@ -314,7 +314,7 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Create coverage output
-              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ github.event_name }} == 'pull_request'
               id: coverage-output
               run: |
                 echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
@@ -324,7 +324,7 @@ jobs:
 
             - name: Find Comment
               uses: peter-evans/find-comment@v2
-              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ github.event_name }} == 'pull_request'
               id: fc
               with:
                 issue-number: ${{ github.event.pull_request.number }}
@@ -332,7 +332,7 @@ jobs:
                 direction: first
 
             - name: Create or update coverage to PR comment
-              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
+              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ github.event_name }} == 'pull_request'
               uses: peter-evans/create-or-update-comment@v2
               with:
                 comment-id: ${{ steps.fc.outputs.comment-id }}
