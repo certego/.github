@@ -1,12 +1,6 @@
 name: Ci
 
 on:
-  push:
-    branches:
-      - master
-      - main
-      - develop
-      - dev
   pull_request:
     branches:
       - master

@@ -113,7 +113,7 @@ jobs:
             - uses: actions/checkout@v3
 
             - name: Install apt packages
-              if: ${{ inputs.packages_path }}
+              if: inputs.packages_path
               run: |
                 sudo apt update
                 cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
@@ -124,7 +124,7 @@ jobs:
                 python-version: ${{ matrix.python_version }}
 
             - name: Create postgres docker-compose file
-              if: ${{ inputs.use_postgres }}
+              if: inputs.use_postgres
               run: |
                 echo "version: '3.7'" > postgres.yml
                 echo "services:" >> postgres.yml
@@ -145,7 +145,7 @@ jobs:
                 bash
 
             - name: Create elasticsearch docker-compose file
-              if: ${{ inputs.use_elastic_search }}
+              if: inputs.use_elastic_search
               run: |
                 echo "version: '3.7'" > elastic_search.yml
                 echo "services:" >> elastic_search.yml
@@ -165,7 +165,7 @@ jobs:
                 bash
 
             - name: Create memcached docker-compose file
-              if: ${{ inputs.use_memcached }}
+              if: inputs.use_memcached
               run: |
                 echo "version: '3.7'" > memcached.yml
                 echo "services:" >> memcached.yml
@@ -177,7 +177,7 @@ jobs:
                 bash
 
             - name: Create redis docker-compose file
-              if: ${{ inputs.use_redis }}
+              if: inputs.use_redis
               run: |
                 echo "version: '3.7'" > redis.yml
                 echo "services:" >> redis.yml
@@ -189,7 +189,7 @@ jobs:
                 bash
 
             - name: Create rabbitmq docker-compose file
-              if: ${{ inputs.use_rabbitmq }}
+              if: inputs.use_rabbitmq
               run: |
                 echo "version: '3.7'" > rabbitmq.yml
                 echo "services:" >> rabbitmq.yml
@@ -201,7 +201,7 @@ jobs:
                 bash
 
             - name: Execute docker-compose up
-              if: ${{ inputs.use_postgres }} || ${{ inputs.use_elastic_search }} || ${{ inputs.use_memcached }} ||  ${{ inputs.use_redis }} || ${{ inputs.use_rabbitmq }}
+              if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq
               run: |
                 CLI=docker-compose
                 if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
@@ -262,12 +262,12 @@ jobs:
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - name: Inject django settings module to environ
-              if: ${{ inputs.django_settings_module }}
+              if: inputs.django_settings_module
               run: |
                 echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
 
             - name: Custom command
-              if: ${{ inputs.custom_command }}
+              if: inputs.custom_command
               run: |
                   COMMAND=${{ inputs.custom_command }}
                   echo "Running command: $COMMAND"
@@ -275,7 +275,7 @@ jobs:
               shell: bash
 
             - name: Check migrations
-              if : ${{ inputs.check_migrations }} && ${{ inputs.django_settings_module }}
+              if : inputs.check_migrations && inputs.django_settings_module
               run: |
                 django-admin makemigrations --dry-run >/dev/null
               working-directory: ${{ inputs.working_directory }}
@@ -283,7 +283,7 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run unittest
-              if: ${{ inputs.use_unittest }}
+              if: inputs.use_unittest
               run: |
                 CMD="python"
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
@@ -297,7 +297,7 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run pytest
-              if: ${{ inputs.use_pytest }}
+              if: inputs.use_pytest
               run: |
                   if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
                     CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
@@ -314,7 +314,7 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Create coverage output
-              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ( ${{ github.event_name }} == 'pull_request' )
+              if: inputs.use_coverage && inputs.upload_coverage
               id: coverage-output
               run: |
                 echo "${{ github.event_name }}"
@@ -324,8 +324,8 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Find Comment
+              if: inputs.use_coverage && inputs.upload_coverage
               uses: peter-evans/find-comment@v2
-              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ( ${{ github.event_name }} == 'pull_request' )
               id: fc
               with:
                 issue-number: ${{ github.event.pull_request.number }}
@@ -333,7 +333,7 @@ jobs:
                 direction: first
 
             - name: Create or update coverage to PR comment
-              if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ( ${{ github.event_name }} == 'pull_request' )
+              if: inputs.use_coverage && inputs.upload_coverage
               uses: peter-evans/create-or-update-comment@v2
               with:
                 comment-id: ${{ steps.fc.outputs.comment-id }}
