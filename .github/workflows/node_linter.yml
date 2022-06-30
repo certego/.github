@@ -2,15 +2,11 @@ name: Reusable node linter workflow
 on:
   workflow_call:
     inputs:
-      package_lock_path:
-        description: Path to the package.lock file
-        type: string
-        required: true
       node_versions:
         description: Node versions to use
         type: string
         required: true
-      directory_to_lint:
+      working_directory:
         description: Directory that must be run against the linters
         type: string
         required: true
@@ -34,6 +30,7 @@ on:
 
 jobs:
     linters:
+        name: Run node.js linters
         runs-on: ubuntu-latest
         strategy:
           matrix:
@@ -41,40 +38,32 @@ jobs:
         steps:
           - uses: actions/checkout@v3
 
-          - name: Set up NodeJS
+          - name: Set up Node.js
             uses: actions/setup-node@v3
             with:
               node-version: ${{ matrix.node_version }}
-
-          - name: Cache node modules
-            uses: actions/cache@v3
-            with:
-              path: ~/.npm
-              key: npm-build-${{ hashFiles(input.package_lock_path) }}
-              restore-keys: |
-                npm-build-${{ hashFiles(input.package_lock_path) }}
-                npm-build-
-                npm
+              cache: 'npm'
+              cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
 
           - name: Install dependencies
             run: |
-              npm i --no-optional --no-audit --no-fund
+              npm ci
+            working-directory: ${{ inputs.working_directory }}
 
-            working-directory: ./frontend
           - name: Lint with eslint
             if: ${{ inputs.use_eslint }}
             run: |
               npm run lint
-            working-directory: ${{ inputs.directory_to_lint }}
+            working-directory: ${{ inputs.working_directory }}
 
           - name: Lint with prettier
             if: ${{ inputs.use_prettier }}
             run: |
-              npm run prettier:check ${{ inputs.directory_to_lint }}
-            working-directory: ${{ inputs.directory_to_lint }}
+              npm run prettier:check
+            working-directory: ${{ inputs.working_directory }}
 
           - name: Lint with stylelint
             if: ${{ inputs.use_stylelint }}
             run: |
-              npm run prettier:stylelint-check
-            working-directory: ${{ inputs.directory_to_lint }}
+              npm run lint-sass
+            working-directory: ${{ inputs.working_directory }}

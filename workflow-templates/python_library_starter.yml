@@ -1,12 +1,6 @@
 name: Certego Python Library CI
 
 on:
-  push:
-    branches:
-      - master
-      - main
-      - develop
-      - dev
   pull_request:
     branches:
       - master
@@ -21,20 +15,32 @@ concurrency:
 
 jobs:
   python_linters:
-    uses: certego/.github/reusable-workflows/python_linter.yml@master
+    uses: certego/.github/.github/workflows/python_linter.yml@main
     with:
-      linter_python_directory: backend
+      working_directory: backend
       use_black: true
       use_isort: true
       use_flake8: true
       use_pylint: true
+      use_bandit: true
       python_versions: >-
-        ["3.8", "3.9", "3.10"]
-  tests:
-     uses: certego/.github/reusable-workflows/tests.yml@master
+        ["3.10", "3.9", "3.8"]
+
+  python_tests:
+     uses: certego/.github/.github/workflows/python_tests.yml@main
      with:
-      tox: true
-      pytest: false
-      unittest: false
+      working_directory: backend
+      requirements_path: backend/requirements.txt
+      packages_path: test/python_test/packages.txt
       python_versions: >-
-        ["3.8", "3.9", "3.10"]
+        ["3.10", "3.9", "3.8"]
+
+      custom_command: whoami; ls -la
+
+      use_postgres: false
+      use_memcached: false
+      use_elastic_search: false
+
+      use_coverage: true
+      use_pytest: false
+      use_unittest: false
