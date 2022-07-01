@@ -84,6 +84,11 @@ on:
         type: string
         required: false
         default: .coveragerc
+      upload_coverage:
+        description: Upload coverage.py report to github
+        default: false
+        type: boolean
+        required: false
 
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
