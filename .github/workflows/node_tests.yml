@@ -91,4 +91,3 @@ jobs:
           body: |
             Coverage report:
             ${{ steps.coverage-output.outputs.coverage_content }}
-        working-directory: ${{ inputs.working_directory }}
