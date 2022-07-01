@@ -52,25 +52,19 @@ jobs:
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
+        id: jest-tests
         run: |
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-            if [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
-              CMD="npm test -- --silent --coverage > coverage.txt"
-            else
-              CMD="npm test -- --silent --coverage"
-            fi
+            CMD="npm test -- --silent --coverage"
           else
               CMD="npm test"
           fi
           echo "Running command: ${CMD}"
-          $CMD
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Read coverage.output
-        if: inputs.use_coverage && inputs.upload_coverage
-        id: coverage-output
-        run: |
-          echo ::set-output name=coverage_content::$(cat coverage.txt | awk '{printf "%s<br />", $0}')
+          if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
+            echo ::set-output name=coverage_content::$($CMD | awk '{printf "%s<br />", $0}')
+          else
+            $CMD
+          fi
         working-directory: ${{ inputs.working_directory }}
 
       - name: Find Comment
@@ -90,4 +84,4 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Coverage report:
-            ${{ steps.coverage-output.outputs.coverage_content }}
+            ${{ steps.jest-tests.outputs.coverage_content }}
