@@ -274,9 +274,9 @@ jobs:
             - name: Custom command
               if: inputs.custom_command
               run: |
-                  COMMAND=${{ inputs.custom_command }}
-                  echo "Running command: $COMMAND"
-                  $COMMAND
+                COMMAND=${{ inputs.custom_command }}
+                echo "Running command: $COMMAND"
+                $COMMAND
               shell: bash
 
             - name: Check migrations
@@ -304,16 +304,16 @@ jobs:
             - name: Run pytest
               if: inputs.use_pytest
               run: |
-                  if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                    CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
-                    if [[ -z ${{ inputs.django_settings_module }} ]]; then
-                      CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
-                    fi
-                  else
-                    CMD="python -m pytest"
+                if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+                  CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
+                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                    CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                   fi
-                  echo "Running command: ${CMD}"
-                  $CMD
+                else
+                  CMD="python -m pytest"
+                fi
+                echo "Running command: ${CMD}"
+                $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
@@ -322,7 +322,6 @@ jobs:
               if: inputs.use_coverage && inputs.upload_coverage
               id: coverage-output
               run: |
-                echo "${{ github.event_name }}"
                 echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
               working-directory: ${{ inputs.working_directory }}
               env:

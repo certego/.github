@@ -17,30 +17,71 @@ on:
         type: boolean
         required: false
 
+      use_coverage:
+        description: Output coverage. Require jest to be set.
+        default: false
+        type: boolean
+        required: false
+      upload_coverage:
+        description: Upload coverage report to github
+        default: false
+        type: boolean
+        required: false
+
 jobs:
-    tests:
-        name: Run node.js tests
-        runs-on: ubuntu-latest
-        strategy:
-          matrix:
-            node_version: ${{ fromJson(inputs.node_versions) }}
-        steps:
-            - uses: actions/checkout@v3
+  tests:
+    name: Run node.js tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: ${{ fromJson(inputs.node_versions) }}
+    steps:
+      - uses: actions/checkout@v3
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v3
-              with:
-                node-version: ${{ matrix.node_version }}
-                cache: 'npm'
-                cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
 
-            - name: Install dependencies
-              run: |
-                npm ci
-              working-directory: ${{ inputs.working_directory }}
+      - name: Install dependencies
+        run: |
+          npm ci
+        working-directory: ${{ inputs.working_directory }}
 
-            - name: Run jest tests
-              if: ${{ inputs.use_jest }}
-              run: |
-                npm test
-              working-directory: ${{ inputs.working_directory }}
+      - name: Run jest tests
+        if: ${{ inputs.use_jest }}
+        run: |
+          if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+            if [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
+              CMD="npm test -- --silent --coverage > coverage.txt"
+            else
+              CMD="npm test -- --silent --coverage"
+            fi
+          else
+              CMD="npm test"
+          fi
+          echo "Running command: ${CMD}"
+          $CMD
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Find Comment
+        if: inputs.use_coverage && inputs.upload_coverage
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          direction: first
+
+      - name: Create or update coverage to PR comment
+        if: inputs.use_coverage && inputs.upload_coverage
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Coverage report:
+            $(cat coverage.txt)
+        working-directory: ${{ inputs.working_directory }}

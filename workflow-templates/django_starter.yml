@@ -83,5 +83,7 @@ jobs:
     with:
         working_directory: frontend
         use_jest: true
+        use_coverage: true
+        upload_coverage: true
         node_versions: >-
           [ "16", "15", "14", "13" ]
