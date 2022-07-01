@@ -23,7 +23,7 @@ on:
         type: boolean
         required: false
       upload_coverage:
-        description: Upload coverage report to github
+        description: Upload coverage report to GitHub
         default: false
         type: boolean
         required: false
@@ -66,6 +66,13 @@ jobs:
           $CMD
         working-directory: ${{ inputs.working_directory }}
 
+      - name: Read coverage.output
+        if: inputs.use_coverage && inputs.upload_coverage
+        id: coverage-output
+        run: |
+          echo ::set-output name=coverage_content::$(cat coverage.txt | awk '{printf "%s<br />", $0}')
+        working-directory: ${{ inputs.working_directory }}
+
       - name: Find Comment
         if: inputs.use_coverage && inputs.upload_coverage
         uses: peter-evans/find-comment@v2
@@ -83,5 +90,5 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Coverage report:
-            $(cat coverage.txt)
+            ${{ steps.coverage-output.outputs.coverage_content }}
         working-directory: ${{ inputs.working_directory }}
