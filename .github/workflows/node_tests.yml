@@ -74,7 +74,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          direction: first
+          direction: last
 
       - name: Create or update coverage to PR comment
         if: inputs.use_coverage && inputs.upload_coverage
