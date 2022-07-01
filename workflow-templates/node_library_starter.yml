@@ -33,5 +33,6 @@ jobs:
     with:
       working-directory: frontend
       use_jest: true
+      use_coverage: true
       node_versions: >-
           [ "16" ]
