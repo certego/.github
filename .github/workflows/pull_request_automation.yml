@@ -64,7 +64,7 @@ jobs:
       use_pytest: true
       use_unittest: true
       use_coverage: true
-      upload_coverage: false
+      upload_coverage: true
       custom_command: whoami; ls -la
       python_versions: >-
         ["3.9"]
