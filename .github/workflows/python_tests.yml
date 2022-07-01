@@ -334,7 +334,8 @@ jobs:
               with:
                 issue-number: ${{ github.event.pull_request.number }}
                 comment-author: 'github-actions[bot]'
-                direction: last
+                body-includes: Coverage.py report
+                direction: first
 
             - name: Create or update coverage to PR comment
               if: inputs.use_coverage && inputs.upload_coverage
@@ -343,6 +344,6 @@ jobs:
                 comment-id: ${{ steps.fc.outputs.comment-id }}
                 issue-number: ${{ github.event.pull_request.number }}
                 body: |
-                  Coverage report:
+                  Coverage.py report:
                   ${{ steps.coverage-output.outputs.coverage_content }}
                 edit-mode: replace
