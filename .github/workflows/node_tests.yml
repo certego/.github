@@ -61,7 +61,7 @@ jobs:
           fi
           echo "Running command: ${CMD}"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
-            echo ::set-output name=coverage_content::$($CMD | awk '{printf "%s<br />", $0}')
+            echo ::set-output name=coverage_content::$($CMD | grep -v "^>" | awk '{printf "%s<br />", $0}')
           else
             $CMD
           fi
