@@ -130,12 +130,6 @@ jobs:
               with:
                 packages: ${{ steps.export-apt-requirements.outputs.apt-packages }}
 
-            - name: Install apt packages
-              if: inputs.packages_path && steps.inputs.packages_path.outputs.cache-hit != 'true'
-              run: |
-                sudo apt update
-                echo ${{ steps.export-apt-requirements.outputs.apt-packages }} | sudo xargs apt-get install -y
-
             - name: Set up Python
               uses: actions/setup-python@v4
               with:
