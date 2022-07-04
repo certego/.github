@@ -117,11 +117,24 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - name: Install apt packages
+            - name: Export apt requirements
+              id: export-apt-requirements
+              if: input.packages_path
+              run: |
+                echo ::set-output name=apt-packages::$( cat ${{ input.packages_path }} )
+
+            - name: Cache apt packages
+              id: cache-apt-packages
               if: inputs.packages_path
+              uses: awalsh128/cache-apt-pkgs-action@v1
+              with:
+                packages: ${{ steps.export-apt-requirements.outputs.apt-packages }}
+
+            - name: Install apt packages
+              if: inputs.packages_path && steps.inputs.packages_path.outputs.cache-hit != 'true'
               run: |
                 sudo apt update
-                cat ${{ inputs.packages_path }} | sudo xargs apt-get install -y
+                echo ${{ steps.export-apt-requirements.outputs.apt-packages }} | sudo xargs apt-get install -y
 
             - name: Set up Python
               uses: actions/setup-python@v4
