@@ -119,9 +119,9 @@ jobs:
 
             - name: Export apt requirements
               id: export-apt-requirements
-              if: input.packages_path
+              if: inputs.packages_path
               run: |
-                echo ::set-output name=apt-packages::$( cat ${{ input.packages_path }} )
+                echo ::set-output name=apt-packages::$( cat ${{ inputs.packages_path }} )
 
             - name: Cache apt packages
               id: cache-apt-packages
