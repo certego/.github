@@ -253,7 +253,7 @@ jobs:
                 echo > requirements-dev.txt
                 if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
                   echo "pytest>=7.0.0" >> requirements-dev.txt
-                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
                     echo "pytest-django>=4.5.2" >> requirements-dev.txt
                   fi
                 fi
@@ -344,10 +344,10 @@ jobs:
               run: |
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
                   CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
-                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
                     CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                   fi
-                  if [[ -z '${{ inputs.pytest_marker_for_master }}' ]]; then
+                  if [[ -n '${{ inputs.pytest_marker_for_master }}' ]]; then
                     if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
                       CMD="${CMD} -m='not ${{ inputs.pytest_marker_for_master }}'"
                     fi
