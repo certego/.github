@@ -264,6 +264,10 @@ jobs:
 
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
+              with:
+                requirement_files: |
+                  ${{ inputs.requirements_path }}
+                  requirements-dev.txt
 
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
@@ -272,6 +276,7 @@ jobs:
                 pip install -r ${{ inputs.requirements_path }}
                 pip install -r requirements-dev.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
 
             - name: Inject django settings module to environ
               if: inputs.django_settings_module
