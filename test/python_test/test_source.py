@@ -1,10 +1,12 @@
 import unittest
+
 import pytest
 
 try:
     from .source import A
 except ImportError:
     from source import A
+
 
 class TestA(unittest.TestCase):
     def test_mya(self):
