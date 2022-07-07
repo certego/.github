@@ -349,7 +349,7 @@ jobs:
                   fi
                   if [[ -n '${{ inputs.pytest_marker_for_master }}' ]]; then
                     if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
-                      CMD+=" -m \'not ${{ inputs.pytest_marker_for_master }}\'"
+                      CMD="${CMD} -m '${{ inputs.pytest_marker_for_master }}' "
                     fi
                   fi
                 else
