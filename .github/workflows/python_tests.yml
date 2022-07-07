@@ -289,12 +289,12 @@ jobs:
               uses: pilosus/action-pip-license-checker@v0.6.2
               with:
                 requirements: ${{ inputs.requirements_path }}
-                exclude: lunardate|QuokkaClient
+                exclude: uWSGI|lunardate|QuokkaClient
                 table-headers: true
                 fail: 'StrongCopyleft,NetworkCopyleft,Error'
                 fails-only: true
 
-            - name: Print license report if fails
+            - name: Print wrong licenses
               if: steps.license_check_report.outcome == 'failure'
               run: |
                   echo "License check failed"
