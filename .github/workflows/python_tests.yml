@@ -34,7 +34,11 @@ on:
         type: boolean
         required: false
         default: false
-
+      check_requirements_licenses:
+        description: Check if requirements have a valid license. Requis django_settings_module to be set.
+        type: boolean
+        required: false
+        default: true
 
       use_postgres:
         description: Use postgres service
@@ -277,6 +281,17 @@ jobs:
               if: inputs.django_settings_module
               run: |
                 echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+            - name: Check requirements licenses
+              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
+              id: license_check_report
+              uses: pilosus/action-pip-license-checker@v0.6.2
+              with:
+                requirements: ${{ inputs.requirements_path }}
+                exclude: uWSGI|lunardate|QuokkaClient
+                table-headers: true
+                fail: 'StrongCopyleft,NetworkCopyleft,Error'
+                fails-only: true
 
             - name: Custom command
               if: inputs.custom_command
