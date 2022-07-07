@@ -347,9 +347,9 @@ jobs:
                   if [[ -z ${{ inputs.django_settings_module }} ]]; then
                     CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                   fi
-                  if [[ -z ${{ inputs.pytest_marker_for_master }} ]]; then
-                    if [[ '${{ github.ref }}' == 'refs/heads/dev' || '${{ github.ref }}' == 'refs/heads/develop' ||  ]]; then
-                      CMD="${CMD} -m='not ${{ inputs.marker_for_master }}'"
+                  if [[ -z '${{ inputs.pytest_marker_for_master }}' ]]; then
+                    if [[ '${{ GITHUB_HEAD_REF }}' == 'develop' || '${{ GITHUB_HEAD_REF }}' == 'dev' ||  ]]; then
+                      CMD="${CMD} -m='not ${{ inputs.pytest_marker_for_master }}'"
                     fi
                   fi
                 else
