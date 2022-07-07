@@ -348,7 +348,7 @@ jobs:
                     CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
                   fi
                   if [[ -z '${{ inputs.pytest_marker_for_master }}' ]]; then
-                    if [[ '${{ env.GITHUB_HEAD_REF }}' == 'develop' || '${{ env.GITHUB_HEAD_REF }}' == 'dev' ||  ]]; then
+                    if [[ '${{ github.base_ref	 }}' == 'develop' || '${{ github.base_ref	 }}' == 'dev' ||  ]]; then
                       CMD="${CMD} -m='not ${{ inputs.pytest_marker_for_master }}'"
                     fi
                   fi
