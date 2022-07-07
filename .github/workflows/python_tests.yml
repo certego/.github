@@ -345,7 +345,7 @@ jobs:
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
                   CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
                   if [[ -n ${{ inputs.django_settings_module }} ]]; then
-                    CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
+                    CMD="${CMD} --ds='$DJANGO_SETTINGS_MODULE'"
                   fi
                   if [[ -n '${{ inputs.pytest_marker_for_master }}' ]]; then
                     if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
@@ -360,6 +360,8 @@ jobs:
               working-directory: ${{ inputs.working_directory }}
               env:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
+              shell:
+                bash
 
             - name: Create coverage output
               if: inputs.use_coverage && inputs.upload_coverage
