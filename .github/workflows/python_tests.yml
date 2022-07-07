@@ -285,6 +285,7 @@ jobs:
             - name: Check requirements licenses
               if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
               id: license_check_report
+              continue-on-error: true
               uses: pilosus/action-pip-license-checker@v0.6.2
               with:
                 requirements: ${{ inputs.requirements_path }}
@@ -292,6 +293,16 @@ jobs:
                 table-headers: true
                 fail: 'StrongCopyleft,NetworkCopyleft,Error'
                 fails-only: true
+
+            - name: Print license report if fails
+              if: steps.license_check_report.outcome == "failure"
+              run: |
+                  echo "License check failed"
+                  echo "===================="
+                  echo "${{ steps.license_check_report.outputs.report }}"
+                  echo "===================="
+                  exit 1
+
 
             - name: Custom command
               if: inputs.custom_command
