@@ -1,4 +1,4 @@
-name: Ci
+name: CI
 
 on:
   pull_request:
@@ -30,6 +30,8 @@ jobs:
     with:
       working_directory: test/node_test
       use_jest: true
+      use_coverage: true
+      upload_coverage: true
       node_versions: >-
         ["16"]
 
@@ -53,7 +55,7 @@ jobs:
       packages_path: test/python_test/packages.txt
       django_settings_module: python_test.settings
       check_migrations: true
-
+      check_requirements_licenses: true
       use_postgres: true
       use_memcached: false
       use_elastic_search: false
@@ -62,7 +64,7 @@ jobs:
       use_pytest: true
       use_unittest: true
       use_coverage: true
-      upload_coverage: false
+      upload_coverage: true
       custom_command: whoami; ls -la
       python_versions: >-
         ["3.9"]
