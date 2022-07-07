@@ -34,7 +34,11 @@ on:
         type: boolean
         required: false
         default: false
-
+      check_requirements_licenses:
+        description: Check if requirements have a valid license. Requis django_settings_module to be set.
+        type: boolean
+        required: false
+        default: true
 
       use_postgres:
         description: Use postgres service
@@ -240,19 +244,19 @@ jobs:
                 bash
 
 
-            - name: Create dev-requirements.txt
+            - name: Create requirements-dev.txt
               run: |
-                echo > dev-requirements.txt
+                echo > requirements-dev.txt
                 if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                  echo "pytest>=7.0.0" >> dev-requirements.txt
+                  echo "pytest>=7.0.0" >> requirements-dev.txt
                   if [[ -z ${{ inputs.django_settings_module }} ]]; then
-                    echo "pytest-django>=4.5.2" >> dev-requirements.txt
+                    echo "pytest-django>=4.5.2" >> requirements-dev.txt
                   fi
                 fi
                 if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-                  echo "coverage>=6.4.1" >> dev-requirements.txt
+                  echo "coverage>=6.4.1" >> requirements-dev.txt
                   if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                    echo "pytest-cov>=3.0.0" >> dev-requirements.txt
+                    echo "pytest-cov>=3.0.0" >> requirements-dev.txt
                   fi
                 fi
               shell: bash
@@ -260,23 +264,41 @@ jobs:
 
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
-              with:
-                requirement_files: |
-                  ${{ inputs.requirements_path }}
-                  dev-requirements.txt
 
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - run: |
                 pip install -r ${{ inputs.requirements_path }}
-                pip install -r dev-requirements.txt
+                pip install -r requirements-dev.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - name: Inject django settings module to environ
               if: inputs.django_settings_module
               run: |
                 echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+            - name: Check requirements licenses
+              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
+              id: license_check_report
+              continue-on-error: true
+              uses: pilosus/action-pip-license-checker@v0.6.2
+              with:
+                requirements: ${{ inputs.requirements_path }}
+                exclude: uWSGI.*|lunardate.*|QuokkaClient.*
+                table-headers: true
+                fail: 'StrongCopyleft,NetworkCopyleft,Error'
+                fails-only: true
+
+            - name: Print wrong licenses
+              if: steps.license_check_report.outcome == 'failure'
+              run: |
+                  echo "License check failed"
+                  echo "===================="
+                  echo "${{ steps.license_check_report.outputs.report }}"
+                  echo "===================="
+                  exit 1
+
 
             - name: Custom command
               if: inputs.custom_command
