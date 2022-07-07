@@ -77,6 +77,10 @@ on:
         default: false
         type: boolean
         required: false
+      pytest_marker_for_master:
+        description: pytest marker to run on master
+        type: string
+        required: false
 
       use_coverage:
         description: Use coverage.py. Require pytest or  unittest to be set.
@@ -342,6 +346,11 @@ jobs:
                   CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
                   if [[ -z ${{ inputs.django_settings_module }} ]]; then
                     CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
+                  fi
+                  if [[ -z ${{ inputs.pytest_marker_for_master }} ]]; then
+                    if [[ '${{ github.ref }}' == 'refs/heads/dev' || '${{ github.ref }}' == 'refs/heads/develop' ||  ]]; then
+                      CMD="${CMD} -m='not ${{ inputs.marker_for_master }}'"
+                    fi
                   fi
                 else
                   CMD="python -m pytest"
