@@ -288,7 +288,7 @@ jobs:
               uses: pilosus/action-pip-license-checker@v0.6.2
               with:
                 requirements: ${{ inputs.requirements_path }}
-                exclude: uWSGI|lunardate|QuokkaClient
+                exclude: lunardate|QuokkaClient
                 table-headers: true
                 fail: 'StrongCopyleft,NetworkCopyleft,Error'
                 fails-only: true
