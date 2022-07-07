@@ -295,7 +295,7 @@ jobs:
                 fails-only: true
 
             - name: Print license report if fails
-              if: steps.license_check_report.outcome == "failure"
+              if: steps.license_check_report.outcome == 'failure'
               run: |
                   echo "License check failed"
                   echo "===================="
