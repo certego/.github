@@ -244,19 +244,19 @@ jobs:
                 bash
 
 
-            - name: Create dev-requirements.txt
+            - name: Create requirements-dev.txt
               run: |
-                echo > dev-requirements.txt
+                echo > requirements-dev.txt
                 if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                  echo "pytest>=7.0.0" >> dev-requirements.txt
+                  echo "pytest>=7.0.0" >> requirements-dev.txt
                   if [[ -z ${{ inputs.django_settings_module }} ]]; then
-                    echo "pytest-django>=4.5.2" >> dev-requirements.txt
+                    echo "pytest-django>=4.5.2" >> requirements-dev.txt
                   fi
                 fi
                 if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-                  echo "coverage>=6.4.1" >> dev-requirements.txt
+                  echo "coverage>=6.4.1" >> requirements-dev.txt
                   if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                    echo "pytest-cov>=3.0.0" >> dev-requirements.txt
+                    echo "pytest-cov>=3.0.0" >> requirements-dev.txt
                   fi
                 fi
               shell: bash
@@ -264,17 +264,13 @@ jobs:
 
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
-              with:
-                requirement_files: |
-                  ${{ inputs.requirements_path }}
-                  dev-requirements.txt
 
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - run: |
                 pip install -r ${{ inputs.requirements_path }}
-                pip install -r dev-requirements.txt
+                pip install -r requirements-dev.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
 
             - name: Inject django settings module to environ
