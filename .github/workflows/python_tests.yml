@@ -346,12 +346,13 @@ jobs:
                   CMD='py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}'
                   if [[ -n '${{ inputs.pytest_marker_for_master }}' ]]; then
                     if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
-                      CMD="${CMD} -m ${{ inputs.pytest_marker_for_master }}"
+                      CMD="${CMD} -m 'not ${{ inputs.pytest_marker_for_master }}' "
                     fi
                   fi
                 else
                   CMD='python -m pytest'
                 fi
+                CMD="${CMD} ."
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
