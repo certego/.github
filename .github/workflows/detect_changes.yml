@@ -6,11 +6,13 @@ on:
         description: Backend directories separated by spaces
         required: false
         type: string
+        default: ''
 
       frontend_directories:
         description: Frontend directories separated by spaces
         required: false
         type: string
+        default: ''
 
 jobs:
   detect-changes:
@@ -29,17 +31,17 @@ jobs:
         clean: false
 
     - name: Generate diffs for backend
-      if: ${{inputs.backend_directories}} != "
+      if: ${{inputs.backend_directories}} != ''
       id: diff_check_backend
       run: |
         git branch -a --list | cat
-        BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ backend_directories }} | head -n -1 | wc -l)
+        BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} | head -n -1 | wc -l)
         echo "::set-output name=backend::$BACKEND_CHANGES"
 
     - name: Generate diffs for frontend
-      if: ${{inputs.frontend_directories}} != "
+      if: ${{inputs.frontend_directories}} != ''
       id: diff_check_frontend
       run: |
         git branch -a --list | cat
-        FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ frontend_directories }} | head -n -1 | wc -l)
+        FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} | head -n -1 | wc -l)
         echo "::set-output name=frontend::$FRONTEND_CHANGES"
