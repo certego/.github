@@ -35,7 +35,7 @@ jobs:
       id: diff_check_backend
       run: |
         git branch -a --list | cat
-        BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ backend_directories }} | head -n -1 | wc -l)
+        BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} | head -n -1 | wc -l)
         echo "::set-output name=backend::$BACKEND_CHANGES"
 
     - name: Generate diffs for frontend
@@ -43,5 +43,5 @@ jobs:
       id: diff_check_frontend
       run: |
         git branch -a --list | cat
-        FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ frontend_directories }} | head -n -1 | wc -l)
+        FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} | head -n -1 | wc -l)
         echo "::set-output name=frontend::$FRONTEND_CHANGES"
