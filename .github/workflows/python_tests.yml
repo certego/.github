@@ -215,6 +215,8 @@ jobs:
                 echo "      - 27017:27017" >> mongo.yml
                 echo "    volumes:" >> mongo.yml
                 echo "      - mongo:/data/db" >> mongo.yml
+                echo "volumes:" >> mongo.yml
+                echo "  mongo:" >> mongo.yml
               shell:
                 bash
 
