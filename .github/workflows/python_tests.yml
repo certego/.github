@@ -118,8 +118,7 @@ on:
         description: Environment variables to set
         type: string
         required: false
-        default: >-
-          {}
+
 
 jobs:
     tests:
