@@ -23,8 +23,8 @@ jobs:
   detect-changes:
     uses: certego/.github/.github/workflows/detect_changes.yml@main
     with:
-        backend_directory: backend
-        frontend_directory: frontend
+        backend_directories: backend
+        frontend_directories: frontend
 
   python_linters:
     if: ${{ needs.detect-changes.outputs.backend > 0 }}
