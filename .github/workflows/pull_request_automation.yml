@@ -56,10 +56,11 @@ jobs:
       django_settings_module: python_test.settings
       check_migrations: true
       check_requirements_licenses: true
-      use_postgres: true
+      use_postgres: false
       use_memcached: false
       use_elastic_search: false
-      use_rabbitmq: true
+      use_rabbitmq: false
+      use_mongo: true
 
       use_pytest: true
       use_unittest: true

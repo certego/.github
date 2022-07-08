@@ -65,6 +65,11 @@ on:
         default: false
         type: boolean
         required: false
+      use_mongo:
+        description: Use mongo service
+        default: false
+        type: boolean
+        required: false
 
 
       use_unittest:
@@ -181,7 +186,20 @@ jobs:
               run: |
                 echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
 
-
+            - name: Create mongo docker-compose file
+              if: inputs.use_mongo
+              run: |
+                echo "version: '3.7'" > mongo.yml
+                echo "services:" >> mongo.yml
+                echo "  mongo:" >> mongo.yml
+                echo "    image: library/mongo:4.4" >> mongo.yml
+                echo "    container_name: mongo" >> mongo.yml
+                echo "    ports:" >> mongo.yml
+                echo "      - 27017:27017" >> mongo.yml
+                echo "    volumes:" >> mongo.yml
+                echo "      - mongo:/data/db" >> mongo.yml
+              shell:
+                bash
 
             - name: Create postgres docker-compose file
               if: inputs.use_postgres
@@ -261,7 +279,7 @@ jobs:
                 bash
 
             - name: Execute docker-compose up
-              if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq
+              if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
               run: |
                 CLI=docker-compose
                 if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
@@ -278,6 +296,9 @@ jobs:
                 fi
                 if [[ ${{ inputs.use_rabbitmq }} != 'false' ]]; then
                   CLI="${CLI} -f rabbitmq.yml"
+                fi
+                if [[ ${{ inputs.use_mongo }} != 'false' ]]; then
+                  CLI="${CLI} -f mongo.yml"
                 fi
 
                 # add other containers here
