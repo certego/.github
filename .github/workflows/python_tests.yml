@@ -131,7 +131,6 @@ jobs:
             python_version: ${{ fromJson(inputs.python_versions) }}
         environment: |
             ${{ inputs.env }}
-
         steps:
             - uses: actions/checkout@v3
 
