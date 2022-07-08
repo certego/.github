@@ -66,8 +66,8 @@ jobs:
       postgres_db: db
       postgres_user: user
       postgres_password: password
-      env: >-
-        {"KEY": "VALUE"}
+      env: |
+        KEY:VALUE
       python_versions: >-
         [ "3.9", "3.10" ]
 
