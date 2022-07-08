@@ -139,6 +139,50 @@ jobs:
               with:
                 python-version: ${{ matrix.python_version }}
 
+            - name: Check requirements licenses
+              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
+              id: license_check_report
+              continue-on-error: true
+              uses: pilosus/action-pip-license-checker@v0.6.2
+              with:
+                requirements: ${{ inputs.requirements_path }}
+                exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
+                table-headers: true
+                fail: 'StrongCopyleft,NetworkCopyleft,Error'
+                fails-only: true
+
+            - name: Print wrong licenses
+              if: steps.license_check_report.outcome == 'failure'
+              run: |
+                  echo "License check failed"
+                  echo "===================="
+                  echo "${{ steps.license_check_report.outputs.report }}"
+                  echo "===================="
+                  exit 1
+
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
+              with:
+                requirement_files: |
+                  ${{ inputs.requirements_path }}
+                  requirements-dev.txt
+
+            - uses: syphar/restore-pip-download-cache@v1
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - run: |
+                pip install -r ${{ inputs.requirements_path }}
+                pip install -r requirements-dev.txt
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+
+            - name: Inject django settings module to environ
+              if: inputs.django_settings_module
+              run: |
+                echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+
+
             - name: Create postgres docker-compose file
               if: inputs.use_postgres
               run: |
@@ -260,50 +304,6 @@ jobs:
                   fi
                 fi
               shell: bash
-
-
-            - uses: syphar/restore-virtualenv@v1
-              id: cache-virtualenv
-              with:
-                requirement_files: |
-                  ${{ inputs.requirements_path }}
-                  requirements-dev.txt
-
-            - uses: syphar/restore-pip-download-cache@v1
-              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-
-            - run: |
-                pip install -r ${{ inputs.requirements_path }}
-                pip install -r requirements-dev.txt
-              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-
-
-            - name: Inject django settings module to environ
-              if: inputs.django_settings_module
-              run: |
-                echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
-
-            - name: Check requirements licenses
-              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
-              id: license_check_report
-              continue-on-error: true
-              uses: pilosus/action-pip-license-checker@v0.6.2
-              with:
-                requirements: ${{ inputs.requirements_path }}
-                exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
-                table-headers: true
-                fail: 'StrongCopyleft,NetworkCopyleft,Error'
-                fails-only: true
-
-            - name: Print wrong licenses
-              if: steps.license_check_report.outcome == 'failure'
-              run: |
-                  echo "License check failed"
-                  echo "===================="
-                  echo "${{ steps.license_check_report.outputs.report }}"
-                  echo "===================="
-                  exit 1
-
 
             - name: Custom command
               if: inputs.custom_command
