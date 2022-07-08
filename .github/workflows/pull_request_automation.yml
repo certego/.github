@@ -67,7 +67,7 @@ jobs:
       use_coverage: true
       upload_coverage: true
       custom_command: whoami; ls -la
-      env: >-
-        {"KEY": "VALUE"}
+      env: |
+        KEY:VALUE
       python_versions: >-
         ["3.9"]
