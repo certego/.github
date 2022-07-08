@@ -77,6 +77,10 @@ on:
         default: false
         type: boolean
         required: false
+      pytest_marker_for_master:
+        description: pytest marker to run on master
+        type: string
+        required: false
 
       use_coverage:
         description: Use coverage.py. Require pytest or  unittest to be set.
@@ -249,7 +253,7 @@ jobs:
                 echo > requirements-dev.txt
                 if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
                   echo "pytest>=7.0.0" >> requirements-dev.txt
-                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
                     echo "pytest-django>=4.5.2" >> requirements-dev.txt
                   fi
                 fi
@@ -339,18 +343,24 @@ jobs:
               if: inputs.use_pytest
               run: |
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                  CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
-                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
-                    CMD="${CMD} --ds=$DJANGO_SETTINGS_MODULE"
+                  CMD='py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}'
+                  if [[ -n '${{ inputs.pytest_marker_for_master }}' ]]; then
+                    if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
+                      CMD+=" -m=$MARKER"
+                    fi
                   fi
                 else
-                  CMD="python -m pytest"
+                  CMD='python -m pytest'
                 fi
+                CMD="${CMD} ."
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
+                MARKER: '"not ${{ inputs.pytest_marker_for_master }}"'
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
+              shell:
+                bash
 
             - name: Create coverage output
               if: inputs.use_coverage && inputs.upload_coverage
