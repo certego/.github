@@ -128,8 +128,7 @@ jobs:
         strategy:
           matrix:
             python_version: ${{ fromJson(inputs.python_versions) }}
-        environment: |
-            ${{ inputs.env }}
+        env: ${{ inputs.env }}
         steps:
             - uses: actions/checkout@v3
 
