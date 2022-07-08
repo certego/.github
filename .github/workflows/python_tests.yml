@@ -165,6 +165,23 @@ jobs:
                   echo "===================="
                   exit 1
 
+            - name: Create requirements-dev.txt
+              run: |
+                echo > requirements-dev.txt
+                if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
+                  echo "pytest>=7.0.0" >> requirements-dev.txt
+                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
+                    echo "pytest-django>=4.5.2" >> requirements-dev.txt
+                  fi
+                fi
+                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                  echo "coverage>=6.4.1" >> requirements-dev.txt
+                  if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
+                    echo "pytest-cov>=3.0.0" >> requirements-dev.txt
+                  fi
+                fi
+              shell: bash
+
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
               with:
@@ -308,23 +325,6 @@ jobs:
               shell:
                 bash
 
-
-            - name: Create requirements-dev.txt
-              run: |
-                echo > requirements-dev.txt
-                if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                  echo "pytest>=7.0.0" >> requirements-dev.txt
-                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
-                    echo "pytest-django>=4.5.2" >> requirements-dev.txt
-                  fi
-                fi
-                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-                  echo "coverage>=6.4.1" >> requirements-dev.txt
-                  if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                    echo "pytest-cov>=3.0.0" >> requirements-dev.txt
-                  fi
-                fi
-              shell: bash
 
             - name: Custom command
               if: inputs.custom_command
