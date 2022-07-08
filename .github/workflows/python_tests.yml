@@ -346,7 +346,7 @@ jobs:
                   CMD='py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}'
                   if [[ -n '${{ inputs.pytest_marker_for_master }}' ]]; then
                     if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
-                      CMD="${CMD} -m='not ${{ inputs.pytest_marker_for_master }}'"
+                      CMD="${CMD} -m=$MARKER"
                     fi
                   fi
                 else
@@ -357,6 +357,7 @@ jobs:
                 $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
+                MARKER: "'not ${{ inputs.pytest_marker_for_master }}'"
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
               shell:
                 bash
