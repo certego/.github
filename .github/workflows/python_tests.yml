@@ -114,6 +114,12 @@ on:
         type: string
         required: false
         default: password
+      env:
+        description: Environment variables to set
+        type: string
+        required: false
+        default: >-
+          {}
 
 jobs:
     tests:
@@ -123,6 +129,7 @@ jobs:
         strategy:
           matrix:
             python_version: ${{ fromJson(inputs.python_versions) }}
+        env: ${{ fromJson(inputs.env) }}
         steps:
             - uses: actions/checkout@v3
 
