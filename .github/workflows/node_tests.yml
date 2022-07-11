@@ -60,7 +60,7 @@ jobs:
         if: inputs.check_packages_licenses
         run: |
           echo '{"name":"", "license":""}' > fmt.json
-          npx -y license-checker@25.0.1 --csv --production --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
+          npx -y license-checker@25.0.1 --csv --production --excludePrivatePackages --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
         working-directory: ${{ inputs.working_directory }}
 
       - name: CAT
