@@ -234,6 +234,7 @@ jobs:
                 echo "services:" >> postgres.yml
                 echo "  postgres:" >> postgres.yml
                 echo "    image: library/postgres:10.14-alpine" >> postgres.yml
+                echo "    container_name: postgres" >> postgres.yml
                 echo "    environment:" >> postgres.yml
                 echo "      POSTGRES_DB: ${{ inputs.postgres_db }}" >> postgres.yml
                 echo "      POSTGRES_USER: ${{ inputs.postgres_user }}" >> postgres.yml
@@ -255,6 +256,7 @@ jobs:
                 echo "services:" >> elastic_search.yml
                 echo "  elastic_search:" >> elastic_search.yml
                 echo "    image: elasticsearch:7.10.1" >> elastic_search.yml
+                echo "    container_name: elastic_search" >> elastic_search.yml
                 echo "    environment:" >> elastic_search.yml
                 echo "      ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elastic_search.yml
                 echo "      discovery.type: single-node" >> elastic_search.yml
@@ -274,6 +276,7 @@ jobs:
                 echo "version: '3.7'" > memcached.yml
                 echo "services:" >> memcached.yml
                 echo "  memcached:" >> memcached.yml
+                echo "    container_name: memcached" >> memcached.yml
                 echo "    image: memcached:1.6.9-alpine" >> memcached.yml
                 echo "    ports:" >> memcached.yml
                 echo "      - 11211:11211" >> memcached.yml
@@ -286,6 +289,7 @@ jobs:
                 echo "version: '3.7'" > redis.yml
                 echo "services:" >> redis.yml
                 echo "  redis:" >> redis.yml
+                echo "    container_name: redis" >> redis.yml
                 echo "    image: library/redis:5.0.9-alpine" >> redis.yml
                 echo "    ports:" >> redis.yml
                 echo "      - 6379:6379" >> redis.yml
@@ -298,6 +302,7 @@ jobs:
                 echo "version: '3.7'" > rabbitmq.yml
                 echo "services:" >> rabbitmq.yml
                 echo "  rabbitmq:" >> rabbitmq.yml
+                echo "    container_name: rabbitmq" >> rabbitmq.yml
                 echo "    image: library/rabbitmq:3.9-management-alpine" >> rabbitmq.yml
                 echo "    ports:" >> rabbitmq.yml
                 echo "      - 15672:15672" >> rabbitmq.yml
