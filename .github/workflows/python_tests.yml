@@ -362,7 +362,7 @@ jobs:
               run: |
                 CMD="python"
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                    CMD="coverage run"
+                    CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
                     if [[ -n '${{ inputs.django_settings_module }}' ]]; then
                       CMD="${CDM} -a manage.py test"
                     else
@@ -371,6 +371,7 @@ jobs:
                 else
                   CMD="python -m unittest discover"
                 fi
+                
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
