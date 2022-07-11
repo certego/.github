@@ -30,12 +30,12 @@ on:
         required: false
 
       check_migrations:
-        description: Check if migrations are valid. Requis django_settings_module to be set.
+        description: Check if migrations are valid. Require django_settings_module to be set.
         type: boolean
         required: false
         default: false
       check_requirements_licenses:
-        description: Check if requirements have a valid license. Requis django_settings_module to be set.
+        description: Check if requirements have a valid license. Require django_settings_module to be set.
         type: boolean
         required: false
         default: true
@@ -150,8 +150,6 @@ jobs:
               uses: actions/setup-python@v4
               with:
                 python-version: ${{ matrix.python_version }}
-
-
 
             - name: Print wrong licenses
               if: steps.license_check_report.outcome == 'failure'

@@ -11,6 +11,12 @@ on:
         type: string
         required: true
 
+    check_packages_licenses:
+      description: Check if npm packages have a valid license.
+      type: boolean
+      required: false
+      default: true
+
       use_jest:
         description: Use jest suite
         default: false
@@ -48,6 +54,29 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Collect packages licenses
+        if: inputs.check_packages_licenses
+        run: |
+          npm i -g license-checker@25.0.1 --no-optional --no-audit --no-fund
+          echo '{"name":"", "license":""}' > fmt.json
+          license-checker --csv --production --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Check packages licenses
+        if: inputs.check_packages_licenses
+        id: license_check_report
+        continue-on-error: true
+        uses: pilosus/action-pip-license-checker@v0.6.2
+        with:
+          requirements: ${{ inputs.requirements_path }}
+          external: licenses.csv
+          external-format: csv
+          exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
+          table-headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Error'
+          fails-only: true
         working-directory: ${{ inputs.working_directory }}
 
       - name: Run jest tests
