@@ -11,11 +11,11 @@ on:
         type: string
         required: true
 
-    check_packages_licenses:
-      description: Check if npm packages have a valid license.
-      type: boolean
-      required: false
-      default: true
+      check_packages_licenses:
+        description: Check if npm packages have a valid license.
+        type: boolean
+        required: false
+        default: true
 
       use_jest:
         description: Use jest suite
