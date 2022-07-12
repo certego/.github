@@ -354,8 +354,9 @@ jobs:
             - name: Start celery worker
               if: inputs.use_celery
               run: |
-                celery -A ${{ inputs.celery_app }} worker -B -E -c 1 -n worker --detach
+                celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker --detach
                 celery -A ${{ inputs.celery_app }} inspect stats
+              working-directory: ${{ inputs.working_directory }}
 
             - name: Custom command
               if: inputs.custom_command
@@ -363,6 +364,7 @@ jobs:
                 COMMAND=${{ inputs.custom_command }}
                 echo "Running command: $COMMAND"
                 $COMMAND
+              working-directory: ${{ inputs.working_directory }}
               shell: bash
 
             - name: Check migrations
