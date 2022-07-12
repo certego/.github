@@ -32,7 +32,9 @@ jobs:
     uses: certego/.github/.github/workflows/node_tests.yml@main
     with:
       working-directory: frontend
+      check_packages_licenses: true
       use_jest: true
       use_coverage: true
+      upload_coverage: true
       node_versions: >-
           [ "16" ]
