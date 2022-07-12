@@ -360,8 +360,8 @@ jobs:
             - name: Start celery worker
               if: inputs.use_celery
               run: |
-                celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach
-                celery -A ${{ inputs.celery_app }} inspect stats
+                celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach 
+                celery -A ${{ inputs.celery_app }} inspect stats -t 15
               working-directory: ${{ inputs.working_directory }}
 
             - name: Custom command
