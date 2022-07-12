@@ -64,6 +64,7 @@ jobs:
       use_celery: true
 
       celery_app: python_test.celery
+      celery_queues: default
 
       use_pytest: true
       use_unittest: true

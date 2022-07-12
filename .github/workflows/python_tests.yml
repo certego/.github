@@ -124,6 +124,12 @@ on:
         type: string
         required: false
 
+      celery_queues:
+        description: Celery queues separated by ,. Requires use_celery to be true
+        type: string
+        required: false
+        default: default
+
       env:
         description: Environment variables to set
         type: string
@@ -354,7 +360,7 @@ jobs:
             - name: Start celery worker
               if: inputs.use_celery
               run: |
-                celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker --detach
+                celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker --detach -Q ${{ inputs.celery_queues }}
                 celery -A ${{ inputs.celery_app }} inspect stats
               working-directory: ${{ inputs.working_directory }}
 

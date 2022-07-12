@@ -68,6 +68,8 @@ jobs:
       postgres_user: user
       postgres_password: password
       celery_app: backend.celery
+      celery_queues: default
+
       env: >-
         {"KEY": "VALUE"}
       python_versions: >-
