@@ -371,7 +371,7 @@ jobs:
                 else
                   CMD="python -m unittest discover"
                 fi
-                
+                CMD="${CMD} --failfast"
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
