@@ -59,8 +59,11 @@ jobs:
       use_postgres: false
       use_memcached: false
       use_elastic_search: false
-      use_rabbitmq: false
-      use_mongo: true
+      use_rabbitmq: true
+      use_mongo: false
+      use_celery: true
+
+      celery_app: python_test.celery
 
       use_pytest: true
       use_unittest: true

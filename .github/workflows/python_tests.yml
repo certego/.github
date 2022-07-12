@@ -70,7 +70,11 @@ on:
         default: false
         type: boolean
         required: false
-
+      use_celery:
+        description: Create a celery worker
+        default: false
+        type: boolean
+        required: false
 
       use_unittest:
         description: Use unittest suite
@@ -114,6 +118,12 @@ on:
         type: string
         required: false
         default: password
+
+      celery_app:
+        description: Celery app name. Requires use_celery to be true
+        type: string
+        required: false
+
       env:
         description: Environment variables to set
         type: string
@@ -307,6 +317,7 @@ jobs:
                 echo "    image: library/rabbitmq:3.9-management-alpine" >> rabbitmq.yml
                 echo "    ports:" >> rabbitmq.yml
                 echo "      - 15672:15672" >> rabbitmq.yml
+                echo "      - 5672:5672" >> rabbitmq.yml
               shell:
                 bash
 
@@ -340,6 +351,11 @@ jobs:
               shell:
                 bash
 
+            - name: Start celery worker
+              if: inputs.use_celery
+              run: |
+                celery -A ${{ inputs.celery_app }} worker -B -E -c 1 -n worker --detach
+                celery -A ${{ inputs.celery_app }} inspect stats
 
             - name: Custom command
               if: inputs.custom_command
