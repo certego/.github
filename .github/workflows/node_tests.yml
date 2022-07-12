@@ -73,7 +73,6 @@ jobs:
           requirements: ${{ inputs.requirements_path }}
           external: ${{ inputs.working_directory }}/licenses.csv
           external-format: csv
-          exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
