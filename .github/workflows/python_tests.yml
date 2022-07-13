@@ -30,12 +30,12 @@ on:
         required: false
 
       check_migrations:
-        description: Check if migrations are valid. Requis django_settings_module to be set.
+        description: Check if migrations are valid. Require django_settings_module to be set.
         type: boolean
         required: false
         default: false
       check_requirements_licenses:
-        description: Check if requirements have a valid license. Requis django_settings_module to be set.
+        description: Check if requirements have a valid license. Require django_settings_module to be set.
         type: boolean
         required: false
         default: true
@@ -65,21 +65,19 @@ on:
         default: false
         type: boolean
         required: false
-
-
-      use_unittest:
-        description: Use unittest suite
+      use_mongo:
+        description: Use mongo service
         default: false
         type: boolean
         required: false
-      use_pytest:
-        description: Use pytest suite
+      use_celery:
+        description: Create a celery worker
         default: false
         type: boolean
         required: false
 
       use_coverage:
-        description: Use coverage.py. Require pytest or  unittest to be set.
+        description: Use coverage.py.
         default: false
         type: boolean
         required: false
@@ -110,6 +108,24 @@ on:
         required: false
         default: password
 
+      celery_app:
+        description: Celery app name. Requires use_celery to be true
+        type: string
+        required: false
+
+      celery_queues:
+        description: Celery queues separated by ,. Requires use_celery to be true
+        type: string
+        required: false
+        default: default
+
+      env:
+        description: Environment variables to set
+        type: string
+        required: false
+        default: >-
+          {}
+
 jobs:
     tests:
         name: Run python tests
@@ -118,6 +134,7 @@ jobs:
         strategy:
           matrix:
             python_version: ${{ fromJson(inputs.python_versions) }}
+        env: ${{ fromJson(inputs.env) }}
         steps:
             - uses: actions/checkout@v3
 
@@ -139,6 +156,72 @@ jobs:
               with:
                 python-version: ${{ matrix.python_version }}
 
+            - name: Print wrong licenses
+              if: steps.license_check_report.outcome == 'failure'
+              run: |
+                  echo "License check failed"
+                  echo "===================="
+                  echo "${{ steps.license_check_report.outputs.report }}"
+                  echo "===================="
+                  exit 1
+
+            - name: Create requirements-dev.txt
+              run: |
+                echo > requirements-dev.txt
+                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                  echo "coverage>=6.4.1" >> requirements-dev.txt
+                fi
+              shell: bash
+
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
+              with:
+                requirement_files: |
+                  ${{ inputs.requirements_path }}
+                  requirements-dev.txt
+
+            - uses: syphar/restore-pip-download-cache@v1
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - run: |
+                pip install -r ${{ inputs.requirements_path }}
+                pip install -r requirements-dev.txt
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - name: Check requirements licenses
+              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
+              id: license_check_report
+              continue-on-error: true
+              uses: pilosus/action-pip-license-checker@v0.6.2
+              with:
+                requirements: ${{ inputs.requirements_path }}
+                exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
+                table-headers: true
+                fail: 'StrongCopyleft,NetworkCopyleft,Error'
+                fails-only: true
+
+            - name: Inject django settings module to environ
+              if: inputs.django_settings_module
+              run: |
+                echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+            - name: Create mongo docker-compose file
+              if: inputs.use_mongo
+              run: |
+                echo "version: '3.7'" > mongo.yml
+                echo "services:" >> mongo.yml
+                echo "  mongo:" >> mongo.yml
+                echo "    image: library/mongo:4.4" >> mongo.yml
+                echo "    container_name: mongo" >> mongo.yml
+                echo "    ports:" >> mongo.yml
+                echo "      - 27017:27017" >> mongo.yml
+                echo "    volumes:" >> mongo.yml
+                echo "      - mongo:/data/db" >> mongo.yml
+                echo "volumes:" >> mongo.yml
+                echo "  mongo:" >> mongo.yml
+              shell:
+                bash
+
             - name: Create postgres docker-compose file
               if: inputs.use_postgres
               run: |
@@ -146,6 +229,7 @@ jobs:
                 echo "services:" >> postgres.yml
                 echo "  postgres:" >> postgres.yml
                 echo "    image: library/postgres:10.14-alpine" >> postgres.yml
+                echo "    container_name: postgres" >> postgres.yml
                 echo "    environment:" >> postgres.yml
                 echo "      POSTGRES_DB: ${{ inputs.postgres_db }}" >> postgres.yml
                 echo "      POSTGRES_USER: ${{ inputs.postgres_user }}" >> postgres.yml
@@ -167,6 +251,7 @@ jobs:
                 echo "services:" >> elastic_search.yml
                 echo "  elastic_search:" >> elastic_search.yml
                 echo "    image: elasticsearch:7.10.1" >> elastic_search.yml
+                echo "    container_name: elastic_search" >> elastic_search.yml
                 echo "    environment:" >> elastic_search.yml
                 echo "      ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elastic_search.yml
                 echo "      discovery.type: single-node" >> elastic_search.yml
@@ -186,6 +271,7 @@ jobs:
                 echo "version: '3.7'" > memcached.yml
                 echo "services:" >> memcached.yml
                 echo "  memcached:" >> memcached.yml
+                echo "    container_name: memcached" >> memcached.yml
                 echo "    image: memcached:1.6.9-alpine" >> memcached.yml
                 echo "    ports:" >> memcached.yml
                 echo "      - 11211:11211" >> memcached.yml
@@ -198,6 +284,7 @@ jobs:
                 echo "version: '3.7'" > redis.yml
                 echo "services:" >> redis.yml
                 echo "  redis:" >> redis.yml
+                echo "    container_name: redis" >> redis.yml
                 echo "    image: library/redis:5.0.9-alpine" >> redis.yml
                 echo "    ports:" >> redis.yml
                 echo "      - 6379:6379" >> redis.yml
@@ -210,14 +297,16 @@ jobs:
                 echo "version: '3.7'" > rabbitmq.yml
                 echo "services:" >> rabbitmq.yml
                 echo "  rabbitmq:" >> rabbitmq.yml
+                echo "    container_name: rabbitmq" >> rabbitmq.yml
                 echo "    image: library/rabbitmq:3.9-management-alpine" >> rabbitmq.yml
                 echo "    ports:" >> rabbitmq.yml
                 echo "      - 15672:15672" >> rabbitmq.yml
+                echo "      - 5672:5672" >> rabbitmq.yml
               shell:
                 bash
 
             - name: Execute docker-compose up
-              if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq
+              if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
               run: |
                 CLI=docker-compose
                 if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
@@ -235,6 +324,9 @@ jobs:
                 if [[ ${{ inputs.use_rabbitmq }} != 'false' ]]; then
                   CLI="${CLI} -f rabbitmq.yml"
                 fi
+                if [[ ${{ inputs.use_mongo }} != 'false' ]]; then
+                  CLI="${CLI} -f mongo.yml"
+                fi
 
                 # add other containers here
                 echo "Running: ${CLI} up -d"
@@ -243,67 +335,26 @@ jobs:
               shell:
                 bash
 
-
-            - name: Create requirements-dev.txt
+            - name: Wait for docker to be ready
+              if: inputs.use_postgres || inputs.use_elastic_search
               run: |
-                echo > requirements-dev.txt
-                if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                  echo "pytest>=7.0.0" >> requirements-dev.txt
-                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
-                    echo "pytest-django>=4.5.2" >> requirements-dev.txt
-                  fi
+                if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
+                 while [ "`docker inspect -f {{.State.Health.Status}} postgres`" != "healthy" ]; do
+                    sleep 2;
+                 done
                 fi
-                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-                  echo "coverage>=6.4.1" >> requirements-dev.txt
-                  if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                    echo "pytest-cov>=3.0.0" >> requirements-dev.txt
-                  fi
+                if [[ ${{ inputs.use_elastic_search }} != 'false' ]]; then
+                  while [ "`docker inspect -f {{.State.Health.Status}} elastic_search`" != "healthy" ]; do
+                    sleep 2;
+                  done
                 fi
-              shell: bash
 
 
-            - uses: syphar/restore-virtualenv@v1
-              id: cache-virtualenv
-              with:
-                requirement_files: |
-                  ${{ inputs.requirements_path }}
-                  requirements-dev.txt
-
-            - uses: syphar/restore-pip-download-cache@v1
-              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-
-            - run: |
-                pip install -r ${{ inputs.requirements_path }}
-                pip install -r requirements-dev.txt
-              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
-
-
-            - name: Inject django settings module to environ
-              if: inputs.django_settings_module
+            - name: Start celery worker
+              if: inputs.use_celery
               run: |
-                echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
-
-            - name: Check requirements licenses
-              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
-              id: license_check_report
-              continue-on-error: true
-              uses: pilosus/action-pip-license-checker@v0.6.2
-              with:
-                requirements: ${{ inputs.requirements_path }}
-                exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
-                table-headers: true
-                fail: 'StrongCopyleft,NetworkCopyleft,Error'
-                fails-only: true
-
-            - name: Print wrong licenses
-              if: steps.license_check_report.outcome == 'failure'
-              run: |
-                  echo "License check failed"
-                  echo "===================="
-                  echo "${{ steps.license_check_report.outputs.report }}"
-                  echo "===================="
-                  exit 1
-
+                celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach 
+              working-directory: ${{ inputs.working_directory }}
 
             - name: Custom command
               if: inputs.custom_command
@@ -311,6 +362,7 @@ jobs:
                 COMMAND=${{ inputs.custom_command }}
                 echo "Running command: $COMMAND"
                 $COMMAND
+              working-directory: ${{ inputs.working_directory }}
               shell: bash
 
             - name: Check migrations
@@ -322,32 +374,25 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run unittest
-              if: inputs.use_unittest
               run: |
                 CMD="python"
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                    CMD="coverage run"
+                    CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+                    if [[ -n '${{ inputs.django_settings_module }}' ]]; then
+                      CMD="${CMD} -a manage.py test"
+                    else
+                      CMD="${CMD} -m unittest discover"
+                    fi
+                else
+                  CMD="python -m unittest discover"
                 fi
-                CMD="${CMD} -m unittest discover"
+                CMD="${CMD} --failfast"
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
-            - name: Run pytest
-              if: inputs.use_pytest
-              run: |
-                if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                  CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
-                else
-                  CMD="python -m pytest"
-                fi
-                echo "Running command: ${CMD}"
-                $CMD
-              working-directory: ${{ inputs.working_directory }}
-              env:
-                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Create coverage output
               if: inputs.use_coverage && inputs.upload_coverage

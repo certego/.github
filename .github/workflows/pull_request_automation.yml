@@ -29,6 +29,7 @@ jobs:
     uses: ./.github/workflows/node_tests.yml
     with:
       working_directory: test/node_test
+      check_packages_licenses: true
       use_jest: true
       use_coverage: true
       upload_coverage: true
@@ -56,15 +57,20 @@ jobs:
       django_settings_module: python_test.settings
       check_migrations: true
       check_requirements_licenses: true
-      use_postgres: true
+      use_postgres: false
       use_memcached: false
       use_elastic_search: false
       use_rabbitmq: true
+      use_mongo: false
+      use_celery: true
 
-      use_pytest: true
-      use_unittest: true
+      celery_app: python_test.celery
+      celery_queues: default
+
       use_coverage: true
       upload_coverage: true
       custom_command: whoami; ls -la
+      env: >-
+        {"KEY": "VALUE"}
       python_versions: >-
         ["3.9"]

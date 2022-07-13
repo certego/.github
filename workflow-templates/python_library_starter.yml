@@ -34,7 +34,8 @@ jobs:
       packages_path: test/python_test/packages.txt
       python_versions: >-
         ["3.10", "3.9", "3.8"]
-
+      env: >-
+        {"KEY": "VALUE"}
 
       use_postgres: false
       use_memcached: false
@@ -42,5 +43,3 @@ jobs:
       check_requirements_licenses: true
       use_coverage: true
       upload_coverage: true
-      use_pytest: false
-      use_unittest: false
