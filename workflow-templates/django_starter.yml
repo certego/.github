@@ -58,8 +58,6 @@ jobs:
       use_mongo: false
       use_celery: true
 
-      use_pytest: true
-      use_unittest: false
 
       use_coverage: true
       upload_coverage: true

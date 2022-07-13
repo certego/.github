@@ -67,8 +67,6 @@ jobs:
       celery_app: python_test.celery
       celery_queues: default
 
-      use_pytest: true
-      use_unittest: true
       use_coverage: true
       upload_coverage: true
       custom_command: whoami; ls -la

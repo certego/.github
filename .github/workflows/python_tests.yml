@@ -76,19 +76,8 @@ on:
         type: boolean
         required: false
 
-      use_unittest:
-        description: Use unittest suite
-        default: false
-        type: boolean
-        required: false
-      use_pytest:
-        description: Use pytest suite
-        default: false
-        type: boolean
-        required: false
-
       use_coverage:
-        description: Use coverage.py. Require pytest or  unittest to be set.
+        description: Use coverage.py.
         default: false
         type: boolean
         required: false
@@ -179,17 +168,8 @@ jobs:
             - name: Create requirements-dev.txt
               run: |
                 echo > requirements-dev.txt
-                if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                  echo "pytest>=7.0.0" >> requirements-dev.txt
-                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
-                    echo "pytest-django>=4.5.2" >> requirements-dev.txt
-                  fi
-                fi
                 if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
                   echo "coverage>=6.4.1" >> requirements-dev.txt
-                  if [[ ${{ inputs.use_pytest }} != 'false' ]]; then
-                    echo "pytest-cov>=3.0.0" >> requirements-dev.txt
-                  fi
                 fi
               shell: bash
 
@@ -394,7 +374,6 @@ jobs:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Run unittest
-              if: inputs.use_unittest
               run: |
                 CMD="python"
                 if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
@@ -414,20 +393,6 @@ jobs:
               env:
                 PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
-            - name: Run pytest
-              if: inputs.use_pytest
-              run: |
-                if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-                  CMD="py.test -l --color=yes --cov --no-cov-on-fail --durations=15 --cov-config=${{ inputs.coverage_config_path }}"
-                else
-                  CMD="python -m pytest"
-                fi
-                CMD="${CMD} --exitfirst"
-                echo "Running command: ${CMD}"
-                $CMD
-              working-directory: ${{ inputs.working_directory }}
-              env:
-                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Create coverage output
               if: inputs.use_coverage && inputs.upload_coverage

@@ -43,5 +43,3 @@ jobs:
       check_requirements_licenses: true
       use_coverage: true
       upload_coverage: true
-      use_pytest: false
-      use_unittest: false
