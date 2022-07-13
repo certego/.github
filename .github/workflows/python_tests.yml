@@ -125,12 +125,6 @@ on:
         required: false
         default: >-
           {}
-      secrets:
-        description: Secrets to set
-        type: string
-        required: false
-        default: >-
-          []
 
 jobs:
     tests:

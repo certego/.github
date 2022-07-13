@@ -74,3 +74,4 @@ jobs:
         {"KEY": "VALUE"}
       python_versions: >-
         ["3.9"]
+    secrets: inherit
