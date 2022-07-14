@@ -39,7 +39,7 @@ runs:
         echo "Running command: ${CMD}"
         $CMD
       working-directory: ${{ inputs.working_directory }}
-      env: ${{ secrets }}
+      env: ${{ fromJson(secrets) }}
       shell: bash
 
     - name: Create coverage output
