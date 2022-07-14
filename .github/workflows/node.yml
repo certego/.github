@@ -23,6 +23,23 @@ on:
         type: boolean
         required: false
 
+      use_eslint:
+        description: Use eslint formatter
+        default: true
+        type: boolean
+        required: false
+      use_prettier:
+        description: Use prettier formatter
+        default: true
+        type: boolean
+        required: false
+      use_stylelint:
+        description: Use stylelint formatter
+        default: true
+        type: boolean
+        required: false
+
+
       use_coverage:
         description: Output coverage. Require jest to be set.
         default: false
@@ -35,7 +52,7 @@ on:
         required: false
 
 jobs:
-  tests:
+  node:
     name: Run node.js tests
     runs-on: ubuntu-latest
     strategy:
@@ -56,26 +73,14 @@ jobs:
           npm ci
         working-directory: ${{ inputs.working_directory }}
 
-      - name: Collect packages licenses
-        if: inputs.check_packages_licenses
-        run: |
-          echo '{"name":"", "license":""}' > fmt.json
-          npx -y license-checker@25.0.1 --csv --production --excludePrivatePackages --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
-          cat licenses.csv
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Check packages licenses
-        if: inputs.check_packages_licenses
-        id: license_check_report
-        continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v0.6.2
+      - name: Run linters
+        uses: certego/.github/.github/actions/node_linter@0.3.0
         with:
-          requirements: ${{ inputs.requirements_path }}
-          external: ${{ inputs.working_directory }}/licenses.csv
-          external-format: csv
-          table-headers: true
-          fail: 'StrongCopyleft,NetworkCopyleft,Error'
-          fails-only: true
+          working_directory: ${{ inputs.working_directory }}
+          use_eslint: ${{ inputs.use_eslint }}
+          use_prettier: ${{ inputs.use_prettier }}
+          use_stylelint: ${{ inputs.use_stylelint }}
+          check_packages_licenses: ${{ inputs.check_packages_licenses }}
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
@@ -93,24 +98,12 @@ jobs:
             $CMD
           fi
         working-directory: ${{ inputs.working_directory }}
+        shell: bash
 
-      - name: Find Comment
-        if: inputs.use_coverage && inputs.upload_coverage
-        uses: peter-evans/find-comment@v2
-        id: fc
+      - name: Upload coverage
+        uses: certego/.github/.github/actions/upload_coverage@0.3.0
+        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Jest coverage report
-          direction: first
+          unique_body_msg: Jest coverage report
+          body: ${{ steps.jest-tests.outputs.coverage_content }}
 
-      - name: Create or update coverage to PR comment
-        if: inputs.use_coverage && inputs.upload_coverage
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            Jest coverage report:
-            ${{ steps.jest-tests.outputs.coverage_content }}
-          edit-mode: replace  
