@@ -30,21 +30,21 @@ runs:
   steps:
 
     - name: Black formatter
-      if: ${{ inputs.use_black }} == true
+      if: ${{ inputs.use_black }}
       run:
         black . --check --diff
       working-directory: ${{ inputs.working_directory }}
       shell: bash
 
     - name: Lint with flake8 (PEP8 enforcer + linter)
-      if: ${{ inputs.use_flake8 }} == true
+      if: ${{ inputs.use_flake8 }}
       run: |
         flake8 .  --show-source
       working-directory: ${{ inputs.working_directory }}
       shell: bash
 
     - name: isort
-      if: ${{ inputs.use_isort }} == true
+      if: ${{ inputs.use_isort }}
       run: |
         CMD="isort . --filter-files --check-only --diff"
         if [[ '${{ inputs.use_black }}' != 'false' ]]; then
@@ -57,7 +57,7 @@ runs:
 
 
     - name: bandit
-      if: ${{ inputs.use_bandit }} == true
+      if: ${{ inputs.use_bandit }}
       run: |
         bandit . -r -c ${{ inputs.bandit_config_file }}
       working-directory: ${{ inputs.working_directory }}

@@ -228,14 +228,14 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.3.1
+        uses: certego/.github/.github/actions/python_linter@develop
         with:
           working_directory: ${{ inputs.working_directory }}
-          use_black: ${{ inputs.use_black }}
-          use_isort: ${{ inputs.use_isort }}
-          use_flake8: ${{ inputs.use_flake8 }}
-          use_pylint: ${{ inputs.use_pylint }}
-          use_bandit: ${{ inputs.use_bandit }}
+          use_black: ${{ inputs.use_black == true }}
+          use_isort: ${{ inputs.use_isort == true }}
+          use_flake8: ${{ inputs.use_flake8 == true }}
+          use_pylint: ${{ inputs.use_pylint == true }}
+          use_bandit: ${{ inputs.use_bandit == true }}
           bandit_config_file: ${{ inputs.bandit_config_file }}
 
       - name: Export apt requirements
@@ -320,14 +320,14 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.3.1
+        uses: certego/.github/.github/actions/services@develop
         with:
-          use_mongo: ${{ inputs.use_mongo }}
-          use_redis: ${{ inputs.use_redis }}
-          use_postgres: ${{ inputs.use_postgres }}
-          use_elastic_search: ${{ inputs.use_elastic_search }}
-          use_memcached: ${{ inputs.use_memcached }}
-          use_rabbitmq: ${{ inputs.use_rabbitmq }}
+          use_mongo: ${{ inputs.use_mongo == true }}
+          use_redis: ${{ inputs.use_redis == true }}
+          use_postgres: ${{ inputs.use_postgres == true }}
+          use_elastic_search: ${{ inputs.use_elastic_search == true }}
+          use_memcached: ${{ inputs.use_memcached == true }}
+          use_rabbitmq: ${{ inputs.use_rabbitmq == true }}
           postgres_db: ${{ inputs.postgres_db }}
           postgres_user: ${{ inputs.postgres_user }}
           postgres_password: ${{ inputs.postgres_password }}
@@ -380,7 +380,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@0.3.1
+        uses: certego/.github/.github/actions/upload_coverage@develop
         if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
         with:
           unique_body_msg: Coverage.py report

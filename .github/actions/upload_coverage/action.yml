@@ -3,11 +3,9 @@ description: Composite action upload coverage
 inputs:
   unique_body_msg:
     description: Unique body message
-    type: string
     required: true
   body:
     description: Body message
-    type: string
     required: true
 
 
@@ -16,7 +14,7 @@ runs:
   steps:
 
     - name: Find Comment
-      if: inputs.use_coverage == true && inputs.upload_coverage == true
+      if: inputs.use_coverage && inputs.upload_coverage
       uses: peter-evans/find-comment@v2
       id: fc
       with:
@@ -26,7 +24,7 @@ runs:
         direction: first
 
     - name: Create or update coverage to PR comment
-      if: inputs.use_coverage == true && inputs.upload_coverage == true
+      if: inputs.use_coverage && inputs.upload_coverage
       uses: peter-evans/create-or-update-comment@v2
       with:
         comment-id: ${{ steps.fc.outputs.comment-id }}
