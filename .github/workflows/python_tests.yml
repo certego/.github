@@ -181,7 +181,7 @@ jobs:
                   echo "coverage>=6.4.1" >> requirements-dev.txt
                 fi
               shell: bash
-              working-directory: ${{ inputs.working_directory }}
+              working-directory: ${{ inputs.install_from }}
 
             - uses: syphar/restore-virtualenv@v1
               id: cache-virtualenv
