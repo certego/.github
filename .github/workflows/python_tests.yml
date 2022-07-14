@@ -187,8 +187,8 @@ jobs:
               id: cache-virtualenv
               with:
                 requirement_files: |
-                  ${{ inputs.requirements_path }}
-                  requirements-dev.txt
+                  ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+                  ${{ inputs.install_from }}/requirements-dev.txt
 
             - uses: syphar/restore-pip-download-cache@v1
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
