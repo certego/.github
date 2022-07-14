@@ -40,6 +40,7 @@ jobs:
     uses: ./.github/workflows/python_linter.yml
     with:
       working_directory: test/python_test
+      django_settings_module: python_test.settings
       use_black: true
       use_isort: true
       use_flake8: true

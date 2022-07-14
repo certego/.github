@@ -26,6 +26,7 @@ jobs:
     uses: certego/.github/.github/workflows/python_linter.yml@main
     with:
       working_directory: backend
+      django_settings_module: backend.settings
       use_black: true
       use_isort: true
       use_flake8: true
