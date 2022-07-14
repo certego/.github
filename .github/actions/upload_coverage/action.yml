@@ -16,7 +16,7 @@ runs:
   steps:
 
     - name: Find Comment
-      if: inputs.use_coverage && inputs.upload_coverage
+      if: inputs.use_coverage == true && inputs.upload_coverage == true
       uses: peter-evans/find-comment@v2
       id: fc
       with:
@@ -26,7 +26,7 @@ runs:
         direction: first
 
     - name: Create or update coverage to PR comment
-      if: inputs.use_coverage && inputs.upload_coverage
+      if: inputs.use_coverage == true && inputs.upload_coverage == true
       uses: peter-evans/create-or-update-comment@v2
       with:
         comment-id: ${{ steps.fc.outputs.comment-id }}

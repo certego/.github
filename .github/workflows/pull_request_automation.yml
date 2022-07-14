@@ -42,7 +42,7 @@ jobs:
       use_isort: true
       use_flake8: true
       use_pylint: true
-      use_bandit: true
+      use_bandit: false
 
 
       requirements_path: test/python_test/requirements.txt
