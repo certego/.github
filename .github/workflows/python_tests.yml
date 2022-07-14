@@ -10,15 +10,24 @@ on:
         description: Directory that must be run against the linters
         type: string
         required: true
+
+
       requirements_path:
         description: Path to the requirements.txt file
         type: string
         required: true
+
+      install_from:
+        description: Directory that must be used to install the packages
+        type: string
+        required: false
+        default: .
+
+
       packages_path:
         description: Path to the packages.txt file
         type: string
         required: false
-
 
       custom_command:
         description: String of custom command to run
@@ -187,6 +196,7 @@ jobs:
                 pip install -r ${{ inputs.requirements_path }}
                 pip install -r requirements-dev.txt
               if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+              working-directory: ${{ inputs.install_from }}
 
             - name: Check requirements licenses
               if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
