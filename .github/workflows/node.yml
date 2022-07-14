@@ -1,0 +1,92 @@
+name: Reusable node tests workflow
+on:
+  workflow_call:
+    inputs:
+      node_versions:
+        description: Node versions to use
+        type: string
+        required: true
+      working_directory:
+        description: Path to the package.json file
+        type: string
+        required: true
+
+      check_packages_licenses:
+        description: Check if npm packages have a valid license.
+        type: boolean
+        required: false
+        default: true
+
+      use_jest:
+        description: Use jest suite
+        default: false
+        type: boolean
+        required: false
+
+      use_eslint:
+        description: Use eslint formatter
+        default: true
+        type: boolean
+        required: false
+      use_prettier:
+        description: Use prettier formatter
+        default: true
+        type: boolean
+        required: false
+      use_stylelint:
+        description: Use stylelint formatter
+        default: true
+        type: boolean
+        required: false
+
+
+      use_coverage:
+        description: Output coverage. Require jest to be set.
+        default: false
+        type: boolean
+        required: false
+      upload_coverage:
+        description: Upload coverage report to GitHub
+        default: false
+        type: boolean
+        required: false
+
+jobs:
+  tests:
+    name: Run node.js tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: ${{ fromJson(inputs.node_versions) }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Run linters
+        uses: ./node_linter.yml
+        with:
+          working_directory: ${{ inputs.working_directory }}
+          use_eslint: ${{ inputs.use_eslint }}
+          use_prettier: ${{ inputs.use_prettier }}
+          use_stylelint: ${{ inputs.use_stylelint }}
+          check_packages_licenses: ${{ inputs.check_packages_licenses }}
+
+      - name: Run tests
+        uses: ./node_tests.yml
+        with:
+          working_directory: ${{ inputs.working_directory }}
+          use_jest: ${{ inputs.use_jest }}
+          use_coverage: ${{ inputs.use_coverage }}
+          upload_coverage: ${{ inputs.upload_coverage }}
+

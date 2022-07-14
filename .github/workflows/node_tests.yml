@@ -1,116 +1,62 @@
-name: Reusable node tests workflow
-on:
-  workflow_call:
-    inputs:
-      node_versions:
-        description: Node versions to use
-        type: string
-        required: true
-      working_directory:
-        description: Path to the package.json file
-        type: string
-        required: true
+name: Composite action node linter
+inputs:
+  working_directory:
+    description: Path to the package.json file
+    type: string
+    required: true
 
-      check_packages_licenses:
-        description: Check if npm packages have a valid license.
-        type: boolean
-        required: false
-        default: true
 
-      use_jest:
-        description: Use jest suite
-        default: false
-        type: boolean
-        required: false
+  use_jest:
+    description: Use jest suite
+    type: boolean
+    required: true
+  use_coverage:
+    description: Output coverage. Require jest to be set.
+    type: boolean
+    required: true
+  upload_coverage:
+    description: Upload coverage report to GitHub
+    type: boolean
+    required: true
 
-      use_coverage:
-        description: Output coverage. Require jest to be set.
-        default: false
-        type: boolean
-        required: false
-      upload_coverage:
-        description: Upload coverage report to GitHub
-        default: false
-        type: boolean
-        required: false
 
-jobs:
-  tests:
-    name: Run node.js tests
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node_version: ${{ fromJson(inputs.node_versions) }}
-    steps:
-      - uses: actions/checkout@v3
+runs:
+  using: "composite"
+  steps:
+    - name: Run jest tests
+      if: ${{ inputs.use_jest }}
+      id: jest-tests
+      run: |
+        if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+          CMD="npm test -- --silent --coverage"
+        else
+            CMD="npm test"
+        fi
+        echo "Running command: ${CMD}"
+        if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
+          echo ::set-output name=coverage_content::$($CMD | grep -Ev "^(>|$)" | awk '{printf "%s<br />", $0}')
+        else
+          $CMD
+        fi
+      working-directory: ${{ inputs.working_directory }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node_version }}
-          cache: 'npm'
-          cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
+    - name: Find Comment
+      if: inputs.use_coverage && inputs.upload_coverage
+      uses: peter-evans/find-comment@v2
+      id: fc
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: Jest coverage report
+        direction: first
 
-      - name: Install dependencies
-        run: |
-          npm ci
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Collect packages licenses
-        if: inputs.check_packages_licenses
-        run: |
-          echo '{"name":"", "license":""}' > fmt.json
-          npx -y license-checker@25.0.1 --csv --production --excludePrivatePackages --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
-          cat licenses.csv
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Check packages licenses
-        if: inputs.check_packages_licenses
-        id: license_check_report
-        continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v0.6.2
-        with:
-          requirements: ${{ inputs.requirements_path }}
-          external: ${{ inputs.working_directory }}/licenses.csv
-          external-format: csv
-          table-headers: true
-          fail: 'StrongCopyleft,NetworkCopyleft,Error'
-          fails-only: true
-
-      - name: Run jest tests
-        if: ${{ inputs.use_jest }}
-        id: jest-tests
-        run: |
-          if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-            CMD="npm test -- --silent --coverage"
-          else
-              CMD="npm test"
-          fi
-          echo "Running command: ${CMD}"
-          if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
-            echo ::set-output name=coverage_content::$($CMD | grep -Ev "^(>|$)" | awk '{printf "%s<br />", $0}')
-          else
-            $CMD
-          fi
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Find Comment
-        if: inputs.use_coverage && inputs.upload_coverage
-        uses: peter-evans/find-comment@v2
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Jest coverage report
-          direction: first
-
-      - name: Create or update coverage to PR comment
-        if: inputs.use_coverage && inputs.upload_coverage
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            Jest coverage report:
-            ${{ steps.jest-tests.outputs.coverage_content }}
-          edit-mode: replace  
+    - name: Create or update coverage to PR comment
+      if: inputs.use_coverage && inputs.upload_coverage
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          Jest coverage report:
+          ${{ steps.jest-tests.outputs.coverage_content }}
+        edit-mode: replace

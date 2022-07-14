@@ -1,69 +1,68 @@
-name: Reusable node linter workflow
-on:
-  workflow_call:
-    inputs:
-      node_versions:
-        description: Node versions to use
-        type: string
-        required: true
-      working_directory:
-        description: Directory that must be run against the linters
-        type: string
-        required: true
-
-      use_eslint:
-        description: Use eslint formatter
-        default: true
-        type: boolean
-        required: false
-      use_prettier:
-        description: Use prettier formatter
-        default: true
-        type: boolean
-        required: false
-      use_stylelint:
-        description: Use stylelint formatter
-        default: true
-        type: boolean
-        required: false
+name: Composite action node linter
+inputs:
+  working_directory:
+    description: Path to the package.json file
+    type: string
+    required: true
 
 
-jobs:
-    linters:
-        name: Run node.js linters
-        runs-on: ubuntu-latest
-        strategy:
-          matrix:
-            node-version: ${{ fromJson(inputs.node_versions) }}
-        steps:
-          - uses: actions/checkout@v3
+  use_eslint:
+    description: Use eslint formatter
+    type: boolean
 
-          - name: Set up Node.js
-            uses: actions/setup-node@v3
-            with:
-              node-version: ${{ matrix.node_version }}
-              cache: 'npm'
-              cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
+  use_prettier:
+    description: Use prettier formatter
+    type: boolean
+    required: true
 
-          - name: Install dependencies
-            run: |
-              npm ci
-            working-directory: ${{ inputs.working_directory }}
+  use_stylelint:
+    description: Use stylelint formatter
+    type: boolean
+    required: true
 
-          - name: Lint with eslint
-            if: ${{ inputs.use_eslint }}
-            run: |
-              npm run lint
-            working-directory: ${{ inputs.working_directory }}
+  check_packages_licenses:
+    description: Check if npm packages have a valid license.
+    type: boolean
+    required: true
 
-          - name: Lint with prettier
-            if: ${{ inputs.use_prettier }}
-            run: |
-              npm run prettier:check
-            working-directory: ${{ inputs.working_directory }}
+runs:
+  using: "composite"
+  steps:
+    - name: Lint with eslint
+      if: ${{ inputs.use_eslint }}
+      run: |
+        npm run lint
+      working-directory: ${{ inputs.working_directory }}
 
-          - name: Lint with stylelint
-            if: ${{ inputs.use_stylelint }}
-            run: |
-              npm run lint-sass
-            working-directory: ${{ inputs.working_directory }}
+    - name: Lint with prettier
+      if: ${{ inputs.use_prettier }}
+      run: |
+        npm run prettier:check
+      working-directory: ${{ inputs.working_directory }}
+
+    - name: Lint with stylelint
+      if: ${{ inputs.use_stylelint }}
+      run: |
+        npm run lint-sass
+      working-directory: ${{ inputs.working_directory }}
+
+    - name: Collect packages licenses
+      if: inputs.check_packages_licenses
+      run: |
+        echo '{"name":"", "license":""}' > fmt.json
+        npx -y license-checker@25.0.1 --csv --production --excludePrivatePackages --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
+        cat licenses.csv
+      working-directory: ${{ inputs.working_directory }}
+
+    - name: Check packages licenses
+      if: inputs.check_packages_licenses
+      id: license_check_report
+      continue-on-error: true
+      uses: pilosus/action-pip-license-checker@v0.6.2
+      with:
+        requirements: ${{ inputs.requirements_path }}
+        external: ${{ inputs.working_directory }}/licenses.csv
+        external-format: csv
+        table-headers: true
+        fail: 'StrongCopyleft,NetworkCopyleft,Error'
+        fails-only: true

@@ -15,26 +15,23 @@ concurrency:
 
 jobs:
 
-  node_linters:
-    uses: ./.github/workflows/node_linter.yml
+  node:
+    uses: ./.github/workflows/node.yml
     with:
       working_directory: test/node_test
+
       use_eslint: true
       use_prettier: true
       use_stylelint: true
-      node_versions: >-
-        ["16"]
 
-  node_tests:
-    uses: ./.github/workflows/node_tests.yml
-    with:
-      working_directory: test/node_test
       check_packages_licenses: true
       use_jest: true
       use_coverage: true
       upload_coverage: true
+
       node_versions: >-
         ["16"]
+
 
   python_linters:
     uses: ./.github/workflows/python_linter.yml

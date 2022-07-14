@@ -147,9 +147,6 @@ jobs:
         steps:
             - uses: actions/checkout@v3
 
-            - id: foo
-              uses: certego/.github/.github/composite_actions/python_installation.yml@django+linters
-
             - name: Export apt requirements
               id: export-apt-requirements
               if: inputs.packages_path
@@ -218,6 +215,18 @@ jobs:
               if: inputs.django_settings_module
               run: |
                 echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+            - name: Check pylint
+              if: ${{ inputs.use_pylint }}
+              run: |
+                  if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                    CMD="pylint ."
+                  else
+                    CMD="pylint `ls -d */`"
+                  fi
+                  echo "Executing $CMD"
+                  $CMD
+              working-directory: ${{ inputs.working_directory }}
 
             - name: Create mongo docker-compose file
               if: inputs.use_mongo
