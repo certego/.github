@@ -1,0 +1,72 @@
+name: Composite action python tests
+description: Composite action python tests
+inputs:
+  working_directory:
+    description: Directory that must be run against the linters
+    type: string
+    required: true
+
+  use_coverage:
+    description: Use coverage.py.
+    type: boolean
+    required: true
+  coverage_config_path:
+    description: Path to the coverage.py config file
+    type: string
+    required: true
+  upload_coverage:
+    description: Upload coverage.py report to github
+    type: boolean
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run unittest
+      run: |
+        CMD="python"
+        if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+            CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+            if [[ -n '${{ inputs.django_settings_module }}' ]]; then
+              CMD="${CMD} -a manage.py test"
+            else
+              CMD="${CMD} -m unittest discover"
+            fi
+        else
+          CMD="python -m unittest discover"
+        fi
+        CMD="${CMD} --failfast"
+        echo "Running command: ${CMD}"
+        $CMD
+      working-directory: ${{ inputs.working_directory }}
+      env: ${{ secrets }}
+      shell: bash
+
+    - name: Create coverage output
+      if: inputs.use_coverage && inputs.upload_coverage
+      id: coverage-output
+      run: |
+        echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+      working-directory: ${{ inputs.working_directory }}
+      shell: bash
+
+    - name: Find Comment
+      if: inputs.use_coverage && inputs.upload_coverage
+      uses: peter-evans/find-comment@v2
+      id: fc
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: Coverage.py report
+        direction: first
+
+    - name: Create or update coverage to PR comment
+      if: inputs.use_coverage && inputs.upload_coverage
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          Coverage.py report:
+          ${{ steps.coverage-output.outputs.coverage_content }}
+        edit-mode: replace

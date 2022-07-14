@@ -235,7 +235,6 @@ jobs:
           use_pylint: ${{ inputs.use_pylint }}
           use_bandit: ${{ inputs.use_bandit }}
           bandit_config_file: ${{ inputs.bandit_config_file }}
-          django_settings_module: ${{ inputs.django_settings_module }}
 
       - name: Export apt requirements
         id: export-apt-requirements
@@ -318,6 +317,17 @@ jobs:
           postgres_user: ${{ inputs.postgres_user }}
           postgres_password: ${{ inputs.postgres_password }}
 
+      - name: Start celery worker
+        if: inputs.use_celery
+        run: |
+          celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Inject python path to environ
+        if: inputs.django_settings_module
+        run: |
+          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
+
       - name: Custom command
         if: inputs.custom_command
         run: |
@@ -332,51 +342,14 @@ jobs:
         run: |
           django-admin makemigrations --dry-run >/dev/null
         working-directory: ${{ inputs.working_directory }}
+        shell: bash
 
-      - name: Run unittest
-        run: |
-          CMD="python"
-          if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-              CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
-              if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test"
-              else
-                CMD="${CMD} -m unittest discover"
-              fi
-          else
-            CMD="python -m unittest discover"
-          fi
-          CMD="${CMD} --failfast"
-          echo "Running command: ${CMD}"
-          $CMD
-        working-directory: ${{ inputs.working_directory }}
-        env: ${{ secrets }}
-
-      - name: Create coverage output
-        if: inputs.use_coverage && inputs.upload_coverage
-        id: coverage-output
-        run: |
-          echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Find Comment
-        if: inputs.use_coverage && inputs.upload_coverage
-        uses: peter-evans/find-comment@v2
-        id: fc
+      - name: Start tests
+        uses: ./.github/actions/python_tests
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Coverage.py report
-          direction: first
+          working_directory: ${{ inputs.working_directory }}
+          use_coverage: ${{ inputs.use_coverage }}
+          coverage_config_path: ${{ inputs.coverage_config_path }}
+          upload_coverage: ${{ inputs.upload_coverage }}
 
-      - name: Create or update coverage to PR comment
-        if: inputs.use_coverage && inputs.upload_coverage
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            Coverage.py report:
-            ${{ steps.coverage-output.outputs.coverage_content }}
-          edit-mode: replace
 
