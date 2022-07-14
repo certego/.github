@@ -1,4 +1,5 @@
 name: Composite action node linter
+description: Composite action node linter
 inputs:
   working_directory:
     description: Path to the package.json file
@@ -39,6 +40,7 @@ runs:
           $CMD
         fi
       working-directory: ${{ inputs.working_directory }}
+      shell: bash
 
     - name: Find Comment
       if: inputs.use_coverage && inputs.upload_coverage

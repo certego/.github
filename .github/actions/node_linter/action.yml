@@ -1,4 +1,5 @@
 name: Composite action node linter
+description: Composite action node linter
 inputs:
   working_directory:
     description: Path to the package.json file
@@ -9,6 +10,7 @@ inputs:
   use_eslint:
     description: Use eslint formatter
     type: boolean
+    required: true
 
   use_prettier:
     description: Use prettier formatter
@@ -33,18 +35,21 @@ runs:
       run: |
         npm run lint
       working-directory: ${{ inputs.working_directory }}
+      shell: bash
 
     - name: Lint with prettier
       if: ${{ inputs.use_prettier }}
       run: |
         npm run prettier:check
       working-directory: ${{ inputs.working_directory }}
+      shell: bash
 
     - name: Lint with stylelint
       if: ${{ inputs.use_stylelint }}
       run: |
         npm run lint-sass
       working-directory: ${{ inputs.working_directory }}
+      shell: bash
 
     - name: Collect packages licenses
       if: inputs.check_packages_licenses
@@ -53,6 +58,7 @@ runs:
         npx -y license-checker@25.0.1 --csv --production --excludePrivatePackages --customPath fmt.json | cut -d, -f2,3 | tail -n +2 > licenses.csv
         cat licenses.csv
       working-directory: ${{ inputs.working_directory }}
+      shell: bash
 
     - name: Check packages licenses
       if: inputs.check_packages_licenses
