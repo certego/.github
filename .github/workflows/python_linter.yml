@@ -112,7 +112,12 @@ jobs:
             - name: isort
               if: ${{ inputs.use_isort }}
               run: |
-                isort . --profile black --filter-files --check-only --diff
+                CMD="isort . --filter-files --check-only --diff"
+                if [[ ${{ inputs.use_black }} ]]; then
+                  CMD="$CMD --black"
+                fi
+                echo "Executing $CMD"
+                $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
                 WORKING_DIRECTORY: ${{ inputs.working_directory }}
