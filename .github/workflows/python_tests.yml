@@ -356,6 +356,11 @@ jobs:
                 celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach 
               working-directory: ${{ inputs.working_directory }}
 
+            - name: Inject python path to environ
+              if: inputs.django_settings_module
+              run: |
+                echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
+
             - name: Custom command
               if: inputs.custom_command
               run: |
@@ -370,8 +375,7 @@ jobs:
               run: |
                 django-admin makemigrations --dry-run >/dev/null
               working-directory: ${{ inputs.working_directory }}
-              env:
-                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
+
 
             - name: Run unittest
               run: |
@@ -390,9 +394,7 @@ jobs:
                 echo "Running command: ${CMD}"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
-              env:
-                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
-
+              env: ${{ secrets }}
 
             - name: Create coverage output
               if: inputs.use_coverage && inputs.upload_coverage
@@ -400,8 +402,6 @@ jobs:
               run: |
                 echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
               working-directory: ${{ inputs.working_directory }}
-              env:
-                PYTHONPATH: ${{ github.workspace }}/${{ inputs.working_directory }}:$PYTHONPATH
 
             - name: Find Comment
               if: inputs.use_coverage && inputs.upload_coverage
