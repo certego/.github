@@ -70,15 +70,15 @@ jobs:
     needs: detect-changes
     uses: certego/.github/.github/workflows/node.yml@main
     with:
-        working_directory: frontend
+      working_directory: frontend
 
-        use_eslint: true
-        use_stylelint: true
-        use_prettier: true
+      use_eslint: true
+      use_stylelint: true
+      use_prettier: true
 
-        check_packages_licenses: true
-        use_jest: true
-        use_coverage: true
-        upload_coverage: true
-        node_versions: >-
-          [ "16", "15", "14", "13" ]
+      check_packages_licenses: true
+      use_jest: true
+      use_coverage: true
+      upload_coverage: true
+      node_versions: >-
+        [ "16", "15", "14", "13" ]
