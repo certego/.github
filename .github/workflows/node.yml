@@ -82,11 +82,28 @@ jobs:
           use_stylelint: ${{ inputs.use_stylelint }}
           check_packages_licenses: ${{ inputs.check_packages_licenses }}
 
-      - name: Run tests
-        uses: ./.github/actions/node_tests
+      - name: Run jest tests
+        if: ${{ inputs.use_jest }}
+        id: jest-tests
+        run: |
+          if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+            CMD="npm test -- --silent --coverage"
+          else
+              CMD="npm test"
+          fi
+          echo "Running command: ${CMD}"
+          if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
+            echo ::set-output name=coverage_content::$($CMD | grep -Ev "^(>|$)" | awk '{printf "%s<br />", $0}')
+          else
+            $CMD
+          fi
+        working-directory: ${{ inputs.working_directory }}
+        shell: bash
+
+      - name: Upload coverage
+        uses: ./.github/actions/upload_coverage
+        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
         with:
-          working_directory: ${{ inputs.working_directory }}
-          use_jest: ${{ inputs.use_jest }}
-          use_coverage: ${{ inputs.use_coverage }}
-          upload_coverage: ${{ inputs.upload_coverage }}
+          unique_body_msg: Jest coverage report
+          body: ${{ steps.jest-tests.outputs.coverage_content }}
 

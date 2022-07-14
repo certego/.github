@@ -220,13 +220,15 @@ jobs:
 
       - uses: syphar/restore-pip-download-cache@v1
         if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
+        with:
+          requirement_files: requirements-linter.txt
 
       - run: pip install -r requirements-linter.txt
         if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
         shell: bash
 
       - name: Run fast linters
-        uses: ./.github/actions/python_fast_linter
+        uses: ./.github/actions/python_linter
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
@@ -292,6 +294,19 @@ jobs:
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
 
+      - uses: syphar/restore-pip-download-cache@v1
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        with:
+          requirement_files: |
+            ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+            ${{ inputs.install_from }}/requirements-dev.txt
+
+      - run: |
+          pip install -r ${{ inputs.requirements_path }}
+          pip install -r requirements-dev.txt
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        shell: bash
+
       - name: Check pylint
         if: ${{ inputs.use_pylint }}
         run: |
@@ -344,12 +359,31 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         shell: bash
 
-      - name: Start tests
-        uses: ./.github/actions/python_tests
+      - name: Run unittest
+        run: |
+          CMD="python"
+          if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+              CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+              if [[ -n '${{ inputs.django_settings_module }}' ]]; then
+                CMD="${CMD} -a manage.py test"
+              else
+                CMD="${CMD} -m unittest discover"
+              fi
+          else
+            CMD="python -m unittest discover"
+          fi
+          CMD="${CMD} --failfast"
+          echo "Running command: ${CMD}"
+          $CMD
+        working-directory: ${{ inputs.working_directory }}
+        env: ${{ secrets }}
+        shell: bash
+
+      - name: Upload coverage
+        uses: ./.github/actions/upload_coverage
+        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
         with:
-          working_directory: ${{ inputs.working_directory }}
-          use_coverage: ${{ inputs.use_coverage }}
-          coverage_config_path: ${{ inputs.coverage_config_path }}
-          upload_coverage: ${{ inputs.upload_coverage }}
+          unique_body_msg: Coverage.py report
+          body: ${{ steps.coverage-output.outputs.coverage_content }}
 
 
