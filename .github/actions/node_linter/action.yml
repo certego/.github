@@ -3,28 +3,23 @@ description: Composite action node linter
 inputs:
   working_directory:
     description: Path to the package.json file
-    type: string
     required: true
 
 
   use_eslint:
     description: Use eslint formatter
-    type: boolean
     required: true
 
   use_prettier:
     description: Use prettier formatter
-    type: boolean
     required: true
 
   use_stylelint:
     description: Use stylelint formatter
-    type: boolean
     required: true
 
   check_packages_licenses:
     description: Check if npm packages have a valid license.
-    type: boolean
     required: true
 
 runs:
