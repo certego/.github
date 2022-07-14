@@ -214,15 +214,15 @@ jobs:
         shell: bash
 
       - uses: syphar/restore-virtualenv@v1
-        id: cache-virtualenv
+        id: cache-virtualenv-linter
         with:
           requirement_files: requirements-linter.txt
 
       - uses: syphar/restore-pip-download-cache@v1
-        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
 
       - run: pip install -r requirements-linter.txt
-        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
         shell: bash
 
       - name: Run fast linters
