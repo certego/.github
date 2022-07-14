@@ -142,7 +142,7 @@ jobs:
                   if [[ -z ${{ inputs.django_settings_module }} ]]; then
                     CMD="pylint ."
                   else
-                    CMD="pylint `ls -D`"
+                    CMD="pylint `ls -d */`"
                   fi
                   echo "Executing $CMD"
                   $CMD
