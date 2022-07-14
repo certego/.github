@@ -41,6 +41,9 @@ jobs:
     strategy:
       matrix:
         node_version: ${{ fromJson(inputs.node_versions) }}
+    permissions:
+      issues: read|write
+      pull-requests: read|write
     steps:
       - uses: actions/checkout@v3
 
