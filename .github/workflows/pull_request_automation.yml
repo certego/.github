@@ -50,6 +50,7 @@ jobs:
 
   python_tests:
      uses: ./.github/workflows/python_tests.yml
+     secrets: inherit
      with:
       working_directory: test/python_test
       requirements_path: test/python_test/requirements.txt
