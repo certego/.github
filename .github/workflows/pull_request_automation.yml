@@ -15,44 +15,36 @@ concurrency:
 
 jobs:
 
-  node_linters:
-    uses: ./.github/workflows/node_linter.yml
+  node:
+    uses: ./.github/workflows/node.yml
     with:
       working_directory: test/node_test
+
       use_eslint: true
       use_prettier: true
       use_stylelint: true
-      node_versions: >-
-        ["16"]
 
-  node_tests:
-    uses: ./.github/workflows/node_tests.yml
-    with:
-      working_directory: test/node_test
       check_packages_licenses: true
       use_jest: true
       use_coverage: true
       upload_coverage: true
+
       node_versions: >-
         ["16"]
 
-  python_linters:
-    uses: ./.github/workflows/python_linter.yml
-    with:
+
+  python:
+     uses: ./.github/workflows/python.yml
+     secrets: inherit
+     with:
       working_directory: test/python_test
       use_black: true
       use_isort: true
       use_flake8: true
       use_pylint: true
       use_bandit: true
-      python_versions: >-
-        ["3.9"]
 
-  python_tests:
-     uses: ./.github/workflows/python_tests.yml
-     secrets: inherit
-     with:
-      working_directory: test/python_test
+
       requirements_path: test/python_test/requirements.txt
       packages_path: test/python_test/packages.txt
       django_settings_module: python_test.settings
