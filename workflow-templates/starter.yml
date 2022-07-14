@@ -1,4 +1,4 @@
-name: Certego Django CI
+name: Certego CI
 
 on:
   pull_request:
@@ -20,27 +20,18 @@ jobs:
         backend_directories: backend
         frontend_directories: frontend
 
-  python_linters:
+  python:
     if: ${{ needs.detect-changes.outputs.backend > 0 }}
     needs: detect-changes
-    uses: certego/.github/.github/workflows/python_linter.yml@main
+    uses: certego/.github/.github/workflows/python.yml@main
     with:
       working_directory: backend
-      django_settings_module: backend.settings
+
       use_black: true
       use_isort: true
       use_flake8: true
       use_pylint: true
       use_bandit: false
-      python_versions: >-
-        [ "3.9", "3.10" ]
-
-  python_tests:
-    if: ${{ needs.detect-changes.outputs.backend > 0 }}
-    needs: [detect-changes, python_linters ]
-    uses: certego/.github/.github/workflows/python_tests.yml@main
-    with:
-      working_directory: backend
 
       requirements_path: backend/requirements.txt
       packages_path: backend/packages.txt
@@ -74,24 +65,17 @@ jobs:
       python_versions: >-
         [ "3.9", "3.10" ]
 
-  node_linters:
+  node:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     needs: detect-changes
-    uses: certego/.github/.github/workflows/node_linter.yml@main
+    uses: certego/.github/.github/workflows/node.yml@main
     with:
         working_directory: frontend
+
         use_eslint: true
         use_stylelint: true
         use_prettier: true
-        node_versions: >-
-          [ "16", "15", "14", "13" ]
 
-  node_tests:
-    if: ${{ needs.detect-changes.outputs.frontend > 0 }}
-    needs: detect-changes
-    uses: certego/.github/.github/workflows/node_tests.yml@main
-    with:
-        working_directory: frontend
         check_packages_licenses: true
         use_jest: true
         use_coverage: true
