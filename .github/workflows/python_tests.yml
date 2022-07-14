@@ -148,7 +148,7 @@ jobs:
             - uses: actions/checkout@v3
 
             - id: foo
-              uses: certego/.github/.github/composite_actions/python_installation.yml
+              uses: certego/.github/.github/composite_actions/python_installation.yml@django+linters
 
             - name: Export apt requirements
               id: export-apt-requirements
