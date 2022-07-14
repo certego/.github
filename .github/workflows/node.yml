@@ -52,7 +52,7 @@ on:
         required: false
 
 jobs:
-  tests:
+  node:
     name: Run node.js tests
     runs-on: ubuntu-latest
     strategy:

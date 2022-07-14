@@ -1,0 +1,382 @@
+name: Reusable python linter workflow
+on:
+  workflow_call:
+    inputs:
+      python_versions:
+        description: Python versions to use
+        type: string
+        required: true
+      working_directory:
+        description: Directory that must be run against the linters
+        type: string
+        required: true
+
+
+      use_black:
+        description: Use black formatter
+        default: true
+        type: boolean
+        required: false
+      use_isort:
+        description: Use isort formatter
+        default: true
+        type: boolean
+        required: false
+      use_flake8:
+        description: Use flake8 linter
+        default: true
+        type: boolean
+        required: false
+      use_pylint:
+        description: Use pylint linter
+        default: true
+        type: boolean
+        required: false
+      use_bandit:
+        description: Use bandit linter
+        default: true
+        type: boolean
+        required: false
+      bandit_config_file:
+        description: Path to the bandit config file from the working dir
+        type: string
+        required: false
+        default: .bandit.yaml
+
+
+      requirements_path:
+        description: Path to the requirements.txt file
+        type: string
+        required: true
+
+      install_from:
+        description: Directory that must be used to install the packages
+        type: string
+        required: false
+        default: .
+
+
+      packages_path:
+        description: Path to the packages.txt file
+        type: string
+        required: false
+
+      custom_command:
+        description: String of custom command to run
+        type: string
+        required: false
+      django_settings_module:
+        description: Path to the django settings file
+        type: string
+        required: false
+
+      check_migrations:
+        description: Check if migrations are valid. Require django_settings_module to be set.
+        type: boolean
+        required: false
+        default: false
+      check_requirements_licenses:
+        description: Check if requirements have a valid license. Require django_settings_module to be set.
+        type: boolean
+        required: false
+        default: true
+
+      use_postgres:
+        description: Use postgres service
+        default: false
+        type: boolean
+        required: false
+      use_elastic_search:
+        description: Use elastic_search service
+        default: false
+        type: boolean
+        required: false
+      use_memcached:
+        description: Use memcached service
+        default: false
+        type: boolean
+        required: false
+      use_redis:
+        description: Use redis service
+        default: false
+        type: boolean
+        required: false
+      use_rabbitmq:
+        description: Use rabbitmq service
+        default: false
+        type: boolean
+        required: false
+      use_mongo:
+        description: Use mongo service
+        default: false
+        type: boolean
+        required: false
+      use_celery:
+        description: Create a celery worker
+        default: false
+        type: boolean
+        required: false
+
+      use_coverage:
+        description: Use coverage.py.
+        default: false
+        type: boolean
+        required: false
+      coverage_config_path:
+        description: Path to the coverage.py config file
+        type: string
+        required: false
+        default: .coveragerc
+      upload_coverage:
+        description: Upload coverage.py report to github
+        default: false
+        type: boolean
+        required: false
+
+      postgres_db:
+        description: Postgres service db. Requires use_postgres to be true
+        type: string
+        required: false
+        default: db
+      postgres_user:
+        description: Postgres service user. Requires use_postgres to be true
+        type: string
+        required: false
+        default: user
+      postgres_password:
+        description: Postgres service password. Requires use_postgres to be true
+        type: string
+        required: false
+        default: password
+
+      celery_app:
+        description: Celery app name. Requires use_celery to be true
+        type: string
+        required: false
+
+      celery_queues:
+        description: Celery queues separated by ,. Requires use_celery to be true
+        type: string
+        required: false
+        default: default
+
+      env:
+        description: Environment variables to set
+        type: string
+        required: false
+        default: >-
+          {}
+
+jobs:
+    python:
+        name: Run python test suite
+        timeout-minutes: 5
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            python_version: ${{ fromJson(inputs.python_versions) }}
+        env: ${{ inputs.env }}
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                python-version: ${{ matrix.python_version }}
+
+            # not the best solution because i do not think that dependabot supports this
+            - name: Write requirements to file for caching
+              run: |
+                echo > requirements-linter.txt
+                
+                if [[ ${{ inputs.use_black}} != 'false' ]]; then
+                  echo "black==22.3.0" >> requirements-linter.txt
+                fi
+                
+                if [[ ${{ inputs.use_isort}} != 'false' ]]; then
+                  echo "isort==5.10.1" >> requirements-linter.txt
+                fi
+                
+                if [[ ${{ inputs.use_flake8}} != 'false' ]]; then
+                  echo "flake8==4.0.1" >> requirements-linter.txt
+                fi
+                
+                if [[ ${{ inputs.use_pylint}} != 'false' ]]; then
+                  echo "pylint==2.14.3" >> requirements-linter.txt
+                  if [[ -n ${{ inputs.django_settings_module }} ]]; then
+                    echo "pylint-django==2.5.3" >> requirements-linter.txt
+                  fi 
+                fi
+                
+                if [[ ${{ inputs.use_bandit}} != 'false' ]]; then
+                  echo "bandit==1.7.4" >> requirements-linter.txt
+                fi
+              shell: bash
+
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
+              with:
+                requirement_files: requirements-linter.txt
+
+            - uses: syphar/restore-pip-download-cache@v1
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+
+            - run: pip install -r requirements-linter.txt
+              if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+              shell: bash
+
+            - name: Run fast linters
+              uses: ./.github/actions/python_fast_linter
+              with:
+                working_directory: ${{ inputs.working_directory }}
+                use_black: ${{ inputs.use_black }}
+                use_isort: ${{ inputs.use_isort }}
+                use_flake8: ${{ inputs.use_flake8 }}
+                use_pylint: ${{ inputs.use_pylint }}
+                use_bandit: ${{ inputs.use_bandit }}
+                bandit_config_file: ${{ inputs.bandit_config_file }}
+                django_settings_module: ${{ inputs.django_settings_module }}
+
+            - name: Export apt requirements
+              id: export-apt-requirements
+              if: inputs.packages_path
+              run: |
+                echo ::set-output name=apt-packages::$( cat ${{ inputs.packages_path }} )
+
+            - name: Cache apt packages
+              id: cache-apt-packages
+              if: inputs.packages_path
+              uses: awalsh128/cache-apt-pkgs-action@v1
+              with:
+                packages: ${{ steps.export-apt-requirements.outputs.apt-packages }}
+
+            - name: Inject django settings module to environ
+              if: inputs.django_settings_module
+              run: |
+                echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+            - name: Check requirements licenses
+              if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
+              id: license_check_report
+              continue-on-error: true
+              uses: pilosus/action-pip-license-checker@v0.6.2
+              with:
+                requirements: ${{ inputs.requirements_path }}
+                exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
+                table-headers: true
+                fail: 'StrongCopyleft,NetworkCopyleft,Error'
+                fails-only: true
+
+            - name: Print wrong licenses
+              if: steps.license_check_report.outcome == 'failure'
+              run: |
+                echo "License check failed"
+                echo "===================="
+                echo "${{ steps.license_check_report.outputs.report }}"
+                echo "===================="
+                exit 1
+              shell: bash
+
+            - name: Create requirements-dev.txt
+              run: |
+                echo > requirements-dev.txt
+                if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+                  echo "coverage>=6.4.1" >> requirements-dev.txt
+                fi
+              shell: bash
+              working-directory: ${{ inputs.install_from }}
+
+            - uses: syphar/restore-virtualenv@v1
+              id: cache-virtualenv
+              with:
+                requirement_files: |
+                  ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+                  ${{ inputs.install_from }}/requirements-dev.txt
+
+            - name: Check pylint
+              if: ${{ inputs.use_pylint }}
+              run: |
+                if [[ -z ${{ inputs.django_settings_module }} ]]; then
+                  CMD="pylint ."
+                else
+                  CMD="pylint `ls -d */`"
+                fi
+                echo "Executing $CMD"
+                $CMD
+              working-directory: ${{ inputs.working_directory }}
+
+          - name: Start services
+            uses: ./.github/actions/services
+            with:
+              use_mongo: ${{ inputs.use_mongo }}
+              use_redis: ${{ inputs.use_redis }}
+              use_postgres: ${{ inputs.use_postgres }}
+              use_elastic_search: ${{ inputs.use_elastic_search }}
+              use_memcached: ${{ inputs.use_memcached }}
+              use_rabbitmq: ${{ inputs.use_rabbitmq }}
+              postgres_db: ${{ inputs.postgres_db }}
+              postgres_user: ${{ inputs.postgres_user }}
+              postgres_password: ${{ inputs.postgres_password }}
+
+          - name: Custom command
+            if: inputs.custom_command
+            run: |
+              COMMAND=${{ inputs.custom_command }}
+              echo "Running command: $COMMAND"
+              $COMMAND
+            working-directory: ${{ inputs.working_directory }}
+            shell: bash
+
+          - name: Check migrations
+            if: inputs.check_migrations && inputs.django_settings_module
+            run: |
+              django-admin makemigrations --dry-run >/dev/null
+            working-directory: ${{ inputs.working_directory }}
+
+          - name: Run unittest
+            run: |
+              CMD="python"
+              if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
+                  CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+                  if [[ -n '${{ inputs.django_settings_module }}' ]]; then
+                    CMD="${CMD} -a manage.py test"
+                  else
+                    CMD="${CMD} -m unittest discover"
+                  fi
+              else
+                CMD="python -m unittest discover"
+              fi
+              CMD="${CMD} --failfast"
+              echo "Running command: ${CMD}"
+              $CMD
+            working-directory: ${{ inputs.working_directory }}
+            env: ${{ secrets }}
+
+          - name: Create coverage output
+            if: inputs.use_coverage && inputs.upload_coverage
+            id: coverage-output
+            run: |
+              echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+            working-directory: ${{ inputs.working_directory }}
+
+          - name: Find Comment
+            if: inputs.use_coverage && inputs.upload_coverage
+            uses: peter-evans/find-comment@v2
+            id: fc
+            with:
+              issue-number: ${{ github.event.pull_request.number }}
+              comment-author: 'github-actions[bot]'
+              body-includes: Coverage.py report
+              direction: first
+
+          - name: Create or update coverage to PR comment
+            if: inputs.use_coverage && inputs.upload_coverage
+            uses: peter-evans/create-or-update-comment@v2
+            with:
+              comment-id: ${{ steps.fc.outputs.comment-id }}
+              issue-number: ${{ github.event.pull_request.number }}
+              body: |
+                Coverage.py report:
+                ${{ steps.coverage-output.outputs.coverage_content }}
+              edit-mode: replace
+
