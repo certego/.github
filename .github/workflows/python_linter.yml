@@ -112,16 +112,12 @@ jobs:
               run:
                 black . --check --diff
               working-directory: ${{ inputs.working_directory }}
-              env:
-                WORKING_DIRECTORY: ${{ inputs.working_directory }}
 
             - name: Lint with flake8 (PEP8 enforcer + linter)
               if: ${{ inputs.use_flake8 }}
               run: |
                 flake8 .  --show-source
               working-directory: ${{ inputs.working_directory }}
-              env:
-                WORKING_DIRECTORY: ${{ inputs.working_directory }}
 
             - name: isort
               if: ${{ inputs.use_isort }}
@@ -133,8 +129,6 @@ jobs:
                 echo "Executing $CMD"
                 $CMD
               working-directory: ${{ inputs.working_directory }}
-              env:
-                WORKING_DIRECTORY: ${{ inputs.working_directory }}
 
             - name: pylint
               if: ${{ inputs.use_pylint }}
@@ -147,15 +141,11 @@ jobs:
                   echo "Executing $CMD"
                   $CMD
               working-directory: ${{ inputs.working_directory }}
-              env:
-                WORKING_DIRECTORY: ${{ inputs.working_directory }}
 
             - name: bandit
               if: ${{ inputs.use_bandit }}
               run: |
                   bandit . -r -c ${{ inputs.bandit_config_file }}
               working-directory: ${{ inputs.working_directory }}
-              env:
-                WORKING_DIRECTORY: ${{ inputs.working_directory }}
               shell:
                 bash
