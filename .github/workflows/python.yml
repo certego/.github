@@ -112,7 +112,7 @@ on:
         type: boolean
         required: false
       use_celery:
-        description: Create a celery worker
+        description: Create a celery worker@
         default: false
         type: boolean
         required: false
@@ -228,7 +228,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@composite-action
+        uses: certego/.github/.github/actions/python_linter@0.3.0
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
@@ -320,7 +320,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@composite-action
+        uses: certego/.github/.github/actions/services@0.3.0
         with:
           use_mongo: ${{ inputs.use_mongo }}
           use_redis: ${{ inputs.use_redis }}
@@ -380,7 +380,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@composite-action
+        uses: certego/.github/.github/actions/upload_coverage@0.3.0
         if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
         with:
           unique_body_msg: Coverage.py report
