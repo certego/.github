@@ -125,7 +125,13 @@ jobs:
             - name: pylint
               if: ${{ inputs.use_pylint }}
               run: |
-                  pylint .
+                  if [[ -n "$(ls -A __init__.py)" ]]; then
+                    CMD="pylint ."
+                  else
+                    CMD="pylint `ls -D`"
+                  fi
+                  echo "Executing $CMD"
+                  $CMD
               working-directory: ${{ inputs.working_directory }}
               env:
                 WORKING_DIRECTORY: ${{ inputs.working_directory }}
