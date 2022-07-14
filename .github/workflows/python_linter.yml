@@ -113,8 +113,8 @@ jobs:
               if: ${{ inputs.use_isort }}
               run: |
                 CMD="isort . --filter-files --check-only --diff"
-                if [[ ${{ inputs.use_black }} ]]; then
-                  CMD="$CMD --black"
+                if [[ '${{ inputs.use_black }}' != 'false' ]]; then
+                  CMD="$CMD --profile black"
                 fi
                 echo "Executing $CMD"
                 $CMD
