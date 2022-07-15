@@ -22,4 +22,3 @@ runs:
       uses: awalsh128/cache-apt-pkgs-action@v1
       with:
         packages: ${{ steps.export-apt-requirements.outputs.apt-packages }}
-      shell: bash
