@@ -375,6 +375,13 @@ jobs:
         env: ${{ secrets }}
         shell: bash
 
+      - name: Create coverage output
+        if: inputs.use_coverage && inputs.upload_coverage
+        id: coverage-output
+        run: |
+          echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+        working-directory: ${{ inputs.working_directory }}
+
       - name: Upload coverage
         uses: certego/.github/.github/actions/upload_coverage@0.3.2
         if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
