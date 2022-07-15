@@ -38,7 +38,7 @@ jobs:
      secrets: inherit
      with:
       working_directory: test/python_test
-      use_black: true
+      use_black: false
       use_isort: true
       use_flake8: true
       use_pylint: true

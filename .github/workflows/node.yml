@@ -74,13 +74,13 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Run linters
-        uses: certego/.github/.github/actions/node_linter@0.3.1
+        uses: certego/.github/.github/actions/node_linter@0.3.2
         with:
           working_directory: ${{ inputs.working_directory }}
-          use_eslint: ${{ inputs.use_eslint }}
-          use_prettier: ${{ inputs.use_prettier }}
-          use_stylelint: ${{ inputs.use_stylelint }}
-          check_packages_licenses: ${{ inputs.check_packages_licenses }}
+          use_eslint: ${{ inputs.use_eslint == true }}
+          use_prettier: ${{ inputs.use_prettier == true }}
+          use_stylelint: ${{ inputs.use_stylelint == true }}
+          check_packages_licenses: ${{ inputs.check_packages_licenses == true }}
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
@@ -101,7 +101,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@0.3.1
+        uses: certego/.github/.github/actions/upload_coverage@0.3.2
         if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
         with:
           unique_body_msg: Jest coverage report

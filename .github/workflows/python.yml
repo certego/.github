@@ -228,7 +228,8 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.3.1
+        uses: certego/.github/.github/actions/python_linter@0.3.2
+        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
@@ -238,18 +239,12 @@ jobs:
           use_bandit: ${{ inputs.use_bandit }}
           bandit_config_file: ${{ inputs.bandit_config_file }}
 
-      - name: Export apt requirements
-        id: export-apt-requirements
+      - name: Install apt requirements
         if: inputs.packages_path
-        run: |
-          echo ::set-output name=apt-packages::$( cat ${{ inputs.packages_path }} )
-
-      - name: Cache apt packages
-        id: cache-apt-packages
-        if: inputs.packages_path
-        uses: awalsh128/cache-apt-pkgs-action@v1
+        uses: certego/.github/.github/actions/apt_requirements@0.3.2
         with:
-          packages: ${{ steps.export-apt-requirements.outputs.apt-packages }}
+          requirements_file: ${{ inputs.packages_path }}
+
 
       - name: Inject django settings module to environ
         if: inputs.django_settings_module
@@ -320,7 +315,8 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.3.1
+        uses: certego/.github/.github/actions/services@0.3.2
+        if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}
           use_redis: ${{ inputs.use_redis }}
@@ -379,9 +375,16 @@ jobs:
         env: ${{ secrets }}
         shell: bash
 
+      - name: Create coverage output
+        if: inputs.use_coverage && inputs.upload_coverage
+        id: coverage-output
+        run: |
+          echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+        working-directory: ${{ inputs.working_directory }}
+
       - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@0.3.1
-        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
+        uses: certego/.github/.github/actions/upload_coverage@0.3.2
+        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
         with:
           unique_body_msg: Coverage.py report
           body: ${{ steps.coverage-output.outputs.coverage_content }}
