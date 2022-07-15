@@ -29,7 +29,7 @@ runs:
   using: "composite"
   steps:
     - name: Black formatter
-      run:
+      run: |
         if [[ ${{ inputs.use_black }} != 'false' ]]; then
           black . --check --diff
         else
@@ -50,7 +50,7 @@ runs:
 
     - name: isort
       run: |
-        if [[ ${{inputs.use_isort }} != 'false' ]]; then
+        if [[ ${{ inputs.use_isort }} != 'false' ]]; then
           CMD="isort . --filter-files --check-only --diff"
           if [[ '${{ inputs.use_black }}' != 'false' ]]; then
             CMD="$CMD --profile black"
