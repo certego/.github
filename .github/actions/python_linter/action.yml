@@ -32,6 +32,8 @@ runs:
       run:
         if [[ ${{ inputs.use_black }} != 'false' ]]; then
           black . --check --diff
+        else
+            echo "Skipping black formatter"
         fi
       working-directory: ${{ inputs.working_directory }}
       shell: bash
@@ -40,6 +42,8 @@ runs:
       run: |
         if [[ ${{inputs.use_flake8 }} != 'false' ]]; then
           flake8 .  --show-source
+        else
+            echo "Skipping flake8 linter"
         fi
       working-directory: ${{ inputs.working_directory }}
       shell: bash
@@ -53,6 +57,8 @@ runs:
           fi
           echo "Executing $CMD"
           $CMD
+        else
+            echo "Skipping isort linter"
         fi
 
       working-directory: ${{ inputs.working_directory }}
@@ -63,6 +69,9 @@ runs:
       run: |
         if [[ ${{inputs.use_bandit }} != 'false' ]]; then
           bandit . -r -c ${{ inputs.bandit_config_file }}
+        else
+            echo "Skipping bandit linter"
         fi
+
       working-directory: ${{ inputs.working_directory }}
       shell: bash
