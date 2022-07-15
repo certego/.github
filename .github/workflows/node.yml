@@ -82,6 +82,19 @@ jobs:
           use_stylelint: ${{ inputs.use_stylelint == true }}
           check_packages_licenses: ${{ inputs.check_packages_licenses == true }}
 
+      - name: Check packages licenses
+        if: ${{ inputs.check_packages_licenses }}
+        id: license_check_report
+        continue-on-error: true
+        uses: pilosus/action-pip-license-checker@v0.6.2
+        with:
+          requirements: ${{ inputs.requirements_path }}
+          external: ${{ inputs.working_directory }}/licenses.csv
+          external-format: csv
+          table-headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Error'
+          fails-only: true
+
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
         id: jest-tests
