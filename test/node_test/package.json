@@ -6,6 +6,7 @@
     "private": true,
     "scripts": {
         "lint": "eslint source.js",
+        "lint-tests": "eslint source.test.js",
         "lint-sass": "stylelint '**/*.css'",
         "prettier:check": "prettier --check source.js",
         "test": "jest"
