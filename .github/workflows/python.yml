@@ -229,7 +229,7 @@ jobs:
 
       - name: Run fast linters
         uses: certego/.github/.github/actions/python_linter@develop
-        if: use_black || use_isort || use_flake8 || use_pylint || use_bandit
+        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
