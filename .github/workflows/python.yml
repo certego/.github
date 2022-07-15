@@ -14,27 +14,27 @@ on:
 
       use_black:
         description: Use black formatter
-        default: true
+        default: false
         type: boolean
         required: false
       use_isort:
         description: Use isort formatter
-        default: true
+        default: false
         type: boolean
         required: false
       use_flake8:
         description: Use flake8 linter
-        default: true
+        default: false
         type: boolean
         required: false
       use_pylint:
         description: Use pylint linter
-        default: true
+        default: false
         type: boolean
         required: false
       use_bandit:
         description: Use bandit linter
-        default: true
+        default: false
         type: boolean
         required: false
       bandit_config_file:
