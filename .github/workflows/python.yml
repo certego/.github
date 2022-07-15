@@ -170,7 +170,6 @@ on:
 jobs:
   python:
     name: Run python test suite
-    timeout-minutes: 5
     runs-on: ubuntu-latest
     strategy:
       matrix:
