@@ -89,21 +89,17 @@ jobs:
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
             CMD="npm test -- --silent --coverage"
           else
-              CMD="npm test"
+            CMD="npm test"
           fi
           echo "Running command: ${CMD}"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
-            echo ::set-output name=coverage_content::$($CMD | grep -Ev "^(>|$)" | awk '{printf "%s<br />", $0}')
+            echo "## Jest coverage report" >> $GITHUB_STEP_SUMMARY
+            echo "$($CMD | grep -Ev "^(>|$)")" > jest-coverage.txt
+            head -n -1 jest-coverage.txt | tail -n +2 >> $GITHUB_STEP_SUMMARY
+            rm jest-coverage.txt
           else
             $CMD
           fi
         working-directory: ${{ inputs.working_directory }}
         shell: bash
-
-      - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@0.3.3
-        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }} && ${{ inputs.use_jest }}
-        with:
-          unique_body_msg: Jest coverage report
-          body: ${{ steps.jest-tests.outputs.coverage_content }}
 
