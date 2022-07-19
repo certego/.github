@@ -379,6 +379,6 @@ jobs:
         id: coverage-output
         run: |
           echo "Uploading coverage.py report"
-          echo "## Coverage.py report" >> >> $GITHUB_STEP_SUMMARY
+          echo "## Coverage.py report" >> $GITHUB_STEP_SUMMARY
           echo "$(coverage report -m | grep -Ev "^---" | sed 's/\s/\&nbsp;/g')" >> $GITHUB_STEP_SUMMARY
         working-directory: ${{ inputs.working_directory }}
