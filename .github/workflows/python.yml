@@ -276,7 +276,7 @@ jobs:
         run: |
           echo > requirements-dev.txt
           if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-            echo "coverage>=6.4.1" >> requirements-dev.txt
+            echo "coverage>=6.4.2" >> requirements-dev.txt
           fi
         shell: bash
         working-directory: ${{ inputs.install_from }}
@@ -378,14 +378,7 @@ jobs:
         if: inputs.use_coverage && inputs.upload_coverage
         id: coverage-output
         run: |
-          echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+          echo "Uploading coverage.py report"
+          echo "## Coverage.py report" >> >> $GITHUB_STEP_SUMMARY
+          echo "$(coverage report -m | grep -Ev "^---" | sed 's/\t/>>/g')" >> $GITHUB_STEP_SUMMARY
         working-directory: ${{ inputs.working_directory }}
-
-      - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@0.3.3
-        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
-        with:
-          unique_body_msg: Coverage.py report
-          body: ${{ steps.coverage-output.outputs.coverage_content }}
-
-
