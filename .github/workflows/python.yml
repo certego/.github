@@ -14,27 +14,27 @@ on:
 
       use_black:
         description: Use black formatter
-        default: true
+        default: false
         type: boolean
         required: false
       use_isort:
         description: Use isort formatter
-        default: true
+        default: false
         type: boolean
         required: false
       use_flake8:
         description: Use flake8 linter
-        default: true
+        default: false
         type: boolean
         required: false
       use_pylint:
         description: Use pylint linter
-        default: true
+        default: false
         type: boolean
         required: false
       use_bandit:
         description: Use bandit linter
-        default: true
+        default: false
         type: boolean
         required: false
       bandit_config_file:
@@ -227,7 +227,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.3.3
+        uses: certego/.github/.github/actions/python_linter@0.3.4
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
@@ -240,7 +240,7 @@ jobs:
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: certego/.github/.github/actions/apt_requirements@0.3.3
+        uses: certego/.github/.github/actions/apt_requirements@0.3.4
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -276,7 +276,7 @@ jobs:
         run: |
           echo > requirements-dev.txt
           if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
-            echo "coverage>=6.4.1" >> requirements-dev.txt
+            echo "coverage>=6.4.2" >> requirements-dev.txt
           fi
         shell: bash
         working-directory: ${{ inputs.install_from }}
@@ -314,7 +314,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.3.3
+        uses: certego/.github/.github/actions/services@0.3.4
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}
@@ -378,14 +378,7 @@ jobs:
         if: inputs.use_coverage && inputs.upload_coverage
         id: coverage-output
         run: |
-          echo ::set-output name=coverage_content::$(coverage report -m | awk '{printf "%s<br />", $0}' )
+          echo "Uploading coverage.py report"
+          echo "## Coverage.py report" >> $GITHUB_STEP_SUMMARY
+          echo "$(coverage report -m | grep -Ev "^---" | sed 's/\s/\&nbsp;/g')" >> $GITHUB_STEP_SUMMARY
         working-directory: ${{ inputs.working_directory }}
-
-      - name: Upload coverage
-        uses: certego/.github/.github/actions/upload_coverage@0.3.3
-        if: ${{ inputs.use_coverage }} && ${{ inputs.upload_coverage }}
-        with:
-          unique_body_msg: Coverage.py report
-          body: ${{ steps.coverage-output.outputs.coverage_content }}
-
-
