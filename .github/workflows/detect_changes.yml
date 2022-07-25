@@ -14,13 +14,22 @@ on:
         type: string
         default: ''
 
+    outputs:
+      backend:
+        description: Number of files changed in backend
+        value: ${{ jobs.detect-changes.outputs.backend }}
+
+      frontend:
+        description: Number of files changed in frontend
+        value: ${{ jobs.detect-changes.outputs.frontend }}
+
 jobs:
   detect-changes:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{steps.diff_check.outputs.backend}}
-      frontend: ${{steps.diff_check.outputs.frontend}}
+      backend: ${{steps.diff_check_backend.outputs.backend}}
+      frontend: ${{steps.diff_check_frontend.outputs.frontend}}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -31,7 +40,7 @@ jobs:
         clean: false
 
     - name: Generate diffs for backend
-      if: ${{inputs.backend_directories}} != ''
+      if: ${{inputs.backend_directories != ''}}
       id: diff_check_backend
       run: |
         git branch -a --list | cat
@@ -39,7 +48,7 @@ jobs:
         echo "::set-output name=backend::$BACKEND_CHANGES"
 
     - name: Generate diffs for frontend
-      if: ${{inputs.frontend_directories}} != ''
+      if: ${{inputs.frontend_directories != ''}}
       id: diff_check_frontend
       run: |
         git branch -a --list | cat
