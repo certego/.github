@@ -200,26 +200,26 @@ jobs:
         run: |
           echo > requirements-linter.txt
           
-          if [[ ${{ inputs.use_black}} != 'false' ]]; then
+          if [[ '${{ inputs.use_black}}' != 'false' ]]; then
             echo "black==22.3.0" >> requirements-linter.txt
           fi
           
-          if [[ ${{ inputs.use_isort}} != 'false' ]]; then
+          if [[ '${{ inputs.use_isort}}' != 'false' ]]; then
             echo "isort==5.10.1" >> requirements-linter.txt
           fi
           
-          if [[ ${{ inputs.use_flake8}} != 'false' ]]; then
+          if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
             echo "flake8==4.0.1" >> requirements-linter.txt
           fi
           
-          if [[ ${{ inputs.use_pylint}} != 'false' ]]; then
+          if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
             echo "pylint==2.14.3" >> requirements-linter.txt
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
               echo "pylint-django==2.5.3" >> requirements-linter.txt
             fi 
           fi
           
-          if [[ ${{ inputs.use_bandit}} != 'false' ]]; then
+          if [[ '${{ inputs.use_bandit}}' != 'false' ]]; then
             echo "bandit==1.7.4" >> requirements-linter.txt
           fi
         shell: bash
@@ -287,7 +287,7 @@ jobs:
       - name: Create requirements-dev.txt
         run: |
           echo > requirements-dev.txt
-          if [[ ${{ inputs.use_coverage }} != 'false' ]]; then
+          if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
             echo "coverage>=6.4.2" >> requirements-dev.txt
           fi
         shell: bash
