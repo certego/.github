@@ -19,7 +19,7 @@ class TestA(unittest.TestCase):
         self.assertEqual(a.c, 3)
 
     @tag("manual")
-    def test_c(self):
+    def test_b(self):
         a = A()
         self.assertEqual(a.b, 2)
 
