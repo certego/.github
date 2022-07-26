@@ -133,6 +133,12 @@ on:
         type: boolean
         required: false
 
+      tag_for_slow_tests:
+        description: Tag for tests that will be run only on master/main branch
+        default: slow
+        type: string
+        required: false
+
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
         type: string
@@ -361,9 +367,13 @@ jobs:
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
                 CMD="${CMD} -a manage.py test"
+                if [[ ]]; then
+                  CMD="${CMD} --exclude-tag=${{ inputs.tag_for_slow_tests }}"
+                fi
               else
                 CMD="${CMD} -m unittest discover"
               fi
+              
           else
             CMD="python -m unittest discover"
           fi
