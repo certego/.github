@@ -134,7 +134,7 @@ on:
         required: false
 
       tag_for_slow_tests:
-        description: Tag for tests that will be run only on master/main branch
+        description: Tag for tests that will be run only on master/main branch. Can be used only for django projects.
         default: slow
         type: string
         required: false
@@ -367,7 +367,7 @@ jobs:
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
                 CMD="${CMD} -a manage.py test"
-                if [[ ]]; then
+                if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
                   CMD="${CMD} --exclude-tag=${{ inputs.tag_for_slow_tests }}"
                 fi
               else
