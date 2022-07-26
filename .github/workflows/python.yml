@@ -214,7 +214,7 @@ jobs:
           
           if [[ ${{ inputs.use_pylint}} != 'false' ]]; then
             echo "pylint==2.14.3" >> requirements-linter.txt
-            if [[ -n ${{ inputs.django_settings_module }} ]]; then
+            if [[ -n '${{ inputs.django_settings_module }}' ]]; then
               echo "pylint-django==2.5.3" >> requirements-linter.txt
             fi 
           fi
@@ -316,7 +316,7 @@ jobs:
       - name: Check pylint
         if: ${{ inputs.use_pylint }}
         run: |
-          if [[ -z ${{ inputs.django_settings_module }} ]]; then
+          if [[ -z '${{ inputs.django_settings_module }}' ]]; then
             CMD="pylint ."
           else
             CMD="pylint `ls -d */`"
