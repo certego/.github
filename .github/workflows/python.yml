@@ -369,9 +369,9 @@ jobs:
         run: |
           CMD="python"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-              CMD="coverage run --rcfile=${{ inputs.coverage_config_path }} --exclude-tag=${{ inputs.tag_for_manual_tests }}"
+              CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test"
+                CMD="${CMD} -a manage.py test --exclude-tag=${{ inputs.tag_for_manual_tests }}"
                 if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
                   CMD="${CMD} --exclude-tag=${{ inputs.tag_for_slow_tests }}"
                 fi
