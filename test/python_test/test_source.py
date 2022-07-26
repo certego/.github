@@ -1,4 +1,5 @@
 import unittest
+
 from django.test import tag
 
 try:
@@ -16,6 +17,7 @@ class TestA(unittest.TestCase):
     def test_c(self):
         a = A()
         self.assertEqual(a.c, 3)
+
 
 class TestB(unittest.TestCase):
     def test_add_task(self):
