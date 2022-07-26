@@ -199,26 +199,26 @@ jobs:
       - name: Write requirements to file for caching
         run: |
           echo > requirements-linter.txt
-          
+
           if [[ '${{ inputs.use_black}}' != 'false' ]]; then
             echo "black==22.3.0" >> requirements-linter.txt
           fi
-          
+
           if [[ '${{ inputs.use_isort}}' != 'false' ]]; then
             echo "isort==5.10.1" >> requirements-linter.txt
           fi
-          
+
           if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
             echo "flake8==4.0.1" >> requirements-linter.txt
           fi
-          
+
           if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
             echo "pylint==2.14.3" >> requirements-linter.txt
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
               echo "pylint-django==2.5.3" >> requirements-linter.txt
-            fi 
+            fi
           fi
-          
+
           if [[ '${{ inputs.use_bandit}}' != 'false' ]]; then
             echo "bandit==1.7.4" >> requirements-linter.txt
           fi
@@ -268,7 +268,7 @@ jobs:
         continue-on-error: true
         uses: pilosus/action-pip-license-checker@v0.6.2
         with:
-          requirements: ${{ inputs.requirements_path }}
+          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
           exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
@@ -312,6 +312,7 @@ jobs:
           pip install -r requirements-dev.txt
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         shell: bash
+        working-directory: ${{ inputs.install_from }}
 
       - name: Check pylint
         if: ${{ inputs.use_pylint }}
@@ -379,7 +380,7 @@ jobs:
               else
                 CMD="${CMD} -m unittest discover"
               fi
-              
+
           else
             CMD="python -m unittest discover"
           fi
