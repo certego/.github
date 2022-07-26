@@ -54,6 +54,9 @@ jobs:
       use_coverage: true
       upload_coverage: true
 
+      tag_for_slow_tests: slow
+      tag_for_manual_tests: manual
+
       postgres_db: db
       postgres_user: user
       postgres_password: password

@@ -133,6 +133,17 @@ on:
         type: boolean
         required: false
 
+      tag_for_slow_tests:
+        description: Tag for tests that will be run only on master/main branch. Can be used only for django projects.
+        default: slow
+        type: string
+        required: false
+      tag_for_manual_tests:
+        description: Tag for tests that will not be run on the CI
+        default: manual
+        type: string
+        required: false
+
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
         type: string
@@ -227,7 +238,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.3.4
+        uses: certego/.github/.github/actions/python_linter@0.4.0
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
@@ -240,7 +251,7 @@ jobs:
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: certego/.github/.github/actions/apt_requirements@0.3.4
+        uses: certego/.github/.github/actions/apt_requirements@0.4.0
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -314,7 +325,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.3.4
+        uses: certego/.github/.github/actions/services@0.4.0
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}
@@ -360,10 +371,14 @@ jobs:
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test"
+                CMD="${CMD} -a manage.py test --exclude-tag=${{ inputs.tag_for_manual_tests }}"
+                if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
+                  CMD="${CMD} --exclude-tag=${{ inputs.tag_for_slow_tests }}"
+                fi
               else
                 CMD="${CMD} -m unittest discover"
               fi
+              
           else
             CMD="python -m unittest discover"
           fi

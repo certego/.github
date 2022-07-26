@@ -62,6 +62,9 @@ jobs:
 
       use_coverage: true
       upload_coverage: true
+      tag_for_slow_tests: main
+      tag_for_manual_tests: manual
+
       custom_command: whoami; ls -la
       env: >-
         {"KEY": "VALUE"}
