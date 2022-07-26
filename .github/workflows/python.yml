@@ -69,6 +69,7 @@ on:
         description: Path to the django settings file
         type: string
         required: false
+        default: ''
 
       check_migrations:
         description: Check if migrations are valid. Require django_settings_module to be set.
