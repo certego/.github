@@ -138,6 +138,11 @@ on:
         default: slow
         type: string
         required: false
+      tag_for_manual_tests:
+        description: Tag for tests that will not be run on the CI
+        default: manual
+        type: string
+        required: false
 
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
@@ -364,7 +369,7 @@ jobs:
         run: |
           CMD="python"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-              CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+              CMD="coverage run --rcfile=${{ inputs.coverage_config_path }} --exclude-tag=${{ inputs.tag_for_manual_tests }}"
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
                 CMD="${CMD} -a manage.py test"
                 if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then

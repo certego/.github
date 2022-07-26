@@ -18,6 +18,11 @@ class TestA(unittest.TestCase):
         a = A()
         self.assertEqual(a.c, 3)
 
+    @tag("manual")
+    def test_c(self):
+        a = A()
+        self.assertEqual(a.b, 2)
+
 
 class TestB(unittest.TestCase):
     def test_add_task(self):
