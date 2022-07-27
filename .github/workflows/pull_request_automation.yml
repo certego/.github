@@ -62,8 +62,8 @@ jobs:
 
       use_coverage: true
       upload_coverage: true
-      tag_for_slow_tests: main
-      tag_for_manual_tests: manual
+      tags_forslow_tests: main
+      tags_formanual_tests: manual
 
       custom_command: whoami; ls -la
       env: >-
