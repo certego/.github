@@ -134,13 +134,13 @@ on:
         type: boolean
         required: false
 
-      tag_for_slow_tests:
-        description: Tag for tests that will be run only on master/main branch. Can be used only for django projects.
+      tags_for_slow_tests:
+        description: Tags for tests that will be run only on master/main branch, space separated. Can be used only for django projects.
         default: slow
         type: string
         required: false
-      tag_for_manual_tests:
-        description: Tag for tests that will not be run on the CI
+      tags_for_manual_tests:
+        description: Tags for tests that will not be run on the CI, space separated. Can be used only for django projects.
         default: manual
         type: string
         required: false
@@ -371,11 +371,24 @@ jobs:
           CMD="python"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+          
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test --exclude-tag=${{ inputs.tag_for_manual_tests }}"
-                if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
-                  CMD="${CMD} --exclude-tag=${{ inputs.tag_for_slow_tests }}"
+                CMD="${CMD} -a manage.py test"
+                # manage manual tags
+                if [[ -n '${{ inputs.tags_for_manual_tests }}' ]]; then
+                  for tag in ${{ inputs.tags_for_manual_tests }}; do
+                    CMD="${CMD} --exclude-tag=$tag"
+                  done
                 fi
+                # manage slow tags
+                if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
+                  if [[ -n '${{ inputs.tags_for_slow_tests }}' ]]; then
+                    for tag in ${{ inputs.tags_for_slow_tests }}; do
+                      CMD="${CMD} --exclude-tag=$tag"
+                    done
+                  fi
+                fi
+          
               else
                 CMD="${CMD} -m unittest discover"
               fi
