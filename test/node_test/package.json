@@ -5,10 +5,12 @@
     "main": "source.js",
     "private": true,
     "scripts": {
-        "lint": "eslint source.js",
-        "lint-tests": "eslint source.test.js",
+        "lint": "eslint source.js source.test.js",
+        "lint-fix": "npm run lint -- --fix",
         "lint-sass": "stylelint '**/*.css'",
-        "prettier:check": "prettier --check source.js",
+        "lint-sass-fix": "npm run lint-sass -- --fix",
+        "formatter": "prettier source.js source.test.js '**/*.css' --check",
+        "formatter-fix": "npm run formatter -- --write",
         "test": "jest"
     },
     "devDependencies": {
