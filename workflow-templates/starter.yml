@@ -54,8 +54,8 @@ jobs:
       use_coverage: true
       upload_coverage: true
 
-      tags_forslow_tests: slow
-      tags_formanual_tests: manual
+      tags_for_slow_tests: slow
+      tags_for_manual_tests: manual
 
       postgres_db: db
       postgres_user: user
