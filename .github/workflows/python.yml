@@ -199,26 +199,26 @@ jobs:
       - name: Write requirements to file for caching
         run: |
           echo > requirements-linter.txt
-          
+
           if [[ '${{ inputs.use_black}}' != 'false' ]]; then
             echo "black==22.3.0" >> requirements-linter.txt
           fi
-          
+
           if [[ '${{ inputs.use_isort}}' != 'false' ]]; then
             echo "isort==5.10.1" >> requirements-linter.txt
           fi
-          
+
           if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
             echo "flake8==4.0.1" >> requirements-linter.txt
           fi
-          
+
           if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
             echo "pylint==2.14.3" >> requirements-linter.txt
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
               echo "pylint-django==2.5.3" >> requirements-linter.txt
-            fi 
+            fi
           fi
-          
+
           if [[ '${{ inputs.use_bandit}}' != 'false' ]]; then
             echo "bandit==1.7.4" >> requirements-linter.txt
           fi
@@ -239,7 +239,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.4.1
+        uses: certego/.github/.github/actions/python_linter@0.4.2
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
@@ -252,7 +252,7 @@ jobs:
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: certego/.github/.github/actions/apt_requirements@0.4.1
+        uses: certego/.github/.github/actions/apt_requirements@0.4.2
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -268,8 +268,8 @@ jobs:
         continue-on-error: true
         uses: pilosus/action-pip-license-checker@v0.6.2
         with:
-          requirements: ${{ inputs.requirements_path }}
-          exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*
+          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
@@ -308,10 +308,11 @@ jobs:
             ${{ inputs.install_from }}/requirements-dev.txt
 
       - run: |
-          pip install -r ${{ inputs.requirements_path }}
-          pip install -r requirements-dev.txt
+          pip install -r ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          pip install -r ${{ inputs.install_from }}/requirements-dev.txt
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         shell: bash
+        working-directory: ${{ inputs.install_from }}
 
       - name: Check pylint
         if: ${{ inputs.use_pylint }}
@@ -326,7 +327,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.4.1
+        uses: certego/.github/.github/actions/services@0.4.2
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}
@@ -379,7 +380,7 @@ jobs:
               else
                 CMD="${CMD} -m unittest discover"
               fi
-              
+
           else
             CMD="python -m unittest discover"
           fi

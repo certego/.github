@@ -25,23 +25,22 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Lint with eslint
+    - name: Lint with prettier
       run: |
-        if [[ ${{ inputs.use_eslint }} != 'false' ]]; then
-          npm run lint
-          npm run lint-tests --if-present
+        if [[ ${{ inputs.use_prettier }} != 'false' ]]; then
+          npm run formatter
         else
-          echo "Skipping eslint"
+          echo "Skipping prettier"
         fi
       working-directory: ${{ inputs.working_directory }}
       shell: bash
 
-    - name: Lint with prettier
+    - name: Lint with eslint
       run: |
-        if [[ ${{ inputs.use_prettier }} != 'false' ]]; then
-          npm run prettier:check
+        if [[ ${{ inputs.use_eslint }} != 'false' ]]; then
+          npm run lint
         else
-          echo "Skipping prettier"
+          echo "Skipping eslint"
         fi
       working-directory: ${{ inputs.working_directory }}
       shell: bash

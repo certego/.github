@@ -74,7 +74,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Run linters
-        uses: certego/.github/.github/actions/node_linter@0.4.1
+        uses: certego/.github/.github/actions/node_linter@0.4.2
         with:
           working_directory: ${{ inputs.working_directory }}
           use_eslint: ${{ inputs.use_eslint == true }}
