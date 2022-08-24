@@ -308,8 +308,8 @@ jobs:
             ${{ inputs.install_from }}/requirements-dev.txt
 
       - run: |
-          pip install -r ${{ inputs.requirements_path }}
-          pip install -r requirements-dev.txt
+          pip install -r ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          pip install -r ${{ inputs.install_from }}/requirements-dev.txt
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         shell: bash
         working-directory: ${{ inputs.install_from }}
