@@ -7,8 +7,8 @@
     },
     "extends": [
         "eslint:recommended",
-        "airbnb", "airbnb/hooks",    // eslint-config-airbnb
-        "prettier" //eslint-config-prettier   // always lint-fix after prettier
+        "airbnb", "airbnb/hooks"    // eslint-config-airbnb
+        // "plugin:prettier/recommended" //prettier eslint-config-prettier eslint-plugin-prettier   // lint-fix + formatter
     ],
     "parserOptions": {
         "ecmaVersion": "latest"
