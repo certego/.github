@@ -340,7 +340,7 @@ jobs:
       - name: Check Docs
         if: inputs.check_docs_directory
         run: |
-          rstcheck -r . --report_level error --ignore-directives automodule,autoclass
+          rstcheck -r . --report-level error --ignore-directives automodule,autoclass
           python3 -m sphinx -T -E -b html -d -a _build/doctrees -D language=en . .
         shell: bash
         working-directory: ${{ inputs.check_docs_directory }}
