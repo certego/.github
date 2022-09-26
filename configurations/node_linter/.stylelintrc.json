@@ -1,12 +1,14 @@
 {
-    "extends": [
-      "stylelint-config-standard-scss",
+  "extends": [
+      "stylelint-config-standard-scss"
+  ],
+  "_unused_extends": [
       "stylelint-config-prettier-scss"
-    ],
-    "rules": {
-        "indentation": 4,
-        "max-line-length": [160, {
-            "ignore": ["comments"]
-        }]
-    }
+  ],
+  "rules": {
+      "indentation": 4,
+      "max-line-length": [160, {
+          "ignore": ["comments"]
+      }]
   }
+}

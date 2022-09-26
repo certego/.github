@@ -81,6 +81,16 @@ on:
         type: boolean
         required: false
         default: true
+      check_docs_directory:
+        description: Check docs using rstcheck inside this directory
+        type: string
+        required: false
+        default: ''
+      check_dockerfile:
+        description: Check dockerfile build. WARNING action total time may increase significantly
+        type: string
+        required: false
+        default: ''
 
       use_postgres:
         description: Use postgres service
@@ -134,13 +144,13 @@ on:
         type: boolean
         required: false
 
-      tag_for_slow_tests:
-        description: Tag for tests that will be run only on master/main branch. Can be used only for django projects.
+      tags_for_slow_tests:
+        description: Tags for tests that will be run only on master/main branch, space separated. Can be used only for django projects.
         default: slow
         type: string
         required: false
-      tag_for_manual_tests:
-        description: Tag for tests that will not be run on the CI
+      tags_for_manual_tests:
+        description: Tags for tests that will not be run on the CI, space separated. Can be used only for django projects.
         default: manual
         type: string
         required: false
@@ -239,7 +249,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.4.3
+        uses: certego/.github/.github/actions/python_linter@0.5.0
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
@@ -252,7 +262,7 @@ jobs:
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: certego/.github/.github/actions/apt_requirements@0.4.3
+        uses: certego/.github/.github/actions/apt_requirements@0.5.0
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -293,12 +303,28 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
+      - name: Create requirements-docs.txt
+        run: |
+          echo > requirements-docs.txt
+          if [[ -n '${{ inputs.check_docs_directory }}' ]]; then
+            echo "rstcheck[sphinx]" >> requirements-docs.txt 
+            echo "sphinx==4.5.0" >> requirements-docs.txt
+            echo "sphinx_rtd_theme==1.0.0" >> requirements-docs.txt
+            echo "sphinxcontrib-spelling==7.2.1" >> requirements-docs.txt
+            if [[ -n '${{ inputs.django_settings_module }}' ]]; then
+              echo "sphinxcontrib-django2==1.1.1" >> requirements-docs.txt
+            fi
+          fi
+        shell: bash
+        working-directory: ${{ inputs.install_from }}
+
       - uses: syphar/restore-virtualenv@v1
         id: cache-virtualenv
         with:
           requirement_files: |
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
+            ${{ inputs.install_from }}/requirements-docs.txt
 
       - uses: syphar/restore-pip-download-cache@v1
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
@@ -306,13 +332,23 @@ jobs:
           requirement_files: |
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
+            ${{ inputs.install_from }}/requirements-docs.txt
 
       - run: |
           pip install -r ${{ inputs.requirements_path }}
           pip install -r requirements-dev.txt
+          pip install -r requirements-docs.txt
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         shell: bash
         working-directory: ${{ inputs.install_from }}
+
+      - name: Check Docs
+        if: inputs.check_docs_directory
+        run: |
+          rstcheck -r  --report-level error --ignore-directives automodule,autoclass .
+          python3 -m sphinx -a -T -E -b html -d  _build/doctrees -D language=en . _build/html
+        shell: bash
+        working-directory: ${{ inputs.check_docs_directory }}
 
       - name: Check pylint
         if: ${{ inputs.use_pylint }}
@@ -326,8 +362,14 @@ jobs:
           $CMD
         working-directory: ${{ inputs.working_directory }}
 
+      - name: Check DockerFile
+        if: inputs.check_dockerfile
+        run: |
+           docker build -f ${{ inputs.check_dockerfile }} .
+        working-directory: ${{ inputs.working_directory }}
+
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.4.3
+        uses: certego/.github/.github/actions/services@0.5.0
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}
@@ -372,11 +414,24 @@ jobs:
           CMD="python"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
+          
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test --exclude-tag=${{ inputs.tag_for_manual_tests }}"
-                if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
-                  CMD="${CMD} --exclude-tag=${{ inputs.tag_for_slow_tests }}"
+                CMD="${CMD} -a manage.py test"
+                # manage manual tags
+                if [[ -n '${{ inputs.tags_for_manual_tests }}' ]]; then
+                  for tag in ${{ inputs.tags_for_manual_tests }}; do
+                    CMD="${CMD} --exclude-tag=$tag"
+                  done
                 fi
+                # manage slow tags
+                if [[ '${{ github.base_ref }}' == 'develop' || '${{ github.base_ref }}' == 'dev' ]]; then
+                  if [[ -n '${{ inputs.tags_for_slow_tests }}' ]]; then
+                    for tag in ${{ inputs.tags_for_slow_tests }}; do
+                      CMD="${CMD} --exclude-tag=$tag"
+                    done
+                  fi
+                fi
+          
               else
                 CMD="${CMD} -m unittest discover"
               fi

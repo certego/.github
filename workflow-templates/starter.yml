@@ -42,6 +42,8 @@ jobs:
 
       check_migrations: true
       check_requirements_licenses: true
+      check_docs_directory: docs
+      check_dockerfile: Dockerfile
 
       use_postgres: true
       use_memcached: false
@@ -54,8 +56,8 @@ jobs:
       use_coverage: true
       upload_coverage: true
 
-      tag_for_slow_tests: slow
-      tag_for_manual_tests: manual
+      tags_for_slow_tests: slow
+      tags_for_manual_tests: manual
 
       postgres_db: db
       postgres_user: user

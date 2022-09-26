@@ -2,10 +2,6 @@
 
 # Node linters
 
-## How to use
-
-W.I.P.
-
 ## Dependencies
 
 - ### [ESLint](https://eslint.org/)
@@ -20,5 +16,14 @@ npm i -D stylelint stylelint-config-standard-scss
 
 - ### [Prettier](https://prettier.io/)
 ```bash
-npm i -D prettier eslint-config-prettier stylelint-config-prettier-scss
+npm i -D prettier eslint-config-prettier eslint-plugin-prettier stylelint-config-prettier-scss
 ```
+
+## How to use
+
+W.I.P.
+
+### Prettier
+To use Prettier formatter:
+- enable `stylelint-config-prettier-scss` in Stylelint config file
+- enable `plugin:prettier/recommended` in ESlint config file
