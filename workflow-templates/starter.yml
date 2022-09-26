@@ -42,6 +42,7 @@ jobs:
 
       check_migrations: true
       check_requirements_licenses: true
+      check_docs_directory: docs
 
       use_postgres: true
       use_memcached: false
