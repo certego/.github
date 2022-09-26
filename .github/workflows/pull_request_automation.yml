@@ -48,9 +48,12 @@ jobs:
       requirements_path: test/python_test/requirements.txt
       packages_path: test/python_test/packages.txt
       django_settings_module: python_test.settings
+
       check_migrations: true
       check_requirements_licenses: true
       check_docs_directory: test/docs
+      check_dockerfile: Dockerfile
+
       use_postgres: false
       use_memcached: false
       use_elastic_search: false
