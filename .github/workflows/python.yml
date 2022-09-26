@@ -81,6 +81,11 @@ on:
         type: boolean
         required: false
         default: true
+      check_docs_directory:
+        description: Check docs using rstcheck inside this directory
+        type: string
+        required: false
+        default: ''
 
       use_postgres:
         description: Use postgres service
@@ -293,12 +298,28 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
+      - name: Create requirements-docs.txt
+        run: |
+          echo > requirements-docs.txt
+          if [[ -n '${{ inputs.check_docs_directory }}' ]]; then
+            echo "rstcheck[sphinx]" >> requirements-docs.txt 
+            echo "sphinx==4.5.0" >> requirements-docs.txt
+            echo "sphinx_rtd_theme==1.0.0" >> requirements-docs.txt
+            echo "sphinxcontrib-spelling==7.2.1" >> requirements-docs.txt
+            if [[ -n '${{ inputs.django_settings_module }}' ]]; then
+              echo "sphinxcontrib-django2==1.1.1" >> requirements-docs.txt
+            fi
+          fi
+        shell: bash
+        working-directory: ${{ inputs.install_from }}
+
       - uses: syphar/restore-virtualenv@v1
         id: cache-virtualenv
         with:
           requirement_files: |
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
+            ${{ inputs.install_from }}/requirements-docs.txt
 
       - uses: syphar/restore-pip-download-cache@v1
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
@@ -306,13 +327,21 @@ jobs:
           requirement_files: |
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
+            ${{ inputs.install_from }}/requirements-docs.txt
 
       - run: |
           pip install -r ${{ inputs.requirements_path }}
           pip install -r requirements-dev.txt
+          pip install -r requirements-docs.txt
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         shell: bash
         working-directory: ${{ inputs.install_from }}
+
+      - name: Check Docs
+        if: inputs.check_docs_directory
+        run: |
+          rstcheck -r '${{ inputs.check_docs_directory }}' --report warning
+        shell: bash
 
       - name: Check pylint
         if: ${{ inputs.use_pylint }}
