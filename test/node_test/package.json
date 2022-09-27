@@ -4,6 +4,11 @@
     "description": "Node Test",
     "main": "source.js",
     "private": true,
+     "husky": {
+        "hooks": {
+          "pre-commit": "lint-staged"
+        }
+    },
     "scripts": {
         "lint": "eslint source.js source.test.js",
         "lint-fix": "npm run lint -- --fix",
@@ -25,6 +30,10 @@
         "prettier": "2.7.1",
         "stylelint": "^14.9.1",
         "stylelint-config-standard": "^26.0.0"
+    },
+    "lint_staged": {
+        "*.js": ["lint-fix", "lint-sass-fix", "formatter-fix"],
+        "*.css": ["formatter-fix"]
     },
     "dependencies": {
         "react": "^18.2.0"
