@@ -78,3 +78,6 @@ jobs:
   release_and_tag:
     uses: ./.github/workflows/release_and_tag.yml
     secrets: inherit
+    with:
+      publish_on_pypi: false
+      publish_on_test_pypi: false

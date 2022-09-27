@@ -91,3 +91,6 @@ jobs:
   release_and_tag:
     uses: certego/.github/.github/workflows/release_and_tag.yml@main
     secrets: inherit
+    with:
+      publish_on_pypi: false # Token should be set on secret PYPI_API_TOKEN
+      publish_on_test_pypi: false # Token should be set on secret TEST_PYPI_API_TOKEN
