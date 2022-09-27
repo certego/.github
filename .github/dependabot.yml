@@ -1,0 +1,28 @@
+version: 2
+x-configuration: &configuration
+  schedule:
+    interval: "weekly"
+    day: "tuesday"
+  target-branch: "develop"
+  reviewers:
+    - 0ssigeno
+
+
+updates:
+  - package-ecosystem: "pip"
+    directory: "/test/python_test"
+    <<: *configuration
+
+  - package-ecosystem: "npm"
+    directory: "/test/node_test"
+    <<: *configuration
+
+
+  - package-ecosystem: "docker"
+    directory: "/test/python_test"
+    <<: *configuration
+
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    <<: *configuration
