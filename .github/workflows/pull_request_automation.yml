@@ -74,3 +74,7 @@ jobs:
         {"KEY": "VALUE"}
       python_versions: >-
         ["3.9"]
+
+  release_and_tag:
+    uses: ./.github/workflows/release_and_tag.yml
+    secrets: inherit
