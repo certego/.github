@@ -87,3 +87,7 @@ jobs:
       upload_coverage: true
       node_versions: >-
         [ "16", "15", "14", "13" ]
+
+  release_and_tag:
+    uses: certego/.github/.github/workflows/release_and_tag.yml@main
+    secrets: inherit
