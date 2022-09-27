@@ -219,7 +219,7 @@ jobs:
           fi
 
           if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
-            echo "flake8==4.0.1" >> requirements-linter.txt
+            echo "flake8==5.0.4" >> requirements-linter.txt
           fi
 
           if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
