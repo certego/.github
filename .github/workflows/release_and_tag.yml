@@ -14,6 +14,12 @@ on:
         required: false
         default: false
 
+      publish_on_npm:
+        description: Upload on npm public index
+        type: boolean
+        required: false
+        default: false
+
 jobs:
   release_and_tag:
     name: Create release and tag
@@ -68,3 +74,14 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - uses: actions/setup-node@v3
+        if: inputs.publish_on_npm
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm publish
+        if: inputs.publish_on_npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}

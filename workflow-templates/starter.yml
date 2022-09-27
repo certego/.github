@@ -94,3 +94,4 @@ jobs:
     with:
       publish_on_pypi: false # Token should be set on secret PYPI_API_TOKEN
       publish_on_test_pypi: false # Token should be set on secret TEST_PYPI_API_TOKEN
+      publish_on_npm: false # Token should be set on secret NPM_API_TOKEN

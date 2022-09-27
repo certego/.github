@@ -81,3 +81,4 @@ jobs:
     with:
       publish_on_pypi: false
       publish_on_test_pypi: false
+      publish_on_npm: false
