@@ -10,7 +10,7 @@ W.I.P.
 ### Python
 
 ### Node
-Add to `package.json` these scripts:
+Add to `package.json` these scripts (customizing paths):
 ```
     "test": "TZ=UTC jest ./tests --silent",
     "test-coverage": "npm test -- --coverage=true",
@@ -20,4 +20,20 @@ Add to `package.json` these scripts:
     "lint-sass-fix": "npm run lint-sass -- --fix",
     "formatter": "prettier 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}' --check",
     "formatter-fix": "npm run formatter -- --write"
+```
+#### Pre-commit
+To enable pre-commit add this to `package.json`:
+```
+    "scripts": {
+        "prepare": "cd . && husky install .husky"
+    },
+    "lint_staged": {
+        "*.{js,jsx}": ["eslint", "prettier --check"],
+        "**/*.{css,scss}": ["stylelint", "prettier --check"]
+    },
+```
+Customize husky path with this repo download dir. Starting point must the same directory as .git
+Then execute this command:
+```
+npm i -D husky lint-staged && npm run prepare
 ```
