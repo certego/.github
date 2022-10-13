@@ -4,10 +4,23 @@
 
 This repository contains CI workflows for Certego projects.
 
-## How to use
-W.I.P.
+## 🔧 Components
+### 🔵 [Starter workflow](workflow-template/starter)
+Detects changes and calls the Reusable workflows with configured props
+## ⇩
+### 🟢 [Reusable workflows](.github/workflows/)
+Call actions according to input props
+## ⇩
+### 🔴 [Composite actions](.github/actions/)
+Execute commands
+
+---
+
+## 📖 How to use
+Customize starter workflow setting options.
 
 ### Python
+W.I.P.
 
 ### Node
 Add to `package.json` these scripts (customizing paths):
