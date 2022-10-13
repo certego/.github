@@ -14,7 +14,7 @@ runs:
     - name: Export apt requirements
       id: export-apt-requirements
       run: |
-        echo ::set-output name=apt-packages::$( cat ${{ inputs.requirements_file }} )
+        echo "apt-packages=$( cat ${{ inputs.requirements_file }} )" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Cache apt packages
