@@ -1,3 +1,3 @@
 module.exports = {
-    ...require("./.certego.prettierrc.json"),
+    ...require('./.certego.prettierrc.json'),
 };
