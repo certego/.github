@@ -1,6 +1,7 @@
 {
     "extends": [
-        "stylelint-config-standard",
-        "prettier"
+        "stylelint-config-standard-scss",
+        "../../configurations/node_linters/stylelint/.certego-base.stylelintrc",
+        "stylelint-config-prettier-scss"
     ]
 }

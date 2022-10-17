@@ -1,19 +1,19 @@
 {
     "name": "node_test",
-    "version": "2.35.0",
+    "version": "1.0.0",
     "description": "Node Test",
     "main": "source.js",
     "private": true,
     "scripts": {
-        "lint": "eslint '*.{js,jsx}'",
+        "lint": "eslint '**/*.{js,jsx}'",
         "lint-fix": "npm run lint -- --fix",
         "lint-sass": "stylelint '**/*.{css,scss}'",
         "lint-sass-fix": "npm run lint-sass -- --fix",
-        "formatter": "prettier '*.{js,jsx}' '**/*.{css,scss}' --check",
+        "formatter": "prettier '**/*.{js,jsx}' '**/*.{css,scss}' --check",
         "formatter-fix": "npm run formatter -- --write",
         "test": "TZ=UTC jest --silent",
         "test-coverage": "npm test -- --coverage=true",
-        "_prepare": "cd . && husky install .husky"
+        "prepare": "cd ../.. && husky install .husky"
     },
     "devDependencies": {
         "eslint": "^8.20.0",
@@ -29,14 +29,15 @@
         "lint-staged": "^13.0.3",
         "prettier": "^2.7.1",
         "stylelint": "^14.9.1",
-        "stylelint-config-standard": "^28.0.0"
+        "stylelint-config-prettier-scss": "^0.0.1",
+        "stylelint-config-standard-scss": "^5.0.0"
     },
     "lint_staged": {
         "*.{js,jsx}": [
             "eslint",
             "prettier --check"
         ],
-        "**/*.{css,scss}": [
+        "*.{css,scss}": [
             "stylelint",
             "prettier --check"
         ]
