@@ -6,13 +6,14 @@
         "jest": true
     },
     "extends": [
-        "eslint:recommended",
-        "airbnb", "airbnb/hooks",
+        "airbnb", "../../configurations/node_linters/eslint/eslint-config-certego",
+        "airbnb/hooks", "../../configurations/node_linters/eslint/eslint-config-certego-react",
         "plugin:prettier/recommended"
     ],
     "parserOptions": {
         "ecmaVersion": "latest"
     },
-    "rules": {
-    }
+    "ignorePatterns": [
+        "node_modules/"
+    ]
 }

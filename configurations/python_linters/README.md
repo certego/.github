@@ -1,12 +1,8 @@
 <img src="../../Certego.png" alt="Certego" width="200" />
 
-# Python linters
+# 🐍 Python linters
 
-## How to use
-
-W.I.P.
-
-## Dependencies
+## 🔧 Dependencies
 
 - ### [Flake8](https://flake8.readthedocs.io/)
 ```bash
@@ -27,3 +23,8 @@ pip install isort
 ```bash
 pip install black
 ```
+
+## 📖 How to use
+Customize files inside configurations.
+**Note:**: actually there is no way to extend them in other files.
+

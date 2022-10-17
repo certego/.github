@@ -1,26 +1,4 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true,
-        "jest": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "airbnb", "airbnb/hooks"    // eslint-config-airbnb
-        // "plugin:prettier/recommended" //prettier eslint-config-prettier eslint-plugin-prettier   // lint-fix + formatter
-    ],
-    "parserOptions": {
-        "ecmaVersion": "latest"
-    },
-    "ignorePatterns": [
-        "node_modules/",
-        "dist/",
-        "build/",
-        ".snapshots/",
-        "*.min.js",
-        "*.config.js"
-    ],
     "rules": {
         "max-len": ["error", {
             "code": 160,
@@ -36,8 +14,6 @@
             // list derived from https://github.com/benjamn/ast-types/blob/HEAD/def/jsx.js
             "ignoredNodes": ["JSXElement", "JSXElement > *", "JSXAttribute", "JSXIdentifier", "JSXNamespacedName", "JSXMemberExpression", "JSXSpreadAttribute", "JSXExpressionContainer", "JSXOpeningElement", "JSXClosingElement", "JSXFragment", "JSXOpeningFragment", "JSXClosingFragment", "JSXText", "JSXEmptyExpression", "JSXSpreadChild"]
         }],
-        "react/jsx-indent": ["error", 4],
-        "react/jsx-indent-props": ["error", 4],
         "prefer-destructuring": ["error", {
             "object": true, "array": false
         }],
@@ -60,15 +36,6 @@
         }],
         "no-bitwise": "off",
         "no-nested-ternary": "off",
-        "no-restricted-syntax": ["error", "WithStatement"],
-        "react/jsx-props-no-spreading": "off",
-        "react/forbid-prop-types": "off",
-        "jsx-a11y/control-has-associated-label": "off",
-        "jsx-a11y/alt-text": "off",
-        "jsx-a11y/click-events-have-key-events": "off",
-        "jsx-a11y/no-static-element-interactions": "off",
-        "jsx-a11y/interactive-supports-focus": "off",
-        "jsx-a11y/anchor-has-content": "off",
-        "jsx-a11y/no-noninteractive-element-interactions": "off"
+        "no-restricted-syntax": ["error", "WithStatement"]
     }
 }
