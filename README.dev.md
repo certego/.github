@@ -11,7 +11,7 @@ Make your branch and do pull requests to `develop`.
 All changes will be tested with *test* project.
 
 
-**Note:** to properly test Reusable workflows and Actions you need to change `@<tag>` to `@develop` like  in [Starter Workflow](starter.yml) (see [below](#-release)).
+**Note:** to properly test Reusable workflows and Actions you need to change `@<tag>` to `@<your_branch>` like  in [Starter Workflow](starter.yml) (see [below](#-release)).
 
 ### 🕑 Files to update periodically:
 Periodically update:
