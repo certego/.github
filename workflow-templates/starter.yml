@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   detect-changes:
-    uses: certego/.github/.github/workflows/detect_changes.yml@node-linters-path
+    uses: certego/.github/.github/workflows/detect_changes.yml@develop
     with:
       backend_directories: backend
       frontend_directories: frontend
@@ -23,7 +23,7 @@ jobs:
   python:
     if: ${{ needs.detect-changes.outputs.backend > 0 }}
     needs: detect-changes
-    uses: certego/.github/.github/workflows/python.yml@node-linters-path
+    uses: certego/.github/.github/workflows/python.yml@develop
     with:
       working_directory: backend
 
@@ -73,7 +73,7 @@ jobs:
   node:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     needs: detect-changes
-    uses: certego/.github/.github/workflows/node.yml@node-linters-path
+    uses: certego/.github/.github/workflows/node.yml@develop
     with:
       working_directory: frontend
 
@@ -89,7 +89,7 @@ jobs:
         [ "16", "17", "18" ]
 
   release_and_tag:
-    uses: certego/.github/.github/workflows/release_and_tag.yml@node-linters-path
+    uses: certego/.github/.github/workflows/release_and_tag.yml@develop
     secrets: inherit
     with:
       publish_on_pypi: false # Token should be set on secret PYPI_API_TOKEN

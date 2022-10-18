@@ -10,8 +10,7 @@ Otherwise simply open an issue.
 Make your branch and do pull requests to `develop`.
 All changes will be tested with *test* project.
 
-
-**Note:** to properly test Reusable workflows and Actions you need to change `@<tag>` to `@<your_branch>` like  in [Starter Workflow](starter.yml) (see [below](#-release)).
+**Note:** to properly test Reusable workflows and Actions you need to change `@<tag>` to `@<your_branch>` (see [below](#-release)).
 
 ### 🕑 Files to update periodically:
 Periodically update:
@@ -22,7 +21,7 @@ Periodically update:
 - All README and docs.
 
 ### 🏷️ Release
-When a new version is released, please remember to change tag in this files:
+When a new version is released, please remember to change tag in these files:
 - [Starter Workflow](workflow-templates/starter.yml)
 - [Node.js Workflow](.github/workflows/node.yml)
 - [Python Workflow](.github/workflows/python.yml)
