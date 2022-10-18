@@ -123,7 +123,7 @@ on:
         type: boolean
         required: false
       use_celery:
-        description: Create a celery worker@
+        description: Create a celery worker
         default: false
         type: boolean
         required: false
@@ -252,7 +252,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@0.5.0
+        uses: certego/.github/.github/actions/python_linter@develop
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
         with:
           working_directory: ${{ inputs.working_directory }}
@@ -265,7 +265,7 @@ jobs:
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: certego/.github/.github/actions/apt_requirements@0.5.0
+        uses: certego/.github/.github/actions/apt_requirements@develop
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -372,7 +372,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@0.5.0
+        uses: certego/.github/.github/actions/services@develop
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}

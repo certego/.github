@@ -26,5 +26,6 @@ pip install black
 
 ## 📖 How to use
 Customize files inside configurations.
-**Note:**: actually there is no way to extend them in other files.
+
+**Note:** actually there is no way to extend them in other files.
 
