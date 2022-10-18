@@ -61,17 +61,25 @@ Pre-commit will add hook `.git/hooks/pre-commit`
 ### Node.js
 Add to `package.json` these scripts, customize paths:
 ```
+"config": {
+    "eslint": ".github/configurations/node_linters/eslint/.eslintrc.json",
+    "stylelint": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
+    "prettier": ".github/configurations/node_linters/prettier/.prettierrc.js"
+},
+"scripts": {
     "test": "TZ=UTC jest ./tests --silent",
     "test-coverage": "npm test -- --coverage=true",
-    "lint": "eslint 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}'",
+    "lint-config-install": "cd $(dirname $npm_package_config_eslint) && npm i",
+    "lint": "eslint -c $npm_package_config_eslint 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}'",
     "lint-fix": "npm run lint -- --fix",
-    "lint-sass": "stylelint 'src/scss/**/*.{css,scss}'",
-    "lint-sass-fix": "npm run lint-sass -- --fix",
-    "formatter": "prettier 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}' 'src/scss/**/*.{css,scss}' --check",
+    "lint-scss-config-install": "cd $(dirname $npm_package_config_stylelint) && npm i",
+    "lint-scss": "stylelint --config $npm_package_config_stylelint 'src/scss/**/*.{css,scss}'",
+    "lint-scss-fix": "npm run lint-scss -- --fix",
+    "formatter": "prettier --config $npm_package_config_prettier 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}' 'src/scss/**/*.{css,scss}' --check",
     "formatter-fix": "npm run formatter -- --write"
 ```
 For local installation see [here](configurations/node_linters/README.md).
-For configurations copy them from `.github/configurations/node_linters`.
+For configurations use those from `.github/configurations/node_linters`.
 
 #### Pre-commit
 To enable pre-commit add this to `package.json`, customizing paths:
@@ -80,8 +88,8 @@ To enable pre-commit add this to `package.json`, customizing paths:
         "prepare": "husky install .github/.husky"
     },
     "lint_staged": {
-        "*.{js,jsx}": ["eslint"] //, "prettier --check"],
-        "*.{css,scss}": ["stylelint"] // , "prettier --check"]
+        "*.{js,jsx}": ["eslint -c .github/configurations/node_linters/eslint/.eslintrc.json"] //, "prettier --config .github/configurations/node_linters/prettier/.prettierrc.js"],
+        "*.{css,scss}": ["stylelint --config .github/configurations/node_linters/stylelint/.stylelintrc.json"] // , "prettier --config .github/configurations/node_linters/prettier/.prettierrc.js"]
     },
 ```
 Starting point of `husky install` path is the same directory as .git

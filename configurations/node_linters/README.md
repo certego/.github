@@ -6,25 +6,27 @@
 
 - ### [ESLint](https://eslint.org/)
 ```bash
-npm i -D eslint eslint-config-airbnb eslint-plugin-import eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-jsx-a11y
+npm i -D eslint
+npm run lint-config-install
 ```
 
 - ### [Stylelint](https://stylelint.io/)
 ```bash
-npm i -D stylelint stylelint-config-standard-scss
+npm i -D stylelint
+npm run lint-scss-config-install
 ```
 
 - ### [Prettier](https://prettier.io/)
 ```bash
-npm i -D prettier eslint-config-prettier eslint-plugin-prettier stylelint-config-prettier-scss
+npm i -D prettier
 ```
 
 ## 📖 How to use
 Download repo via `git subtree` (see [here](/README.md)).
 Customize configurations files (if needed):
-- [eslint](eslint/.eslintrc.json)
+- [ESlint](eslint/.eslintrc.json)
 
 ### Optional: Prettier
 To use Prettier formatter:
-- enable `stylelint-config-prettier-scss` in Stylelint config file
-- enable `plugin:prettier/recommended` in ESlint config file
+- Enable/disable `eslint-config-prettier` in ESlint config file
+- Enable/disable `stylelint-config-prettier-scss` in Stylelint config file
