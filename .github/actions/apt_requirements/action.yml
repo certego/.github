@@ -14,11 +14,11 @@ runs:
     - name: Export apt requirements
       id: export-apt-requirements
       run: |
-        echo "apt-packages=$( cat ${{ inputs.requirements_file }} )" >> $GITHUB_OUTPUT
+        echo "apt_packages='$(cat ${{ inputs.requirements_file }})'" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Cache apt packages
       id: cache-apt-packages
       uses: awalsh128/cache-apt-pkgs-action@v1
       with:
-        packages: ${{ steps.export-apt-requirements.outputs.apt-packages }}
+        packages: ${{ steps.export-apt-requirements.outputs.apt_packages }}
