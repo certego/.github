@@ -11,7 +11,11 @@ on:
         type: string
         required: true
 
-
+      use_autoflake:
+        description: Use autoflake linter
+        default: false
+        type: boolean
+        required: false
       use_black:
         description: Use black formatter
         default: false
@@ -235,6 +239,9 @@ jobs:
           if [[ '${{ inputs.use_bandit}}' != 'false' ]]; then
             echo "bandit==1.7.4" >> requirements-linter.txt
           fi
+          if [[ '${{ inputs.use_autoflake}}' != 'false' ]]; then
+            echo "autoflake==1.7.7" >> requirements-linter.txt
+          fi
         shell: bash
 
       - uses: syphar/restore-virtualenv@v1
@@ -261,6 +268,7 @@ jobs:
           use_flake8: ${{ inputs.use_flake8 }}
           use_pylint: ${{ inputs.use_pylint }}
           use_bandit: ${{ inputs.use_bandit }}
+          use_autoflake: ${{ inputs.use_autoflake }}
           bandit_config_file: ${{ inputs.bandit_config_file }}
 
       - name: Install apt requirements
