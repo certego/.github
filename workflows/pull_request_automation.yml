@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   detect-changes:
-    uses: ./reusable_workflows/detect-changes.yml
+    uses: ./github/workflows/_detect-changes.yml
     with:
       backend_directories: backend
       frontend_directories: frontend
@@ -23,7 +23,7 @@ jobs:
 
   node:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
-    uses: ./reusable_workflows/node.yml
+    uses: ./github/workflows/_node.yml
     with:
       working_directory: test/node_test
 
@@ -42,7 +42,7 @@ jobs:
 
   python:
      if: ${{ needs.detect-changes.outputs.backend > 0 }}
-     uses: ./reusable_workflows/python.yml
+     uses: ./github/workflows/_python.yml
      secrets: inherit
      with:
       working_directory: test/python_test
@@ -85,7 +85,7 @@ jobs:
         ["3.9"]
 
   release_and_tag:
-    uses: ./reusable_workflows/release_and_tag.yml
+    uses: ./github/workflows/_release_and_tag.yml
     secrets: inherit
     with:
       publish_on_pypi: false

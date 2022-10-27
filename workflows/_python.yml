@@ -254,7 +254,7 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: ./actions/python_linter
+        uses: ./github/actions/python_linter
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit || inputs.use_autoflake
         with:
           working_directory: ${{ inputs.working_directory }}
@@ -267,7 +267,7 @@ jobs:
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: ./actions/apt_requirements
+        uses: ./github/actions/apt_requirements
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -374,7 +374,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: ./actions/services
+        uses: ./github/actions/services
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}

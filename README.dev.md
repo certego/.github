@@ -23,5 +23,5 @@ Periodically update:
 ### 🏷️ Release
 When a new version is released, please remember to change tag in these files:
 - [Starter Workflow](workflow-templates/starter.yml)
-- [Node.js Workflow](reusable_workflows/node.yml)
-- [Python Workflow](reusable_workflows/python.yml)
+- [Node.js Workflow](workflows/_node.yml)
+- [Python Workflow](workflows/_python.yml)
