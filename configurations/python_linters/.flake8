@@ -5,6 +5,7 @@ ignore =
     E125,
     E501,
     W504,
+    W503, # Line break occurred before a binary operator
     F401, # gives problems with wildcard import, init and similars
     F403,
     F405,
