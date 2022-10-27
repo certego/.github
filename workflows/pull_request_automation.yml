@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   detect-changes:
-    uses: ./github/workflows/_detect-changes.yml
+    uses: ./github/workflows/_detect_changes.yml
     with:
       backend_directories: backend
       frontend_directories: frontend
