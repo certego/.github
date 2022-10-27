@@ -24,17 +24,23 @@ inputs:
     description: Use autoflake
     required: true
 
-  bandit_config_file:
-    description: Path to the bandit config file from the working dir
-    required: true
-
 runs:
   using: "composite"
   steps:
+    - name: Pylint formatter
+      run: |
+        if [[ ${{ inputs.use_pylint }} != 'false' ]]; then
+          pylint . --rcfile ${GITHUB_WORKSPACE}/configurations/python_linters/.pylintrc
+        else
+            echo "Skipping pylint formatter"
+        fi
+      working-directory: ${{ inputs.working_directory }}
+      shell: bash
+
     - name: Black formatter
       run: |
         if [[ ${{ inputs.use_black }} != 'false' ]]; then
-          black . --check --diff
+          black . --check --diff --config ${GITHUB_WORKSPACE}/configurations/python_linters/.black
         else
             echo "Skipping black formatter"
         fi
@@ -44,7 +50,7 @@ runs:
     - name: Lint with flake8 (PEP8 enforcer + linter)
       run: |
         if [[ ${{inputs.use_flake8 }} != 'false' ]]; then
-          flake8 .  --show-source
+          flake8 .  --show-source --config ${GITHUB_WORKSPACE}/configurations/python_linters/.flake8
         else
             echo "Skipping flake8 linter"
         fi
@@ -54,10 +60,7 @@ runs:
     - name: isort
       run: |
         if [[ ${{ inputs.use_isort }} != 'false' ]]; then
-          CMD="isort . --filter-files --check-only --diff"
-          if [[ '${{ inputs.use_black }}' != 'false' ]]; then
-            CMD="$CMD --profile black"
-          fi
+          CMD="isort . --filter-files --check-only --diff --settings-path ${GITHUB_WORKSPACE}/configurations/python_linters/.isort.cfg"
           echo "Executing $CMD"
           $CMD
         else
@@ -71,7 +74,7 @@ runs:
     - name: bandit
       run: |
         if [[ ${{inputs.use_bandit }} != 'false' ]]; then
-          bandit . -r -c ${{ inputs.bandit_config_file }}
+          bandit . -r -c ${GITHUB_WORKSPACE}/configurations/python_linters/.bandit.yaml
         else
             echo "Skipping bandit linter"
         fi

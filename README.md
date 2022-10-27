@@ -8,10 +8,10 @@ This repository contains CI workflows for Certego projects.
 ### 🔵 [Starter workflow](workflow-template/starter)
 Detects changes and calls the Reusable workflows with configured props
 ## ⇩
-### 🟢 [Reusable workflows](.github/workflows/)
+### 🟢 [Reusable workflows](workflows/)
 Call actions according to input props
 ## ⇩
-### 🔴 [Composite actions](.github/actions/)
+### 🔴 [Composite actions](actions/)
 Execute commands (linters, tests,...)
 
 ### Features
@@ -35,7 +35,7 @@ git subtree add --prefix .github https://github.com/certego/.github.git main --s
 ```
 Customize linters in [configurations folder](configurations/)
 Customize options of [Starter workflow](workflow-template/starter).
-To launch workflow use request automation (like [this](.github/workflows/pull_request_automation.yml)) and/or via `pre-commit` (see below).
+To launch workflow use request automation (like [this](workflows/pull_request_automation.yml)) and/or via `pre-commit` (see below).
 Configure your project following this way:
 
 ### Python

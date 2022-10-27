@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: isort
         files: backend
-        args: ["--settings-path", "configurations/python_linters/.isort.cfg", "--profile", "black", "--filter-files", "--skip", "venv"]
+        args: ["--settings-path", "configurations/python_linters/.isort.cfg", "--filter-files", "--skip", "venv"]
 
 -   repo: https://github.com/psf/black
     rev: 22.3.0
