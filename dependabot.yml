@@ -1,28 +1,40 @@
 version: 2
-x-configuration: &configuration
-  schedule:
-    interval: "weekly"
-    day: "tuesday"
-  target-branch: "develop"
-  reviewers:
-    - 0ssigeno
-
 
 updates:
   - package-ecosystem: "pip"
     directory: "/test/python_test"
-    <<: *configuration
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    target-branch: "develop"
+    reviewers:
+      - x
 
   - package-ecosystem: "npm"
     directory: "/test/node_test"
-    <<: *configuration
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    target-branch: "develop"
+    reviewers:
+      - x
 
 
   - package-ecosystem: "docker"
     directory: "/test/python_test"
-    <<: *configuration
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    target-branch: "develop"
+    reviewers:
+      - x
 
 
   - package-ecosystem: "github-actions"
     directory: "/"
-    <<: *configuration
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    target-branch: "develop"
+    reviewers:
+      - x
