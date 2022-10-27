@@ -32,3 +32,9 @@ repos:
     hooks:
       - id: black
         args: ["--config", "configurations/python_linters/.black"]
+
+-   repo: https://github.com/PyCQA/autoflake
+    rev: v1.7.7
+    hooks:
+    -   id: autoflake
+        args: ["--remove-all-unused-imports" "--remove-unused-variables" "-ignore-init-module-imports" "-ignore-pass-statements"]
