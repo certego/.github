@@ -33,6 +33,7 @@ jobs:
       use_pylint: true
       use_bandit: false
       use_autoflake: true
+      use_pyupgrade: true
 
       requirements_path: backend/requirements.txt
       packages_path: backend/packages.txt

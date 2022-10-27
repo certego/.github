@@ -44,6 +44,7 @@ jobs:
       use_pylint: true
       use_bandit: false
       use_autoflake: true
+      use_pyupgrade: true
 
 
       requirements_path: test/python_test/requirements.txt

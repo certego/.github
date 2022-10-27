@@ -11,6 +11,8 @@ on:
         type: string
         required: true
 
+      use_pyupgrade: true
+        description: User pyupgrade 
       use_autoflake:
         description: Use autoflake linter
         default: false
