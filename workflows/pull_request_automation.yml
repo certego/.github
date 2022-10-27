@@ -22,6 +22,7 @@ jobs:
 
 
   node:
+    if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     uses: ./reusable_workflows/node.yml
     with:
       working_directory: test/node_test
@@ -40,6 +41,7 @@ jobs:
 
 
   python:
+     if: ${{ needs.detect-changes.outputs.backend > 0 }}
      uses: ./reusable_workflows/python.yml
      secrets: inherit
      with:
