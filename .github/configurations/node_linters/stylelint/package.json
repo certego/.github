@@ -1,1 +1,8 @@
-../../../../configurations/node_linters/stylelint/package.json
+{
+  "dependencies": {
+    "-": "^0.0.1",
+    "D": "^1.0.0",
+    "stylelint-config-prettier-scss": "^0.0.1",
+    "stylelint-config-standard-scss": "^5.0.0"
+  }
+}

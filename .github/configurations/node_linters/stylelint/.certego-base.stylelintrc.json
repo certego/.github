@@ -1,1 +1,8 @@
-../../../../configurations/node_linters/stylelint/.certego-base.stylelintrc.json
+{
+  "rules": {
+      "indentation": 4,
+      "max-line-length": [160, {
+          "ignore": ["comments"]
+      }]
+  }
+}

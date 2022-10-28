@@ -1,1 +1,19 @@
-../../../configurations/python_linters/.flake8
+[flake8]
+max-line-length = 160
+ignore =
+    E121, # indentation rules
+    E125,
+    E501,
+    W504,
+    W503, # Line break occurred before a binary operator
+    F401, # gives problems with wildcard import, init and similars
+    F403,
+    F405,
+    F841,
+    DJ01, # really useless and arguable
+    DJ08,
+    E501, # line too long, ignored because it could block us on pre-commit hooks
+    
+exclude =
+    */migrations/*,
+    Dockerfile

@@ -1,1 +1,7 @@
-../../../../configurations/node_linters/prettier/.certego-base.prettierrc.json
+{
+    "printWidth": 80,
+    "tabWidth": 4,
+    "singleQuote": true,
+    "endOfLine": "auto",
+    "trailingComma": "all"
+}

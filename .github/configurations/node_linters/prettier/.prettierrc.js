@@ -1,1 +1,3 @@
-../../../../configurations/node_linters/prettier/.prettierrc.js
+module.exports = {
+    ...require('./.certego-base.prettierrc.json'),
+};

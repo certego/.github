@@ -1,1 +1,8 @@
-../../../configurations/python_linters/.black
+[black]
+line-length=160
+extend-exclude='''
+/(
+  venv
+  | migrations
+)/
+'''

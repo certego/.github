@@ -1,1 +1,9 @@
-../../../configurations/python_linters/.bandit.yaml
+skips:
+  - B101 # assert_used
+
+try_except_pass:
+  check_typed_exception: false
+
+exclude_dirs:
+  - local.env
+  - migrations
