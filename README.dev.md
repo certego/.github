@@ -14,7 +14,7 @@ All changes will be tested with *test* project.
 
 ### 🕑 Files to update periodically:
 Periodically update:
-- Test projects dependencies: [Python dependencies](test/python_test/packages.txt), [Node.js packages](test/node_test/package.json)
+- Test projects dependencies: [Python dependencies](.github/test/python_test/packages.txt), [Node.js packages](.github/test/node_test/package.json)
 - Node linters dependencies: [ESLint packages](configurations/node_linters/eslint/package.json), [Stylelint packages](configurations/node_linters/stylelint/package.json)
 - [Pre-commit config](.pre-commit-config.yaml) actions revs.
 - All [other actions](actions/) revs.

@@ -25,7 +25,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     uses: ./github/workflows/_node.yml
     with:
-      working_directory: test/node_test
+      working_directory: .github/test/node_test
 
       use_eslint: true
       use_prettier: true
@@ -45,7 +45,7 @@ jobs:
      uses: ./github/workflows/_python.yml
      secrets: inherit
      with:
-      working_directory: test/python_test
+      working_directory: .github/test/python_test
       use_black: false
       use_isort: true
       use_flake8: true
@@ -54,8 +54,8 @@ jobs:
       use_autoflake: true
 
 
-      requirements_path: test/python_test/requirements.txt
-      packages_path: test/python_test/packages.txt
+      requirements_path: .github/test/python_test/requirements.txt
+      packages_path: .github/test/python_test/packages.txt
       django_settings_module: python_test.settings
 
       check_migrations: true
