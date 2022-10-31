@@ -9,8 +9,8 @@ Otherwise, simply open an issue.
 ## Setup
 Every file in the `.github/.github` folder is a *hard link* against the respective directory in the base folder.
 Since GitHub is not able to store the fact that these files are hardlink, a post-merge hook has been made:
-To ensure that the hook fires, you have to symlink in your `.git/hooks` directory:
-`ln -s .github/hooks/post_merge .git/hooks/`
+To ensure that the hook fires, you have to create symlink in your `.git/hooks` directory to the `post-merge`:
+For example, if you are in `.git/hooks directory`, you can use `ln -s ../../.github/hooks/post_merge .git/hooks/`
 
 ### 📖 How to test
 Make your branch and do pull requests to `develop`.
