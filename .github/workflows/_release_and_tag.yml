@@ -20,6 +20,17 @@ on:
         required: false
         default: false
 
+      publish_on_twitter:
+        description: Publish changelog on twitter
+        type: boolean
+        required: false
+        default: false
+      twitter_message:
+        description: Twitter message to append after changelog (i.e. tags)
+        type: string
+        required: false
+        default: #CyberSecurity
+
 jobs:
   release_and_tag:
     name: Create release and tag
@@ -86,3 +97,12 @@ jobs:
         if: inputs.publish_on_npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}
+
+      - uses: infraway/tweet-action@v1.0.1
+        if: inputs.publish_on_twitter
+        with:
+          status: published #IntelOwl ${{github.ref}}! full changelog here: https://github.com/${GITHUB_ACTION_REPOSITORY}/blob/${{github.base_ref}}/.github/CHANGELOG.md ${{inputs.twitter_message}}
+          api_key: ${{ secrets.TWITTER_API_KEY }}
+          api_key_secret: ${{ secrets.TWITTER_API_KEY_SECRET }}
+          access_token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          access_token_secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
