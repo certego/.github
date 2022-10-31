@@ -4,13 +4,13 @@ repos:
     hooks:
       - id: pylint
         files: backend
-        args: ["--rcfile", "configurations/python_linters/.pylintrc"]
+        args: ["--rcfile", "./github/configurations/python_linters/.pylintrc"]
 -   repo: https://github.com/pycqa/bandit
     rev: 1.7.4
     hooks:
       - id: bandit
         files: backend
-        args: ["-c", "configurations/python_linters/.bandit.yaml"]
+        args: ["-c", "./github/configurations/python_linters/.bandit.yaml"]
 
 -   repo: https://github.com/pycqa/flake8
     rev: 5.0.4
@@ -18,20 +18,20 @@ repos:
     - id: flake8
       exclude: docs/conf.py
       files: backend
-      args: ["--config", "configurations/python_linters/.flake8"]
+      args: ["--config", "./github/configurations/python_linters/.flake8"]
 
 -   repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
       - id: isort
         files: backend
-        args: ["--settings-path", "configurations/python_linters/.isort.cfg", "--filter-files", "--skip", "venv"]
+        args: ["--settings-path", "./github/configurations/python_linters/.isort.cfg", "--filter-files", "--skip", "venv"]
 
 -   repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
       - id: black
-        args: ["--config", "configurations/python_linters/.black"]
+        args: ["--config", "./github/configurations/python_linters/.black"]
 
 -   repo: https://github.com/PyCQA/autoflake
     rev: v1.7.7
