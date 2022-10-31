@@ -3,43 +3,50 @@
 # .github
 
 This repository contains CI workflows for Certego projects.
+It also contains the recomended configurations for linters and formatters.
 
-## ⚙️ Components
-### 🔵 [Starter workflow](workflow-template/starter)
-Detects changes and calls the Reusable workflows with configured props
+## ⚙️ CI components
+### 🔴 [Pull request automation](workflows/pull_request_automation.yml)
+Automaticaly executed on every PR. To customize for your project.
 ## ⇩
-### 🟢 [Reusable workflows](workflows/)
-Call actions according to input props
+### 🟡 [Reusable workflows](workflows/)
+They receive input props and call actions.
 ## ⇩
-### 🔴 [Composite actions](actions/)
-Execute commands (linters, tests,...)
+### 🟢 [Composite actions](actions/)
+They execute commands (linters, tests,...)
 
-### Features
+### CI features
 Actually CI actions commands implement this features:
-- Linters / Formatters
+- Linters & Formatters
 - Tests
 - Coverage printing
 - License checks
 - Release and tagging
 - Doc generation
-Other features if CI:
-- Dependabot
+
+### Other CI features:
+This repository also contains configurations for:
+- [Dependabot](dependabot.yml)
 - Pre-commit hook configurations
+
+## 🧰 Action configurations (linters, formatters, docs, coverage...)
+See [here](configurations/)
 
 ---
 
 ## 📖 How to use
 Use `git subtree` to add this repository to your project:
 ```
-git subtree add --prefix .github https://github.com/certego/.github.git main --squash
+git subtree add --prefix .github https://github.com/certego/.github.git main --squash && rm -rf .github/.github
 ```
+Customize options of [Pull request automation](workflows/pull_request_automation.yml)
 Customize linters in [configurations folder](configurations/)
-Customize options of [Starter workflow](workflow-template/starter).
-To launch workflow use request automation (like [this](workflows/pull_request_automation.yml)) and/or via `pre-commit` (see below).
-Configure your project following this way:
+Customize [dependabot](dependabot.yml).
+**Note:** every time a new release of this repository is rolled, you have to update subtree folder. Pay attenction, be careful to not loose your changes.
+Configure your project following below instructions.
 
 ### Python
-CI calls scripts like this (for local use custmize paths):
+CI automatically installs and calls code analyzers this way:
 ```
 pylint --rcfile=.github/configurations/python_linters/.pylintrc
 bandit -c .github/configurations/python_linters/.bandit.yaml
@@ -47,19 +54,19 @@ flake8 --config .github/configurations/python_linters/.flake8
 black --config .github/configurations/python_linters/.black
 isort --settings-path .github/configurations/python_linters/.isort.cfg --profile black --filter-files --skip venv
 ```
-For local installation see [here](configurations/python_linters/README.md)
+For local installation and customization, see [here](configurations/python_linters/README.md)
 
-#### Pre-commit
+#### (Opt.) Pre-commit
 Add `pre-commit` to your python requirements.
 Configure [this](.pre-commit-config.yaml) configuration file in your `.github` dir.
 From root of your project install:
 ```
 pre-commit install -c .github/.pre-commit-config.yaml
 ```
-Pre-commit will add hook `.git/hooks/pre-commit`
+Pre-commit will add hook `.git/hooks/pre-commit` for you.
 
 ### Node.js
-Add to `package.json` these scripts, customize paths:
+Add to `package.json` these scripts (configure paths), CI automatically installs and calls them:
 ```
 "config": {
     "eslint": ".github/configurations/node_linters/eslint/.eslintrc.json",
@@ -78,25 +85,25 @@ Add to `package.json` these scripts, customize paths:
     "formatter": "prettier --config $npm_package_config_prettier 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}' 'src/scss/**/*.{css,scss}' --check",
     "formatter-fix": "npm run formatter -- --write"
 ```
-For local installation see [here](configurations/node_linters/README.md).
-For configurations use those from `.github/configurations/node_linters`.
+For local installation and customization see [here](configurations/node_linters/README.md).
 
-#### Pre-commit
-To enable pre-commit add this to `package.json`, customizing paths:
+#### (Opt.) Pre-commit
+To enable pre-commit add this to your `package.json` (configure paths, prettier is optional).
+**Note:** starting point of `husky install` must be same directory as .git
 ```
     "scripts": {
-        "prepare": "husky install .github/.husky"
+        "prepare": "cd ./ && husky install .github/.husky"
     },
     "lint_staged": {
         "*.{js,jsx}": ["eslint -c .github/configurations/node_linters/eslint/.eslintrc.json"] //, "prettier --config .github/configurations/node_linters/prettier/.prettierrc.js"],
         "*.{css,scss}": ["stylelint --config .github/configurations/node_linters/stylelint/.stylelintrc.json"] // , "prettier --config .github/configurations/node_linters/prettier/.prettierrc.js"]
     },
 ```
-Starting point of `husky install` path is the same directory as .git
 Then execute this command:
 ```
 npm i -D husky lint-staged && npm run prepare
 ```
+
 
 ## 🔧 Development
 To contribute to this repository, please see [here](README.dev.md)

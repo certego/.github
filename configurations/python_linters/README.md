@@ -3,6 +3,7 @@
 # 🐍 Python linters
 
 ## 🔧 Dependencies
+To use locally, install these dependencies:
 
 - ### [Flake8](https://flake8.readthedocs.io/)
 ```bash
@@ -24,8 +25,10 @@ pip install isort
 pip install black
 ```
 
+To add additional dependecies to CI, insert them in `requirements-linters.txt` file (inside *<requirements_path>* folder).
+
 ## 📖 How to use
 Customize files inside configurations.
 
-**Note:** actually there is no way to extend them in other files.
+**Note:** actually there is no way to extend configurations with other files.
 
