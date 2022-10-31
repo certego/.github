@@ -70,6 +70,18 @@ jobs:
 
       - name: Install dependencies
         run: |
+          if [[ '${{ inputs.use_jest}}' != 'false' ]]; then
+            npm i -D --package-lock-only jest
+          fi
+          if [[ '${{ inputs.use_eslint}}' != 'false' ]]; then
+            npm i -D --package-lock-only eslint
+          fi
+          if [[ '${{ inputs.use_prettier}}' != 'false' ]]; then
+            npm i -D --package-lock-only prettier
+          fi
+          if [[ '${{ inputs.use_stylelint}}' != 'false' ]]; then
+            npm i -D --package-lock-only stylelint
+          fi
           npm ci
         working-directory: ${{ inputs.working_directory }}
 
