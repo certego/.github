@@ -41,11 +41,6 @@ on:
         default: false
         type: boolean
         required: false
-      bandit_config_file:
-        description: Path to the bandit config file from the working dir
-        type: string
-        required: false
-        default: .bandit.yaml
 
 
       requirements_path:
@@ -85,6 +80,12 @@ on:
         type: boolean
         required: false
         default: true
+      ignore_requirements_licenses_regex:
+        description: Regex of repositories of which ignore license
+        type: string
+        required: false
+        default: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
+
       check_docs_directory:
         description: Check docs using rstcheck inside this directory
         type: string
@@ -259,8 +260,8 @@ jobs:
         shell: bash
 
       - name: Run fast linters
-        uses: certego/.github/.github/actions/python_linter@develop
-        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit
+        uses: ./.github/actions/python_linter
+        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit || inputs.use_autoflake
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
@@ -269,11 +270,10 @@ jobs:
           use_pylint: ${{ inputs.use_pylint }}
           use_bandit: ${{ inputs.use_bandit }}
           use_autoflake: ${{ inputs.use_autoflake }}
-          bandit_config_file: ${{ inputs.bandit_config_file }}
 
       - name: Install apt requirements
         if: inputs.packages_path
-        uses: certego/.github/.github/actions/apt_requirements@develop
+        uses: ./.github/actions/apt_requirements
         with:
           requirements_file: ${{ inputs.packages_path }}
 
@@ -290,7 +290,7 @@ jobs:
         uses: pilosus/action-pip-license-checker@v0.6.2
         with:
           requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
-          exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
+          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
@@ -380,7 +380,7 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
-        uses: certego/.github/.github/actions/services@develop
+        uses: ./.github/actions/services
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}

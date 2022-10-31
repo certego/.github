@@ -20,7 +20,7 @@
         "formatter-fix": "npm run formatter -- --write",
         "test": "TZ=UTC jest --silent",
         "test-coverage": "npm test -- --coverage=true",
-        "prepare": "cd ../.. && husky install .husky"
+        "prepare": "cd ../../.. && husky install .husky"
     },
     "devDependencies": {
         "eslint": "^8.20.0",

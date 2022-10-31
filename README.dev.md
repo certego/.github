@@ -3,25 +3,26 @@
 # .github 
 
 ## 🔧 Development
-Here some infos for contributing to Certego CI.
+To contribute to Certego CI, please clone this repo and do  pull requests to `develop`.
 Otherwise simply open an issue.
 
-### 📖 How to test
-Make your branch and do pull requests to `develop`.
-All changes will be tested with *test* project.
+## 📖 Setup for test
+To run tests, CI files in base directory must be *hard linked* in the `.github/.github` folder.
+Since GitHub is not able to store the fact that these files are hardlink, a `post-merge` hook has been made to execute [this](.github/hooks/post-merge) code:
+```
+cd .git/hooks
+ln -s ../../.github/hooks/post-merge .git/hooks/
+```
+Now all changes will be linked and tested with [*test* project](.github/test/) on every PR.
 
-**Note:** to properly test Reusable workflows and Actions you need to change `@<tag>` to `@<your_branch>` (see [below](#-release)).
 
 ### 🕑 Files to update periodically:
 Periodically update:
-- Test projects dependencies: [Python dependencies](test/python_test/packages.txt), [Node.js packages](test/node_test/package.json)
+- Test projects dependencies: [Python dependencies](.github/test/python_test/packages.txt), [Node.js packages](.github/test/node_test/package.json)
 - Node linters dependencies: [ESLint packages](configurations/node_linters/eslint/package.json), [Stylelint packages](configurations/node_linters/stylelint/package.json)
 - [Pre-commit config](.pre-commit-config.yaml) actions revs.
-- All [other actions](.github/actions/) revs.
+- All [external actions](workflows/) revs.
 - All README and docs.
 
 ### 🏷️ Release
-When a new version is released, please remember to change tag in these files:
-- [Starter Workflow](workflow-templates/starter.yml)
-- [Node.js Workflow](.github/workflows/node.yml)
-- [Python Workflow](.github/workflows/python.yml)
+After a new release is created, please inform final users that they should update CI subtree in their projects.
