@@ -3,22 +3,18 @@
 # .github 
 
 ## 🔧 Development
-To contribute to Certego CI, please clone this repo and do PRs.
+To contribute to Certego CI, please clone this repo and do  pull requests to `develop`.
 Otherwise simply open an issue.
 
-## Setup
-Every file in the `.github/.github` folder is a *hard link* against the respective directory in the base folder.
-Since GitHub is not able to store the fact that these files are hardlink, a `post-merge` hook has been made.
-To ensure that the hook fires, you have to create symlink in your `.git/hooks` directory to the `post-merge`:
+## 📖 Setup for test
+To run tests, CI files in base directory must be *hard linked* in the `.github/.github` folder.
+Since GitHub is not able to store the fact that these files are hardlink, a `post-merge` hook has been made to execute [this](.github/hooks/post-merge) code:
 ```
 cd .git/hooks
-ln -s ../../.github/hooks/post_merge .git/hooks/
+ln -s ../../.github/hooks/post-merge .git/hooks/
 ```
+Now all changes will be linked and tested with [*test* project](.github/test/) on every PR.
 
-
-### 📖 How to test
-Make your branch and do pull requests to `develop`.
-All changes will be tested with *test* project.
 
 ### 🕑 Files to update periodically:
 Periodically update:
