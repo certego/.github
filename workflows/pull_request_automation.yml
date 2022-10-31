@@ -22,6 +22,7 @@ jobs:
 
 
   node:
+    needs: detect-changes
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
     uses: ./.github/workflows/_node.yml
     with:
@@ -41,6 +42,7 @@ jobs:
 
 
   python:
+     needs: detect-changes
      if: ${{ needs.detect-changes.outputs.backend > 0 }}
      uses: ./.github/workflows/_python.yml
      secrets: inherit
