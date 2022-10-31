@@ -80,6 +80,12 @@ on:
         type: boolean
         required: false
         default: true
+      ignore_requirements_licenses_regex:
+        description: Regex of repositories of which ignore license
+        type: string
+        required: false
+        default: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
+
       check_docs_directory:
         description: Check docs using rstcheck inside this directory
         type: string
@@ -284,7 +290,7 @@ jobs:
         uses: pilosus/action-pip-license-checker@v0.6.2
         with:
           requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
-          exclude: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
+          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
