@@ -1,0 +1,8 @@
+[black]
+line-length=160
+extend-exclude='''
+/(
+  venv
+  | migrations
+)/
+'''
