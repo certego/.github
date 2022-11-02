@@ -101,7 +101,7 @@ jobs:
       - uses: infraway/tweet-action@v1.0.1
         if: inputs.publish_on_twitter
         with:
-          status: published #IntelOwl ${{github.ref}}! full changelog here: ${GITHUB_SERVER_URL}/${GITHUB_ACTION_REPOSITORY}/blob/${{github.base_ref}}/.github/CHANGELOG.md ${{inputs.twitter_message}}
+          status: published #${GITHUB_REPOSITORY#*/} ${{github.ref}}! full changelog here: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/${{github.base_ref}}/.github/CHANGELOG.md ${{inputs.twitter_message}}
           api_key: ${{ secrets.TWITTER_API_KEY }}
           api_key_secret: ${{ secrets.TWITTER_API_KEY_SECRET }}
           access_token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
