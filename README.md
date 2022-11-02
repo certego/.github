@@ -3,7 +3,7 @@
 # .github
 
 This repository contains CI workflows for Certego projects.
-It also contains the recomended configurations for linters and formatters.
+It also contains the recommended configurations for linters and formatters.
 
 ## ⚙️ CI components
 ### 🔴 [Pull request automation](workflows/pull_request_automation.yml)
@@ -36,13 +36,19 @@ See [here](configurations/)
 
 ## 📖 How to use
 Use `git subtree` to add this repository to your project:
-```
-git subtree add --prefix .github https://github.com/certego/.github.git main --squash && rm -rf .github/.github
+```bash
+git subtree add --squash --prefix .github https://github.com/certego/.github.git main  && rm -rf .github/.github
 ```
 Customize options of [Pull request automation](workflows/pull_request_automation.yml)
 Customize linters in [configurations folder](configurations/)
 Customize [dependabot](dependabot.yml).
-**Note:** every time a new release of this repository is rolled, you have to update subtree folder. Pay attenction, be careful to not loose your changes.
+Customize [CHANGELOG](CHANGELOG.md)
+**Note:** every time a new release of this repository is rolled, you have to update the subtree folder.
+```bash
+git subtree pull --squash --prefix .github https://github.com/certego/.github  main && rm -rf .github/.github
+
+```
+Pay attention,be careful to not lose your changes.
 Configure your project following below instructions.
 
 ### Python
