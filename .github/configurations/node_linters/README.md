@@ -2,31 +2,41 @@
 
 # ⬡ Node.js linters
 
-## 🔧 Install dependencies
+## 📖 How to use
+Download repo via `git subtree` (see [here](/README.md)).
+Customize configurations files (if needed).
 
 - ### [ESLint](https://eslint.org/)
+To use locally, install these dependencies:
 ```bash
 npm i -D eslint
 npm run lint-config-install
 ```
+To run:
+```bash
+npm run lint
+```
 
 - ### [Stylelint](https://stylelint.io/)
+To use locally, install these dependencies:
 ```bash
 npm i -D stylelint
 npm run lint-scss-config-install
 ```
+To run:
+```bash
+npm run lint-scss
+```
 
-- ### [Prettier](https://prettier.io/)
+- ### (Opt.) [Prettier](https://prettier.io/)
+To use locally, enable configurations and customize
+- Enable/disable `eslint-config-prettier` in ESlint config file
+- Enable/disable `stylelint-config-prettier-scss` in Stylelint config file
+Install these dependencies:
 ```bash
 npm i -D prettier
 ```
-
-## 📖 How to use
-Download repo via `git subtree` (see [here](/README.md)).
-Customize configurations files (if needed):
-- [ESlint](eslint/.eslintrc.json)
-
-### Optional: Prettier
-To use Prettier formatter:
-- Enable/disable `eslint-config-prettier` in ESlint config file
-- Enable/disable `stylelint-config-prettier-scss` in Stylelint config file
+To run:
+```
+npm run formatter
+```

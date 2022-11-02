@@ -38,21 +38,28 @@ jobs:
     - uses: actions/checkout@v3
       with:
         clean: false
+    - name: Generate summary
+      if: ${{inputs.backend_directories != ''}} | ${{inputs.frontend_directories != ''}}
+      run: |
+        echo "### Detect Changes summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
 
     - name: Generate diffs for backend
       if: ${{inputs.backend_directories != ''}}
       id: diff_check_backend
       run: |
-        git branch -a --list | cat
         BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} | head -n -1 | wc -l)
         echo "backend=$BACKEND_CHANGES" >> $GITHUB_OUTPUT
+        echo "Backend Changes: $BACKEND_CHANGES" >> $GITHUB_STEP_SUMMARY
+        echo "backend $BACKEND_CHANGES"
 
 
     - name: Generate diffs for frontend
       if: ${{inputs.frontend_directories != ''}}
       id: diff_check_frontend
       run: |
-        git branch -a --list | cat
         FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} | head -n -1 | wc -l)
         echo "frontend=$FRONTEND_CHANGES" >> $GITHUB_OUTPUT
+        echo "Frontend Changes: $FRONTEND_CHANGES" >> $GITHUB_STEP_SUMMARY
+        echo "frontend $FRONTEND_CHANGES"
 

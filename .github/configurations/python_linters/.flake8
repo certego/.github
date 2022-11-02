@@ -13,7 +13,8 @@ ignore =
     DJ01, # really useless and arguable
     DJ08,
     E501, # line too long, ignored because it could block us on pre-commit hooks
-    
+    E402, # module level import not at top of file
+
 exclude =
     */migrations/*,
     Dockerfile
