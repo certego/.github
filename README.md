@@ -7,7 +7,9 @@ It also contains the recommended configurations for linters and formatters.
 
 ## ⚙️ CI components
 ### 🔴 [Pull request automation](workflows/pull_request_automation.yml)
-Automaticaly executed on every PR. To customize for your project.
+Automatically executed on every PR. Manages tests and lints stuff. To customize for your project.
+### 🔴 [Release](workflows/release.yml)
+Automatically executed on every closed PR to the master branch. Manages release stuff. To customize for your project.
 ## ⇩
 ### 🟡 [Reusable workflows](workflows/)
 They receive input props and call actions.
