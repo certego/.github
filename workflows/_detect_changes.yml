@@ -43,16 +43,16 @@ jobs:
       if: ${{inputs.backend_directories != ''}}
       id: diff_check_backend
       run: |
-        git branch -a --list | cat
         BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} | head -n -1 | wc -l)
         echo "backend=$BACKEND_CHANGES" >> $GITHUB_OUTPUT
+        echo "backend $BACKEND_CHANGES"
 
 
     - name: Generate diffs for frontend
       if: ${{inputs.frontend_directories != ''}}
       id: diff_check_frontend
       run: |
-        git branch -a --list | cat
         FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} | head -n -1 | wc -l)
         echo "frontend=$FRONTEND_CHANGES" >> $GITHUB_OUTPUT
+        echo "frontend $FRONTEND_CHANGES"
 
