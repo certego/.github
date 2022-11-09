@@ -263,6 +263,7 @@ jobs:
       - name: Inject django settings module to environ
         if: inputs.django_settings_module
         run: |
+          ls ${{ github.workspace }}/${{ inputs.working_directory }}
           echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
           echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
       
