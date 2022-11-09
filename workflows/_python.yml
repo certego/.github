@@ -278,6 +278,10 @@ jobs:
         with:
           requirements_file: ${{ inputs.packages_path }}
 
+      - name: Inject python path to environ
+        if: inputs.django_settings_module
+        run: |
+          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
 
       - name: Inject django settings module to environ
         if: inputs.django_settings_module
@@ -403,11 +407,6 @@ jobs:
         run: |
           celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach
         working-directory: ${{ inputs.working_directory }}
-
-      - name: Inject python path to environ
-        if: inputs.django_settings_module
-        run: |
-          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
 
       - name: Custom command
         if: inputs.custom_command
