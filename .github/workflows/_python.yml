@@ -340,7 +340,8 @@ jobs:
             ${{ inputs.install_from }}/requirements-dev.txt
             ${{ inputs.install_from }}/requirements-docs.txt
 
-      - uses: syphar/restore-pip-download-cache@v1
+      - name: Check cache
+        uses: syphar/restore-pip-download-cache@v1
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         with:
           requirement_files: |
@@ -348,11 +349,12 @@ jobs:
             ${{ inputs.install_from }}/requirements-dev.txt
             ${{ inputs.install_from }}/requirements-docs.txt
 
-      - run: |
+      - name: Install requirements
+        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+        run: |
           pip install -r ${{ inputs.requirements_path }}
           pip install -r requirements-dev.txt
           pip install -r requirements-docs.txt
-        if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         shell: bash
         working-directory: ${{ inputs.install_from }}
 

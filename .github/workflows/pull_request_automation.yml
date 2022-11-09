@@ -32,8 +32,10 @@ jobs:
       use_prettier: true
       use_stylelint: true
 
+      use_react: true
       check_packages_licenses: true
       use_jest: true
+
       use_coverage: true
       upload_coverage: true
 

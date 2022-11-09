@@ -23,6 +23,12 @@ on:
         type: boolean
         required: false
 
+      use_react:
+        description: Use react library
+        default: false
+        type: boolean
+        required: false
+
       use_eslint:
         description: Use eslint formatter
         default: true
@@ -68,21 +74,27 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
 
-      - name: Install dependencies
+      - name: Add dependencies
         run: |
-          if [[ '${{ inputs.use_jest}}' != 'false' ]]; then
-            npm i -D --package-lock-only jest
+          if [[ '${{ inputs.use_jest }}' != 'false' ]]; then
+            npm i -D --package-lock-only jest @testing-library/jest-dom babel-jest @babel/core @babel/preset-env
+            if [[ '${{ inputs.use_react }}' != 'false' ]]; then
+              npm i -D --package-lock-only  @testing-library/react @testing-library/jest-dom
+            fi
           fi
-          if [[ '${{ inputs.use_eslint}}' != 'false' ]]; then
+          if [[ '${{ inputs.use_eslint }}' != 'false' ]]; then
             npm i -D --package-lock-only eslint
           fi
-          if [[ '${{ inputs.use_prettier}}' != 'false' ]]; then
+          if [[ '${{ inputs.use_prettier }}' != 'false' ]]; then
             npm i -D --package-lock-only prettier
           fi
-          if [[ '${{ inputs.use_stylelint}}' != 'false' ]]; then
+          if [[ '${{ inputs.use_stylelint }}' != 'false' ]]; then
             npm i -D --package-lock-only stylelint
           fi
-          npm ci
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Install packages
+        run: npm ci
         working-directory: ${{ inputs.working_directory }}
 
       - name: Run linters
@@ -92,6 +104,7 @@ jobs:
           use_eslint: ${{ inputs.use_eslint == true }}
           use_prettier: ${{ inputs.use_prettier == true }}
           use_stylelint: ${{ inputs.use_stylelint == true }}
+          use_react: ${{ inputs.use_react == true }}
           check_packages_licenses: ${{ inputs.check_packages_licenses == true }}
 
       - name: Check packages licenses
