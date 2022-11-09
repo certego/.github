@@ -54,7 +54,6 @@ on:
         required: false
         default: .
 
-
       packages_path:
         description: Path to the packages.txt file
         type: string
@@ -210,8 +209,43 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
+      - name: Inject PYTHONPATH and DJANGO_SETTINGS_MODULE to environ
+        if: inputs.django_settings_module
+        run: |
+          ls ${{ github.workspace }}/${{ inputs.working_directory }}
+          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
+          echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+
+      - name: Install apt requirements
+        if: inputs.packages_path
+        uses: ./.github/actions/apt_requirements
+        with:
+          requirements_file: ${{ inputs.packages_path }}
+
+      - name: Check requirements licenses
+        if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
+        id: license_check_report
+        continue-on-error: true
+        uses: pilosus/action-pip-license-checker@v0.6.2
+        with:
+          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
+          table-headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Error'
+          fails-only: true
+
+      - name: Print wrong licenses
+        if: steps.license_check_report.outcome == 'failure'
+        run: |
+          echo "License check failed"
+          echo "===================="
+          echo "${{ steps.license_check_report.outputs.report }}"
+          echo "===================="
+          exit 1
+        shell: bash
+
       # not the best solution because i do not think that dependabot supports this
-      - name: Write requirements to file for caching
+      - name: Create requirements-linters.txt
         run: |
           echo > requirements-linter.txt
 
@@ -246,67 +280,6 @@ jobs:
           cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-linter.txt/') >> requirements-linter.txt 2>/dev/null || exit 0
         shell: bash
 
-      - uses: syphar/restore-virtualenv@v1
-        id: cache-virtualenv-linter
-        with:
-          requirement_files: requirements-linter.txt
-
-      - uses: syphar/restore-pip-download-cache@v1
-        if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
-        with:
-          requirement_files: requirements-linter.txt
-
-      - run: pip install -r requirements-linter.txt
-        if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
-        shell: bash
-
-      - name: Inject django settings module to environ
-        if: inputs.django_settings_module
-        run: |
-          ls ${{ github.workspace }}/${{ inputs.working_directory }}
-          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
-          echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
-      
-      - name: Run fast linters
-        uses: ./.github/actions/python_linter
-        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit || inputs.use_autoflake
-        with:
-          working_directory: ${{ inputs.working_directory }}
-          use_black: ${{ inputs.use_black }}
-          use_isort: ${{ inputs.use_isort }}
-          use_flake8: ${{ inputs.use_flake8 }}
-          use_pylint: ${{ inputs.use_pylint }}
-          use_bandit: ${{ inputs.use_bandit }}
-          use_autoflake: ${{ inputs.use_autoflake }}
-
-      - name: Install apt requirements
-        if: inputs.packages_path
-        uses: ./.github/actions/apt_requirements
-        with:
-          requirements_file: ${{ inputs.packages_path }}
-
-      - name: Check requirements licenses
-        if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
-        id: license_check_report
-        continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v0.6.2
-        with:
-          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
-          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
-          table-headers: true
-          fail: 'StrongCopyleft,NetworkCopyleft,Error'
-          fails-only: true
-
-      - name: Print wrong licenses
-        if: steps.license_check_report.outcome == 'failure'
-        run: |
-          echo "License check failed"
-          echo "===================="
-          echo "${{ steps.license_check_report.outputs.report }}"
-          echo "===================="
-          exit 1
-        shell: bash
-
       - name: Create requirements-dev.txt
         run: |
           echo > requirements-dev.txt
@@ -333,21 +306,24 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
-      - uses: syphar/restore-virtualenv@v1
+      - name: Check virtualenv cache
+        uses: syphar/restore-virtualenv@v1
         id: cache-virtualenv
         with:
           requirement_files: |
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
+            ${{ inputs.install_from }}/requirements-linters.txt
             ${{ inputs.install_from }}/requirements-docs.txt
 
-      - name: Check cache
+      - name: Check pip cache
         uses: syphar/restore-pip-download-cache@v1
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
         with:
           requirement_files: |
             ${{ inputs.install_from }}/${{ inputs.requirements_path }}
             ${{ inputs.install_from }}/requirements-dev.txt
+            ${{ inputs.install_from }}/requirements-linters.txt
             ${{ inputs.install_from }}/requirements-docs.txt
 
       - name: Install requirements
@@ -355,11 +331,24 @@ jobs:
         run: |
           pip install -r ${{ inputs.requirements_path }}
           pip install -r requirements-dev.txt
+          pip install -r requirements-linters.txt
           pip install -r requirements-docs.txt
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
-      - name: Check Docs
+      - name: Run linters
+        uses: ./.github/actions/python_linter
+        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit || inputs.use_autoflake
+        with:
+          working_directory: ${{ inputs.working_directory }}
+          use_black: ${{ inputs.use_black }}
+          use_isort: ${{ inputs.use_isort }}
+          use_flake8: ${{ inputs.use_flake8 }}
+          use_pylint: ${{ inputs.use_pylint }}
+          use_bandit: ${{ inputs.use_bandit }}
+          use_autoflake: ${{ inputs.use_autoflake }}
+
+      - name: Build Docs
         if: inputs.check_docs_directory
         run: |
           rstcheck -r  --report-level error --ignore-directives automodule,autoclass .
@@ -367,19 +356,7 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.check_docs_directory }}
 
-      - name: Check pylint
-        if: ${{ inputs.use_pylint }}
-        run: |
-          if [[ -z '${{ inputs.django_settings_module }}' ]]; then
-            CMD="pylint ."
-          else
-            CMD="pylint `ls -d */`"
-          fi
-          echo "Executing $CMD"
-          $CMD
-        working-directory: ${{ inputs.working_directory }}
-
-      - name: Check DockerFile
+      - name: Build DockerFile
         if: inputs.check_dockerfile
         run: |
            docker build -f ${{ inputs.check_dockerfile }} .
@@ -405,7 +382,7 @@ jobs:
           celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach
         working-directory: ${{ inputs.working_directory }}
 
-      - name: Custom command
+      - name: Run custom command
         if: inputs.custom_command
         run: |
           COMMAND=${{ inputs.custom_command }}
