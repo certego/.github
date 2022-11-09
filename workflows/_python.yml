@@ -260,6 +260,12 @@ jobs:
         if: steps.cache-virtualenv-linter.outputs.cache-hit != 'true'
         shell: bash
 
+      - name: Inject django settings module to environ
+        if: inputs.django_settings_module
+        run: |
+          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
+          echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+      
       - name: Run fast linters
         uses: ./.github/actions/python_linter
         if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit || inputs.use_autoflake
@@ -277,16 +283,6 @@ jobs:
         uses: ./.github/actions/apt_requirements
         with:
           requirements_file: ${{ inputs.packages_path }}
-
-      - name: Inject python path to environ
-        if: inputs.django_settings_module
-        run: |
-          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
-
-      - name: Inject django settings module to environ
-        if: inputs.django_settings_module
-        run: |
-          echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
 
       - name: Check requirements licenses
         if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
