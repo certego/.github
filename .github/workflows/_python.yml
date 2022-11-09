@@ -212,7 +212,6 @@ jobs:
       - name: Inject PYTHONPATH and DJANGO_SETTINGS_MODULE to environ
         if: inputs.django_settings_module
         run: |
-          ls ${{ github.workspace }}/${{ inputs.working_directory }}
           echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
           echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
 
@@ -279,6 +278,7 @@ jobs:
           fi
           cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-linter.txt/') >> requirements-linter.txt 2>/dev/null || exit 0
         shell: bash
+        working-directory: ${{ inputs.install_from }}
 
       - name: Create requirements-dev.txt
         run: |
