@@ -246,37 +246,37 @@ jobs:
       # not the best solution because i do not think that dependabot supports this
       - name: Create requirements-linters.txt
         run: |
-          echo > requirements-linter.txt
+          echo > requirements-linters.txt
 
           if [[ '${{ inputs.use_black}}' != 'false' ]]; then
-            echo "black==22.3.0" >> requirements-linter.txt
+            echo "black==22.3.0" >> requirements-linters.txt
           fi
 
           if [[ '${{ inputs.use_isort}}' != 'false' ]]; then
-            echo "isort==5.10.1" >> requirements-linter.txt
+            echo "isort==5.10.1" >> requirements-linters.txt
           fi
 
           if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
-            echo "flake8==5.0.4" >> requirements-linter.txt
+            echo "flake8==5.0.4" >> requirements-linters.txt
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-              echo "flake8-django==1.1.5" >> requirements-linter.txt
+              echo "flake8-django==1.1.5" >> requirements-linters.txt
             fi
           fi
 
           if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
-            echo "pylint==2.14.3" >> requirements-linter.txt
+            echo "pylint==2.14.3" >> requirements-linters.txt
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-              echo "pylint-django==2.5.3" >> requirements-linter.txt
+              echo "pylint-django==2.5.3" >> requirements-linters.txt
             fi
           fi
 
           if [[ '${{ inputs.use_bandit}}' != 'false' ]]; then
-            echo "bandit==1.7.4" >> requirements-linter.txt
+            echo "bandit==1.7.4" >> requirements-linters.txt
           fi
           if [[ '${{ inputs.use_autoflake}}' != 'false' ]]; then
-            echo "autoflake==1.7.7" >> requirements-linter.txt
+            echo "autoflake==1.7.7" >> requirements-linters.txt
           fi
-          cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-linter.txt/') >> requirements-linter.txt 2>/dev/null || exit 0
+          cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-linter.txt/') >> requirements-linters.txt 2>/dev/null || exit 0
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
