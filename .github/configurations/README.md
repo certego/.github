@@ -27,7 +27,11 @@ To add additional dependecies to CI, insert them in `requirements-dev.txt` file 
 ### Node.js
 To use locally, install these dependencies:
 ```
-npm -i -D jest
+npm i -D jest @testing-library/jest-dom babel-jest @babel/core @babel/preset-env
+```
+To add React support, install:
+```
+npm i -D @testing-library/jest-dom @testing-library/react
 ```
 To launch:
 ```bash

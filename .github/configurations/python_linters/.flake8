@@ -3,6 +3,7 @@ max-line-length = 160
 ignore =
     E121, # indentation rules
     E125,
+    E203, # Colons should not have any space before them.
     E501,
     W504,
     W503, # Line break occurred before a binary operator
