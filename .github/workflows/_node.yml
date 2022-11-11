@@ -104,7 +104,6 @@ jobs:
           use_eslint: ${{ inputs.use_eslint == true }}
           use_prettier: ${{ inputs.use_prettier == true }}
           use_stylelint: ${{ inputs.use_stylelint == true }}
-          use_react: ${{ inputs.use_react == true }}
           check_packages_licenses: ${{ inputs.check_packages_licenses == true }}
 
       - name: Check packages licenses
