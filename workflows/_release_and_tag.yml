@@ -7,6 +7,11 @@ on:
         type: boolean
         required: false
         default: false
+      version_file:
+        description: Path where the version string is present
+        type: string
+        required: false
+        default: VERSION.py
 
       publish_on_test_pypi:
         description: Upload on test pypi public index
@@ -43,12 +48,48 @@ jobs:
         id: check-tag
         run: |
           if [[ ${{ github.event.pull_request.title }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "match=true" >> $GITHUB_OUTPUT
+            exit 0
+          else 
+            exit 1
           fi
+        shell:
+          bash
+
+      - name: Get last tag
+        id: last_tag
+        if: inputs.publish_on_pypi
+        run: |
+          echo "previous_tag=$(git tag | sort -r | head -n1)" >> $GITHUB_OUTPUT
+        shell:
+          bash
+
+      - name: Replace tag on files
+        if: inputs.publish_on_pypi
+        run: |
+          sed -i 's/${{ github.event.pull_request.title }}/${{steps.last_tag.outputs.previous_tag}}/' ${{ inputs.version_file }}
+        shell:
+          bash
+
+      - name: Commit changes
+        if: inputs.publish_on_pypi
+        run: |
+          git config --global user.name 'CertegoCI'
+          git config --global user.email 'certegoci@certego.net'
+          git checkout ${{ github.head_ref }}
+          git add ${{ inputs.version_file }}
+          git commit  -m "Bump version to ${{ github.event.pull_request.title }}"
+        shell:
+          bash
+
+      - name: Push changes
+        if: inputs.publish_on_pypi
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}
 
       - name: Create Tag and Release
         id: create-release
-        if: steps.check-tag.outputs.match == 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.pull_request.title }}
