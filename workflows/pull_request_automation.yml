@@ -32,6 +32,8 @@ jobs:
       use_prettier: true
       use_stylelint: true
 
+      run_codeql: true
+
       use_react: true
       check_packages_licenses: true
       use_jest: true
@@ -57,6 +59,7 @@ jobs:
       use_bandit: false
       use_autoflake: true
 
+      run_codeql: true
 
       requirements_path: .github/test/python_test/requirements.txt
       packages_path: .github/test/python_test/packages.txt

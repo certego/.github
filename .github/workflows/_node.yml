@@ -57,6 +57,12 @@ on:
         type: boolean
         required: false
 
+      run_codeql:
+        description: Run codeql
+        default: false
+        type: boolean
+        required: false
+
 jobs:
   node:
     name: Run node.js tests
@@ -118,6 +124,12 @@ jobs:
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
+
+      - name: Run CodeQL
+        if: inputs.run_codeql
+        uses: ./.github/actions/codeql
+        with:
+          language: javascript
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}

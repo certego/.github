@@ -42,6 +42,11 @@ on:
         type: boolean
         required: false
 
+      run_codeql:
+        description: Run codeql
+        default: false
+        type: boolean
+        required: false
 
       requirements_path:
         description: Path to the requirements.txt file
@@ -347,6 +352,13 @@ jobs:
           use_pylint: ${{ inputs.use_pylint }}
           use_bandit: ${{ inputs.use_bandit }}
           use_autoflake: ${{ inputs.use_autoflake }}
+
+      - name: Run CodeQL
+        if: inputs.run_codeql
+        uses: ./.github/actions/codeql
+        with:
+          language: python
+
 
       - name: Build Docs
         if: inputs.check_docs_directory
