@@ -215,11 +215,17 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - name: Inject PYTHONPATH and DJANGO_SETTINGS_MODULE to environ
-        if: inputs.django_settings_module
+      - name: Inject stuff to environment
         run: |
-          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
-          echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+          if [[ '${{ inputs.django_settings_module}}' != 'false' ]]; then
+            echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
+            echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+          fi
+          if [[ '${{ inputs.run_codeql}}' != 'false' ]]; then
+            echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
+          fi
+        shell:
+          bash
 
       - name: Install apt requirements
         if: inputs.packages_path
