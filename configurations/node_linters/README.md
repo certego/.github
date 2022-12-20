@@ -40,3 +40,20 @@ To run:
 ```
 npm run formatter
 ```
+
+
+## 💻 How to configure your IDE
+Since linters configurations aren't directly in the project tree, if you use liting plugins in your editor, you have to instruct them about correct path.
+Here are some examples:
+
+- ### [VSCode](https://code.visualstudio.com/)
+In `.vscode/settings.json`
+```json
+{
+    "eslint.options": {
+        "configFile": ".github/configurations/node_linters/eslint/.eslintrc.json"
+    },
+    "stylelint.configFile": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
+    "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
+}
+```
