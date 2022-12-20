@@ -24,6 +24,7 @@ cd .git/hooks
 ln -s ../../.github/hooks/post-merge
 ```
 Now all changes will be linked and be tested with [*test* project](.github/test/) on every PR.
+**Note:** Links are for the single files. If you add directories, move or add files, you need to re-execute (or even modify) the script.
 
 
 ### 🕑 Files to update periodically:
