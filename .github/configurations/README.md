@@ -1,4 +1,4 @@
-<img src="../Certego.png" alt="Certego" width="200" />
+<img src="../../Certego.png" alt="Certego" width="200" />
 
 # ✍️ Configurations
 
