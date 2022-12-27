@@ -36,6 +36,9 @@
         }],
         "no-bitwise": "off",
         "no-nested-ternary": "off",
-        "no-restricted-syntax": ["error", "WithStatement"]
+        "no-restricted-syntax": ["error", "WithStatement"],
+         "no-multiple-empty-lines": ["error", {
+            "max": 2, "maxBOF": 0, "maxEOF": 0
+        }]
     }
 }
