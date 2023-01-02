@@ -38,7 +38,7 @@ jobs:
 
       use_coverage: true
       upload_coverage: true
-
+      max_timeout: 15
       node_versions: >-
         ["16"]
 
@@ -87,3 +87,4 @@ jobs:
         {"KEY": "VALUE"}
       python_versions: >-
         ["3.9"]
+      max_timeout: 15

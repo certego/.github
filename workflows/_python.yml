@@ -193,10 +193,18 @@ on:
         default: >-
           {}
 
+      max_timeout:
+        description: Max time that the CI can be run
+        type: number
+        required: false
+        default: 30
+
+
 jobs:
   python:
     name: Run python test suite
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ max_timeout }}
     strategy:
       matrix:
         python_version: ${{ fromJson(inputs.python_versions) }}

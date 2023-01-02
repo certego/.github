@@ -57,10 +57,18 @@ on:
         type: boolean
         required: false
 
+
+      max_timeout:
+        description: Max time that the CI can be run
+        type: number
+        required: false
+        default: 30
+
 jobs:
   node:
     name: Run node.js tests
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ max_timeout }}
     strategy:
       matrix:
         node_version: ${{ fromJson(inputs.node_versions) }}
