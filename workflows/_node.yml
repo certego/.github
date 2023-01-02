@@ -57,6 +57,11 @@ on:
         type: boolean
         required: false
 
+      run_codeql:
+        description: Run codeql
+        default: false
+        type: boolean
+        required: false
 
       max_timeout:
         description: Max time that the CI can be run
@@ -72,6 +77,7 @@ jobs:
     strategy:
       matrix:
         node_version: ${{ fromJson(inputs.node_versions) }}
+        language: ['javascript']
     steps:
       - uses: actions/checkout@v3
 
@@ -126,6 +132,12 @@ jobs:
           table-headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
+
+      - name: Run CodeQL
+        if: inputs.run_codeql
+        uses: ./.github/actions/codeql
+        with:
+          language: javascript
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
