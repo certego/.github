@@ -209,7 +209,7 @@ jobs:
   python:
     name: Run python test suite
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ max_timeout }}
+    timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:
         python_version: ${{ fromJson(inputs.python_versions) }}

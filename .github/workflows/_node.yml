@@ -73,7 +73,7 @@ jobs:
   node:
     name: Run node.js tests
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ max_timeout }}
+    timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:
         node_version: ${{ fromJson(inputs.node_versions) }}
