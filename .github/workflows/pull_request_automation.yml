@@ -32,13 +32,15 @@ jobs:
       use_prettier: true
       use_stylelint: true
 
+      run_codeql: true
+
       use_react: true
       check_packages_licenses: true
       use_jest: true
 
       use_coverage: true
       upload_coverage: true
-
+      max_timeout: 15
       node_versions: >-
         ["16"]
 
@@ -57,6 +59,7 @@ jobs:
       use_bandit: false
       use_autoflake: true
 
+      run_codeql: false
 
       requirements_path: .github/test/python_test/requirements.txt
       packages_path: .github/test/python_test/packages.txt
@@ -87,3 +90,4 @@ jobs:
         {"KEY": "VALUE"}
       python_versions: >-
         ["3.9"]
+      max_timeout: 15

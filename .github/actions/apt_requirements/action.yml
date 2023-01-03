@@ -14,8 +14,8 @@ runs:
     - name: Export apt requirements
       id: export-apt-requirements
       run: |
-        PKG='$(cat ${{ inputs.requirements_file }})'
-        echo "apt_packages=$PKG" >> $GITHUB_OUTPUT
+        PKG=$(cat ${{ inputs.requirements_file }})
+        echo apt_packages=$PKG | awk '{print}' ORS=' ' >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Cache apt packages

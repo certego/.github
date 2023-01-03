@@ -13,17 +13,18 @@ Otherwise you can simply open an issue.
 
 ## 📖 Setup
 CI files of base directory must be *hard linked* in the `.github/.github` folder, so they can be tested.
-Since GitHub is not able to store the fact that these files are hardlink, you need to restore it executing [this script](.github/hooks/post-merge).
+Since GitHub is not able to store the fact that these files are hardlink, you need to restore it executing [this script](.github/hooks/pre-commit).
 From project root:
 ```bash
-GIT_DIR=.git .github/hooks/post-merge 
+GIT_DIR=.git .github/hooks/pre-commit 
 ```
-Also a `post-merge` hook has been made to do it automatically:
+Also a `pre-commit` hook has been made to do it automatically:
 ```
 cd .git/hooks
-ln -s ../../.github/hooks/post-merge
+ln -s ../../.github/hooks/pre-commit
 ```
 Now all changes will be linked and be tested with [*test* project](.github/test/) on every PR.
+**Note:** Links are for the single files. If you add directories, move or add files, you need to re-execute (or even modify) the script.
 
 
 ### 🕑 Files to update periodically:

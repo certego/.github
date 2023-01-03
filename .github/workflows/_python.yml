@@ -42,6 +42,11 @@ on:
         type: boolean
         required: false
 
+      run_codeql:
+        description: Run codeql
+        default: false
+        type: boolean
+        required: false
 
       requirements_path:
         description: Path to the requirements.txt file
@@ -193,13 +198,22 @@ on:
         default: >-
           {}
 
+      max_timeout:
+        description: Max time that the CI can be run
+        type: number
+        required: false
+        default: 30
+
+
 jobs:
   python:
     name: Run python test suite
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:
         python_version: ${{ fromJson(inputs.python_versions) }}
+        language: ['python']
     env: ${{ fromJson(inputs.env) }}
     steps:
       - uses: actions/checkout@v3
@@ -209,11 +223,17 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
 
-      - name: Inject PYTHONPATH and DJANGO_SETTINGS_MODULE to environ
-        if: inputs.django_settings_module
+      - name: Inject stuff to environment
         run: |
-          echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
-          echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+          if [[ '${{ inputs.django_settings_module}}' != 'false' ]]; then
+            echo "PYTHONPATH=${{ github.workspace }}/${{ inputs.working_directory }}" >> $GITHUB_ENV
+            echo "DJANGO_SETTINGS_MODULE=${{ inputs.django_settings_module }}" >> $GITHUB_ENV
+          fi
+          if [[ '${{ inputs.run_codeql}}' != 'false' ]]; then
+            echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
+          fi
+        shell:
+          bash
 
       - name: Install apt requirements
         if: inputs.packages_path
@@ -225,7 +245,7 @@ jobs:
         if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
         id: license_check_report
         continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v0.6.2
+        uses: pilosus/action-pip-license-checker@v0.7.1
         with:
           requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
           exclude: ${{ inputs.ignore_requirements_licenses_regex }}
@@ -284,7 +304,7 @@ jobs:
         run: |
           echo > requirements-dev.txt
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
-            echo "coverage>=6.4.2" >> requirements-dev.txt
+            echo "coverage>=7.0.1" >> requirements-dev.txt
           fi
           cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-dev.txt/') >> requirements-dev.txt 2>/dev/null || exit 0
         shell: bash
@@ -347,6 +367,13 @@ jobs:
           use_pylint: ${{ inputs.use_pylint }}
           use_bandit: ${{ inputs.use_bandit }}
           use_autoflake: ${{ inputs.use_autoflake }}
+
+      - name: Run CodeQL
+        if: inputs.run_codeql
+        uses: ./.github/actions/codeql
+        with:
+          language: python
+
 
       - name: Build Docs
         if: inputs.check_docs_directory
@@ -441,5 +468,5 @@ jobs:
         run: |
           echo "Uploading coverage.py report"
           echo "## Coverage.py report" >> $GITHUB_STEP_SUMMARY
-          echo "$(coverage report -m | grep -Ev "^---" | sed 's/\s/\&nbsp;/g')" >> $GITHUB_STEP_SUMMARY
+          echo "$(coverage report -m --format=markdown)" >> $GITHUB_STEP_SUMMARY
         working-directory: ${{ inputs.working_directory }}
