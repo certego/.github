@@ -14,7 +14,7 @@ runs:
     - name: Export apt requirements
       id: export-apt-requirements
       run: |
-        PKG=$(cat ${{ inputs.requirements_file }})
+        PKG='$(cat ${{ inputs.requirements_file }})'
         echo "apt_packages=$PKG" >> $GITHUB_OUTPUT
       shell: bash
 
