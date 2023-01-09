@@ -77,7 +77,7 @@ on:
 jobs:
   node:
     name: Run node.js tests
-    runs-on: ubuntu-${{ ubuntu_version }}
+    runs-on: ubuntu-${{ inputs.ubuntu_version }}
     timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:
