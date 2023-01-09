@@ -63,7 +63,7 @@ on:
         required: false
 
       custom_command:
-        description: String of custom command to run
+        description: String of a custom command to run
         type: string
         required: false
 
