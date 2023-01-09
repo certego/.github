@@ -91,3 +91,4 @@ jobs:
       python_versions: >-
         ["3.9"]
       max_timeout: 15
+      ubuntu_version: 20.04
