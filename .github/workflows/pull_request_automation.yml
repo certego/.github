@@ -36,7 +36,7 @@ jobs:
 
       run_codeql: true
 
-      custom_command: npm -v
+      custom_command: npm exec -c whoami
 
       use_react: true
       check_packages_licenses: true
@@ -47,7 +47,7 @@ jobs:
       max_timeout: 15
       ubuntu_version: 20.04
       node_versions: >-
-        ["16"]
+        ["18"]
 
 
   python:

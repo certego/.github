@@ -27,7 +27,7 @@ Now all changes will be linked and be tested with [*test* project](.github/test/
 **Note:** Links are for the single files. If you add directories, move or add files, you need to re-execute (or even modify) the script.
 
 
-### 🕑 Files to update periodically:
+### 🕑 Files to update periodically
 Periodically update:
 - Test projects dependencies: [Python dependencies](.github/test/python_test/packages.txt), [Node.js packages](.github/test/node_test/package.json)
 - Node linters dependencies: [ESLint packages](configurations/node_linters/eslint/package.json), [Stylelint packages](configurations/node_linters/stylelint/package.json)
