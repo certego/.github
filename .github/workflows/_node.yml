@@ -69,10 +69,15 @@ on:
         required: false
         default: 30
 
+      ubuntu_version:
+        description: Ubuntu version to use
+        type: string
+        default: latest
+        required: false
 jobs:
   node:
     name: Run node.js tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-${{ ubuntu_version }}
     timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:

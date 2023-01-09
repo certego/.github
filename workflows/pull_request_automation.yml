@@ -19,6 +19,8 @@ jobs:
     with:
       backend_directories: .github
       frontend_directories: .github
+      ubuntu_version: latest
+
 
 
   node:
@@ -41,6 +43,7 @@ jobs:
       use_coverage: true
       upload_coverage: true
       max_timeout: 15
+      ubuntu_version: 20.04
       node_versions: >-
         ["16"]
 
