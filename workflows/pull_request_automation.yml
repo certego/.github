@@ -36,6 +36,8 @@ jobs:
 
       run_codeql: true
 
+      custom_command: npm -v
+
       use_react: true
       check_packages_licenses: true
       use_jest: true

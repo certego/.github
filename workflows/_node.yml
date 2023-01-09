@@ -45,7 +45,6 @@ on:
         type: boolean
         required: false
 
-
       use_coverage:
         description: Output coverage. Require jest to be set.
         default: false
@@ -61,6 +60,11 @@ on:
         description: Run codeql
         default: false
         type: boolean
+        required: false
+
+      custom_command:
+        description: String of custom command to run
+        type: string
         required: false
 
       max_timeout:
@@ -143,6 +147,15 @@ jobs:
         uses: ./.github/actions/codeql
         with:
           language: javascript
+
+      - name: Run custom command
+        if: inputs.custom_command
+        run: |
+          COMMAND=${{ inputs.custom_command }}
+          echo "Running command: $COMMAND"
+          $COMMAND
+        working-directory: ${{ inputs.working_directory }}
+        shell: bash
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
