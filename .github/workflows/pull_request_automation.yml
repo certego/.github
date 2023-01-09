@@ -90,7 +90,7 @@ jobs:
       tags_for_slow_tests: main
       tags_for_manual_tests: manual
 
-      custom_command: whoami; ls -la
+      custom_command: whoami ; ls -la
       env: >-
         {"KEY": "VALUE"}
       python_versions: >-

@@ -1,3 +1,5 @@
+[![CI](https://github.com/certego/.github/actions/workflows/pull_request_automation.yml/badge.svg)](https://github.com/certego/.github/actions/workflows/pull_request_automation.yml)
+
 <img src="Certego.png" alt="Certego" width="200" />
 
 # .github

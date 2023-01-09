@@ -417,9 +417,9 @@ jobs:
       - name: Run custom command
         if: inputs.custom_command
         run: |
-          COMMAND=${{ inputs.custom_command }}
+          COMMAND='${{ inputs.custom_command }}'
           echo "Running command: $COMMAND"
-          $COMMAND
+          eval $COMMAND
         working-directory: ${{ inputs.working_directory }}
         shell: bash
 
