@@ -204,11 +204,16 @@ on:
         required: false
         default: 30
 
+      ubuntu_version:
+        description: Ubuntu version to use
+        type: string
+        default: latest
+        required: false
 
 jobs:
   python:
     name: Run python test suite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-${{ inputs.ubuntu_version }}
     timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:
@@ -412,9 +417,9 @@ jobs:
       - name: Run custom command
         if: inputs.custom_command
         run: |
-          COMMAND=${{ inputs.custom_command }}
+          COMMAND='${{ inputs.custom_command }}'
           echo "Running command: $COMMAND"
-          $COMMAND
+          eval $COMMAND
         working-directory: ${{ inputs.working_directory }}
         shell: bash
 

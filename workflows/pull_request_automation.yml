@@ -19,6 +19,8 @@ jobs:
     with:
       backend_directories: .github
       frontend_directories: .github
+      ubuntu_version: latest
+
 
 
   node:
@@ -34,6 +36,8 @@ jobs:
 
       run_codeql: true
 
+      custom_command: npm exec -c whoami
+
       use_react: true
       check_packages_licenses: true
       use_jest: true
@@ -41,8 +45,9 @@ jobs:
       use_coverage: true
       upload_coverage: true
       max_timeout: 15
+      ubuntu_version: 20.04
       node_versions: >-
-        ["16"]
+        ["18"]
 
 
   python:
@@ -85,9 +90,10 @@ jobs:
       tags_for_slow_tests: main
       tags_for_manual_tests: manual
 
-      custom_command: whoami; ls -la
+      custom_command: whoami ; ls -la
       env: >-
         {"KEY": "VALUE"}
       python_versions: >-
         ["3.9"]
       max_timeout: 15
+      ubuntu_version: 20.04

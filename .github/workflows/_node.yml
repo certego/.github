@@ -45,7 +45,6 @@ on:
         type: boolean
         required: false
 
-
       use_coverage:
         description: Output coverage. Require jest to be set.
         default: false
@@ -63,16 +62,26 @@ on:
         type: boolean
         required: false
 
+      custom_command:
+        description: String of custom command to run
+        type: string
+        required: false
+
       max_timeout:
         description: Max time that the CI can be run
         type: number
         required: false
         default: 30
 
+      ubuntu_version:
+        description: Ubuntu version to use
+        type: string
+        default: latest
+        required: false
 jobs:
   node:
     name: Run node.js tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-${{ inputs.ubuntu_version }}
     timeout-minutes: ${{ inputs.max_timeout }}
     strategy:
       matrix:
@@ -138,6 +147,15 @@ jobs:
         uses: ./.github/actions/codeql
         with:
           language: javascript
+
+      - name: Run custom command
+        if: inputs.custom_command
+        run: |
+          COMMAND='${{ inputs.custom_command }}'
+          echo "Running command: $COMMAND"
+          eval $COMMAND
+        working-directory: ${{ inputs.working_directory }}
+        shell: bash
 
       - name: Run jest tests
         if: ${{ inputs.use_jest }}
