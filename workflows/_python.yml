@@ -378,7 +378,7 @@ jobs:
         uses: ./.github/actions/codeql
         with:
           language: python
-
+          working_directory: ${{ inputs.working_directory }}
 
       - name: Build Docs
         if: inputs.check_docs_directory
