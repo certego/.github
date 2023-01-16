@@ -22,11 +22,26 @@ They execute commands (linters, tests,...)
 ### CI features
 Actually CI actions commands implement this features:
 - Linters & Formatters
-- Tests
-- Coverage printing
-- License checks
+  - Black
+  - Isort
+  - Flake8
+  - Pylint
+  - Bandit
+  - Eslint
+  - Prettier
+  - Stylelint
+- Tests 
+  - Coverage printing
+  - License checks
+  - Doc syntax check
+  - CodeQL security check
+  - Django migrations check
+  - Dockerfile syntax check
 - Release and tagging
-- Doc generation
+- Publish on test Pypi
+- Publish on Pypi
+- Publish on Npm
+- Announce release on Twitter
 
 ### Other CI features:
 This repository also contains configurations for:
