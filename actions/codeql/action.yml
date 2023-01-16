@@ -4,9 +4,8 @@ inputs:
   language:
     description: Programming language to use
     required: true
-working_directory:
-  description: Source code directory
-    type: string
+  working_directory:
+    description: Source code directory
     required: true
 
 runs:
