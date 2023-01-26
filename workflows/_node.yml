@@ -147,6 +147,7 @@ jobs:
         uses: ./.github/actions/codeql
         with:
           language: javascript
+          working_directory: ${{ inputs.working_directory }}
 
       - name: Run custom command
         if: inputs.custom_command
