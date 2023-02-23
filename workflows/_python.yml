@@ -278,7 +278,7 @@ jobs:
           fi
 
           if [[ '${{ inputs.use_isort}}' != 'false' ]]; then
-            echo "isort==5.10.1" >> requirements-linters.txt
+            echo "isort==5.12.0" >> requirements-linters.txt
           fi
 
           if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
