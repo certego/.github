@@ -91,7 +91,7 @@ jobs:
       - uses: actions/setup-node@v3
         if: inputs.publish_on_npm
         with:
-          node-version: '16.x'
+          node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@certego'
 
