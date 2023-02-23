@@ -57,6 +57,7 @@ jobs:
           generate_release_notes: true
           prerelease: false
           target_commitish: ${{ github.base_ref }}
+          append_body: true
 
       - uses: actions/setup-python@v1
         if: inputs.publish_on_pypi || inputs.publish_on_test_pypi

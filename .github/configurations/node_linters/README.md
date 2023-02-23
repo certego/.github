@@ -31,7 +31,6 @@ npm run lint-scss
 - ### (Opt.) [Prettier](https://prettier.io/)
 To use locally, enable configurations and customize
 - Enable/disable `eslint-config-prettier` in ESlint config file
-- Enable/disable `stylelint-config-prettier-scss` in Stylelint config file
 Install these dependencies:
 ```bash
 npm i -D prettier
