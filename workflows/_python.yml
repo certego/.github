@@ -179,6 +179,11 @@ on:
         type: string
         required: false
         default: password
+      postgres_version:
+        description: Postgres service version. Requires use_postgres to be true
+        type: string
+        required: false
+        default: 10.14
 
       celery_app:
         description: Celery app name. Requires use_celery to be true
@@ -407,6 +412,7 @@ jobs:
           postgres_db: ${{ inputs.postgres_db }}
           postgres_user: ${{ inputs.postgres_user }}
           postgres_password: ${{ inputs.postgres_password }}
+          postgres_version: ${{ inputs.postgres_version }}
 
       - name: Start celery worker
         if: inputs.use_celery
