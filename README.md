@@ -54,21 +54,24 @@ See [here](configurations/)
 ---
 
 ## 📖 How to use
-Use `git subtree` to add this repository to your project:
+**Add** this repository to your project using `git subtree` command:
 ```bash
 git subtree add --squash --prefix .github https://github.com/certego/.github.git main  && rm -rf .github/.github
 ```
-Customize options of [Pull request automation](workflows/pull_request_automation.yml)
-Customize linters in [configurations folder](configurations/)
-Customize [dependabot](dependabot.yml).
-Customize [CHANGELOG](CHANGELOG.md)
-**Note:** every time a new release of this repository is rolled, you have to update the subtree folder.
+Customize options of [Pull request automation](workflows/pull_request_automation.yml)  
+Customize linters in [configurations folder](configurations/)  
+Customize [dependabot](dependabot.yml).  
+Customize [CHANGELOG](CHANGELOG.md)  
+  
+**Update** the subtree every time a new release of this repository is rolled. Pay attention,be careful to not lose your changes.
 ```bash
 git subtree pull --squash --prefix .github https://github.com/certego/.github  main && rm -rf .github/.github
-
 ```
-Pay attention,be careful to not lose your changes.
-Configure your project following below instructions.
+
+
+*Note:* DO NOT squash the commits in which you added/pulled subtree, otherwise `git-subtree-dir` info in `git log` will be lost
+  
+**Configure** your project to use CI following below instructions.
 
 ### Python
 CI automatically installs and calls code analyzers this way:
@@ -109,6 +112,7 @@ Add to `package.json` these scripts (configure paths), CI automatically installs
     "lint-scss-fix": "npm run lint-scss -- --fix",
     "formatter": "prettier --config $npm_package_config_prettier 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}' 'src/scss/**/*.{css,scss}' --check",
     "formatter-fix": "npm run formatter -- --write"
+},
 ```
 For local installation and customization see [here](configurations/node_linters/README.md).
 
