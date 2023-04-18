@@ -61,7 +61,7 @@ runs:
             echo "version: '3.7'" > postgres.yml
             echo "services:" >> postgres.yml
             echo "  postgres:" >> postgres.yml
-            echo "    image: library/postgres:${{ inputs.postgres_version }} -alpine" >> postgres.yml
+            echo "    image: library/postgres:${{ inputs.postgres_version }}-alpine" >> postgres.yml
             echo "    container_name: postgres" >> postgres.yml
             echo "    environment:" >> postgres.yml
             echo "      POSTGRES_DB: ${{ inputs.postgres_db }}" >> postgres.yml
