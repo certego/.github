@@ -11,7 +11,7 @@ It also contains the recommended configurations for linters and formatters.
 ### 🔴 [Pull request automation](workflows/pull_request_automation.yml)
 Automatically executed on every PR. Manages tests and lints stuff. To customize for your project.
 ### 🔴 [Release](workflows/release.yml)
-Automatically executed on every closed PR to the master branch. Manages release stuff. To customize for your project.
+Automatically executed on every closed PR to the master branch that matches the regex `^[0-9]+\.[0-9]+\.[0-9]+$` . Manages release stuff. To customize for your project.
 ## ⇩
 ### 🟡 [Reusable workflows](workflows/)
 They receive input props and call actions.
