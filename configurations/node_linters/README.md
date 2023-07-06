@@ -54,5 +54,9 @@ In `.vscode/settings.json`
     },
     "stylelint.configFile": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
     "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
 ```
