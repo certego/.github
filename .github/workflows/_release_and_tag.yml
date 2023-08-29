@@ -38,6 +38,8 @@ jobs:
     if: github.event.pull_request.merged == true && ( github.base_ref == 'master' || github.base_ref == 'main' )
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # otherwise, you do not retrieve the tags
 
       - name: Check Tag
         id: check-tag
@@ -59,6 +61,12 @@ jobs:
           target_commitish: ${{ github.base_ref }}
           append_body: true
 
+      - name: Checkout created tag
+        uses: actions/checkout@v3
+        if: steps.check-tag.outputs.match == 'true' && ( inputs.publish_on_test_pypi || inputs.publish_on_pypi)
+        with:
+          fetch-depth: 0 # otherwise, you do not retrieve the tags
+
       - uses: actions/setup-python@v1
         if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi)
         with:
@@ -73,10 +81,6 @@ jobs:
         if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi)
         run: |
           python -m build --sdist --wheel --outdir dist/
-
-      - name: Checkout created tag
-        uses: actions/checkout@v3
-        if: steps.check-tag.outputs.match == 'true' && ( inputs.publish_on_test_pypi || inputs.publish_on_pypi)
 
       - name: Publish to test PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
