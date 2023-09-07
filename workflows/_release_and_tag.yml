@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && ( github.base_ref == 'master' || github.base_ref == 'main' )
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Check Tag
         id: check-tag
