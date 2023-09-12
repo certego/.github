@@ -35,19 +35,19 @@ inputs:
 
       mongo_version:
         description: Mongo container version
-        default: "4.4"
+        required: true
       elasticsearch_version:
         description: Elasticsearch container version
-        default: "7.10.1"
+        required: true
       memcached_version:
         description: Memcached alpine container version
-        default: "1.6.9"
+        required: true
       redis_version:
         description: Redis alpine container version
-        default: "5.0.9"
+        required: true
       rabbitmq_version:
         description: RabbitMQ management-alpine container version
-        default: "3.9"
+        required: true
 
 
 runs:
