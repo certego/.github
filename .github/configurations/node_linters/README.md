@@ -53,6 +53,12 @@ In `.vscode/settings.json`
         "overrideConfigFile": ".github/configurations/node_linters/eslint/.eslintrc.json"
     },
     "stylelint.configFile": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
+    "stylelint.validate": ["css", "less", "postcss", "scss"],
+    "stylelint.snippet": ["css", "less", "postcss", "scss"],
     "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
 ```
