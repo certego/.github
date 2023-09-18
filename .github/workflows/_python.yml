@@ -185,7 +185,7 @@ on:
         required: false
         default: 10.14
 
-      mongo_v<ersion:
+      mongo_version:
         description: Mongo container version
         type: string
         required: false
