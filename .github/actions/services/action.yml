@@ -60,7 +60,7 @@ runs:
             echo "version: '3.7'" > mongo.yml
             echo "services:" >> mongo.yml
             echo "  mongo:" >> mongo.yml
-            echo "    image: library/mongo:{{ inputs.mongo_version }}" >> mongo.yml
+            echo "    image: library/mongo:${{ inputs.mongo_version }}" >> mongo.yml
             echo "    container_name: mongo" >> mongo.yml
             echo "    ports:" >> mongo.yml
             echo "      - 27017:27017" >> mongo.yml

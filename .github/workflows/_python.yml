@@ -185,7 +185,7 @@ on:
         required: false
         default: 10.14
 
-      mongo_version:
+      mongo_v<ersion:
         description: Mongo container version
         type: string
         required: false
@@ -439,6 +439,11 @@ jobs:
           postgres_user: ${{ inputs.postgres_user }}
           postgres_password: ${{ inputs.postgres_password }}
           postgres_version: ${{ inputs.postgres_version }}
+          mongo_version: ${{ inputs.mongo_version }}
+          elasticsearch_version:  ${{ inputs.elasticsearch_version }}
+          memcached_version:  ${{ inputs.memcached_version }}
+          redis_version:  ${{ inputs.redis_version }}
+          rabbitmq_version:  ${{ inputs.rabbitmq_version }}
 
       - name: Start celery worker
         if: inputs.use_celery
