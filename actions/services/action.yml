@@ -20,7 +20,6 @@ inputs:
         description: Use mongo service
         required: true
 
-
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
         required: true
@@ -34,6 +33,23 @@ inputs:
         description: Postgres alpine version
         required: true
 
+      mongo_version:
+        description: Mongo container version
+        required: true
+      elasticsearch_version:
+        description: Elasticsearch container version
+        required: true
+      memcached_version:
+        description: Memcached alpine container version
+        required: true
+      redis_version:
+        description: Redis alpine container version
+        required: true
+      rabbitmq_version:
+        description: RabbitMQ management-alpine container version
+        required: true
+
+
 runs:
   using: "composite"
   steps:
@@ -44,7 +60,7 @@ runs:
             echo "version: '3.7'" > mongo.yml
             echo "services:" >> mongo.yml
             echo "  mongo:" >> mongo.yml
-            echo "    image: library/mongo:4.4" >> mongo.yml
+            echo "    image: library/mongo:${{ inputs.mongo_version }}" >> mongo.yml
             echo "    container_name: mongo" >> mongo.yml
             echo "    ports:" >> mongo.yml
             echo "      - 27017:27017" >> mongo.yml
@@ -83,7 +99,7 @@ runs:
             echo "version: '3.7'" > elastic_search.yml
             echo "services:" >> elastic_search.yml
             echo "  elastic_search:" >> elastic_search.yml
-            echo "    image: elasticsearch:7.10.1" >> elastic_search.yml
+            echo "    image: elasticsearch:${{ inputs.elasticsearch_version }}" >> elastic_search.yml
             echo "    container_name: elastic_search" >> elastic_search.yml
             echo "    environment:" >> elastic_search.yml
             echo "      ES_JAVA_OPTS: -Xms1g -Xmx1g" >> elastic_search.yml
@@ -105,7 +121,7 @@ runs:
             echo "services:" >> memcached.yml
             echo "  memcached:" >> memcached.yml
             echo "    container_name: memcached" >> memcached.yml
-            echo "    image: memcached:1.6.9-alpine" >> memcached.yml
+            echo "    image: memcached:${{ inputs.memcached_version }}-alpine" >> memcached.yml
             echo "    ports:" >> memcached.yml
             echo "      - 11211:11211" >> memcached.yml
           shell:
@@ -118,7 +134,7 @@ runs:
             echo "services:" >> redis.yml
             echo "  redis:" >> redis.yml
             echo "    container_name: redis" >> redis.yml
-            echo "    image: library/redis:5.0.9-alpine" >> redis.yml
+            echo "    image: library/redis:${{ inputs.redis_version }}-alpine" >> redis.yml
             echo "    ports:" >> redis.yml
             echo "      - 6379:6379" >> redis.yml
           shell:
@@ -131,7 +147,7 @@ runs:
             echo "services:" >> rabbitmq.yml
             echo "  rabbitmq:" >> rabbitmq.yml
             echo "    container_name: rabbitmq" >> rabbitmq.yml
-            echo "    image: library/rabbitmq:3.9-management-alpine" >> rabbitmq.yml
+            echo "    image: library/rabbitmq:${{ inputs.rabbitmq_version }}-management-alpine" >> rabbitmq.yml
             echo "    ports:" >> rabbitmq.yml
             echo "      - 15672:15672" >> rabbitmq.yml
             echo "      - 5672:5672" >> rabbitmq.yml

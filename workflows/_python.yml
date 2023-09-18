@@ -185,6 +185,32 @@ on:
         required: false
         default: 10.14
 
+      mongo_version:
+        description: Mongo container version
+        type: string
+        required: false
+        default: 4.4
+      elasticsearch_version:
+        description: Elasticsearch container version
+        type: string
+        required: false
+        default: 7.10.1
+      memcached_version:
+        description: Memcached alpine container version
+        type: string
+        required: false
+        default: 1.6.9
+      redis_version:
+        description: Redis alpine container version
+        type: string
+        required: false
+        default: 5.0.9
+      rabbitmq_version:
+        description: RabbitMQ management-alpine container version
+        type: string
+        required: false
+        default: 3.9
+
       celery_app:
         description: Celery app name. Requires use_celery to be true
         type: string
@@ -226,7 +252,7 @@ jobs:
         language: ['python']
     env: ${{ fromJson(inputs.env) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -413,6 +439,11 @@ jobs:
           postgres_user: ${{ inputs.postgres_user }}
           postgres_password: ${{ inputs.postgres_password }}
           postgres_version: ${{ inputs.postgres_version }}
+          mongo_version: ${{ inputs.mongo_version }}
+          elasticsearch_version:  ${{ inputs.elasticsearch_version }}
+          memcached_version:  ${{ inputs.memcached_version }}
+          redis_version:  ${{ inputs.redis_version }}
+          rabbitmq_version:  ${{ inputs.rabbitmq_version }}
 
       - name: Start celery worker
         if: inputs.use_celery
