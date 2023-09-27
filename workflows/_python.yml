@@ -195,6 +195,11 @@ on:
         type: string
         required: false
         default: 7.10.1
+      elasticsearch_port:
+        description: Elasticsearch container port
+        type: string
+        required: false
+        default: 9200
       memcached_version:
         description: Memcached alpine container version
         type: string
@@ -441,6 +446,7 @@ jobs:
           postgres_version: ${{ inputs.postgres_version }}
           mongo_version: ${{ inputs.mongo_version }}
           elasticsearch_version:  ${{ inputs.elasticsearch_version }}
+          elasticsearch_port: ${{ inputs.elasticsearch_port }}
           memcached_version:  ${{ inputs.memcached_version }}
           redis_version:  ${{ inputs.redis_version }}
           rabbitmq_version:  ${{ inputs.rabbitmq_version }}
