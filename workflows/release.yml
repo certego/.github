@@ -21,6 +21,6 @@ jobs:
       publish_on_npm: false
       publish_on_twitter: false
       publish_on_ecr: false
-      repository: .github
+      repository: certego-test
       dockerfile: Dockerfile
       aws_region: eu-central-1
