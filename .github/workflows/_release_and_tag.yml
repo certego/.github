@@ -31,18 +31,52 @@ on:
         required: false
         default: #CyberSecurity
 
+      publish_on_ecr:
+        description: Publish on ecr
+        type: boolean
+        required: false
+        default: false
+      repository:
+        description: todo
+        type: string
+        required: false
+      dockerfile:
+        description: todo
+        type: string
+        required: false
+      aws_region:
+        description: todo
+        type: string
+        required: false
+        default: eu-central-1
+
+
 jobs:
   release_and_tag:
     name: Create release and tag
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && ( github.base_ref == 'master' || github.base_ref == 'main' )
+    if: github.event.pull_request.merged == true
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
 
+      - name: Push on ecr branch
+        uses: ./.github/actions/push_on_ecr
+        env:
+          TAG=${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
+        with:
+          repository: ${{ inputs.repository }}
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          dockerfile: ${{ inputs.dockerfile }}
+          image_tag: $TAG
+          aws_region: ${{ inputs.aws_region }}
+
       - name: Check Tag
         id: check-tag
+        if: github.base_ref == 'master' || github.base_ref == 'main'
         run: |
           if [[ "${{ github.event.pull_request.title }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "match=true" >> $GITHUB_OUTPUT
@@ -116,3 +150,14 @@ jobs:
           api_key_secret: ${{ secrets.TWITTER_API_KEY_SECRET }}
           access_token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           access_token_secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+
+      - name: Push on ecr tag
+        if: steps.check-tag.outputs.match == 'true'
+        with:
+          repository: ${{ inputs.repository }}
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          dockerfile: ${{ inputs.dockerfile }}
+          image_tag: ${{ github.event.pull_request.title }}
+          aws_region: ${{ inputs.aws_region }}

@@ -1,0 +1,51 @@
+name: Composite action push on ecr
+description: Composite action push on ecr
+inputs:
+  repository:
+    description: Repository name
+    required: true
+  aws_account_id:
+    description: Aws User code
+    required: true
+  aws_access_key:
+    description: Aws access key
+    required: true
+  aws_secret_access_key:
+    description: Aws secret access key
+    required: true
+  dockerfile:
+    description: Path for dockerfile
+    required: true
+  image_tag:
+    description: Directory that must be run against the linters
+    required: true
+
+  aws_region:
+    description: Aws region
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.aws_region}}
+        aws-access-key-id: ${{ inputs.aws_access_key }}
+        aws-secret-access-key: ${{ inputs.secrets_aws_access_key }}
+        role-to-assume: arn:aws:iam::${{inputs.aws_account_id}}:role/${{inputs.aws_role_to_assume}}
+
+    - name: Login to Amazon ECR Private
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+
+    - name: Build, tag, and push docker image to Amazon ECR
+      env:
+        REGISTRY: ${{inputs.aws_account_id}}.dkr.ecr.${{inputs.aws_region}}.amazonaws.com
+        REPOSITORY: ${{ inputs.repository }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+      run: |
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{inputs.dockerfile}}
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      shell: bash

@@ -95,11 +95,7 @@ on:
         type: string
         required: false
         default: ''
-      check_dockerfile:
-        description: Check dockerfile build. WARNING action total time may increase significantly
-        type: string
-        required: false
-        default: ''
+
 
       use_postgres:
         description: Use postgres service
@@ -418,12 +414,6 @@ jobs:
           python3 -m sphinx -a -T -E -b html -d  _build/doctrees -D language=en . _build/html
         shell: bash
         working-directory: ${{ inputs.check_docs_directory }}
-
-      - name: Build DockerFile
-        if: inputs.check_dockerfile
-        run: |
-           docker build -f ${{ inputs.check_dockerfile }} .
-        working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
         uses: ./.github/actions/services
