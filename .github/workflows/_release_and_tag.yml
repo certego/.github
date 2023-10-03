@@ -153,6 +153,7 @@ jobs:
 
       - name: Push on ecr tag
         if: steps.check-tag.outputs.match == 'true'
+        uses: ./.github/actions/push_on_ecr
         with:
           repository: ${{ inputs.repository }}
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}

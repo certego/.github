@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
-          
+
       - name: Push on ecr branch
         uses: ./.github/actions/push_on_ecr
         env:
@@ -150,9 +150,10 @@ jobs:
           api_key_secret: ${{ secrets.TWITTER_API_KEY_SECRET }}
           access_token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           access_token_secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-          
+
       - name: Push on ecr tag
         if: steps.check-tag.outputs.match == 'true'
+        uses: ./.github/actions/push_on_ecr
         with:
           repository: ${{ inputs.repository }}
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
