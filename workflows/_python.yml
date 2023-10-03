@@ -431,7 +431,7 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: ${{ inputs.working_directory }}/${{ inputs.check_dockerfile }
+          file: ${{ inputs.working_directory }}/${{ inputs.check_dockerfile }}
 
       - name: Start services
         uses: ./.github/actions/services
