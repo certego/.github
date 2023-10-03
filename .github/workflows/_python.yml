@@ -431,7 +431,7 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: certego/github:${{ github.ref }}
+          tags: ${{github.repository_owner}}/github:${{ github.ref_name }}
           file: ${{ inputs.working_directory }}/${{ inputs.check_dockerfile }}
 
       - name: Start services
