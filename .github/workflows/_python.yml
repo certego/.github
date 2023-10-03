@@ -431,7 +431,7 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ${{github.repository_owner}}/github:${{ github.ref_name }}
+          tags: ${{github.repository_owner}}/github:${{ github.head_ref }}
           file: ${{ inputs.working_directory }}/${{ inputs.check_dockerfile }}
 
       - name: Start services
