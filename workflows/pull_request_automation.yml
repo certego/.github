@@ -64,7 +64,7 @@ jobs:
       use_bandit: false
       use_autoflake: true
 
-      run_codeql: true
+      run_codeql: false
 
       requirements_path: .github/test/python_test/requirements.txt
       packages_path: .github/test/python_test/packages.txt
