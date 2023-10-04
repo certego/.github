@@ -23,5 +23,6 @@ jobs:
       publish_on_ecr: true
       repository: certego-test
       working_directory: .github/test/python_test
-      dockerfiles: [Dockerfile]
+      dockerfiles: >-
+        ["Dockerfile"]
       aws_region: eu-central-1
