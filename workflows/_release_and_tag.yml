@@ -63,8 +63,9 @@ jobs:
 
       - name: Push on ecr branch
         uses: ./.github/actions/push_on_ecr
+        if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop2' || github.base_ref == 'dev'
         env:
-          TAG=${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
+          TAG: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
         with:
           repository: ${{ inputs.repository }}
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
