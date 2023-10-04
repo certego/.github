@@ -42,8 +42,8 @@ on:
         required: false
         default: ${{ github.event.repository.name }}
 
-      dockerfile:
-        description: Path for dockerfile from working directory
+      dockerfiles:
+        description: Path for dockerfiles from working directory
         type: string
         required: false
       working_directory:
@@ -63,23 +63,12 @@ jobs:
     name: Create release and tag
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
+    outputs:
+      match: ${{ steps.check-tag.outputs.match }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
-
-      - name: Push on ecr branch
-        uses: ./.github/actions/push_on_ecr
-        if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop2' || github.base_ref == 'dev'
-        with:
-          repository: ${{ inputs.repository }}
-          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          dockerfile: ${{ inputs.dockerfile }}
-          image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
-          aws_region: ${{ inputs.aws_region }}
-          working_directory: ${{ inputs.working_directory }}
 
       - name: Check Tag
         id: check-tag
@@ -158,8 +147,29 @@ jobs:
           access_token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           access_token_secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 
-      - name: Push on ecr tag
-        if: steps.check-tag.outputs.match == 'true'
+
+  push_on_ecr:
+    needs: release_and_tag
+    if: github.event.pull_request.merged == true && inputs.publish_on_ecr == true
+    strategy:
+      matrix:
+        dockerfile: ${{ fromJson(inputs.dockerfiles) }}
+    steps:
+      - name: Push on ecr branch
+          uses: ./.github/actions/push_on_ecr
+          if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'dev'
+          with:
+            repository: ${{ inputs.repository }}
+            aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+            aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
+            aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            dockerfile: ${{ matrix.dockerfile }}
+            image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
+            aws_region: ${{ inputs.aws_region }}
+            working_directory: ${{ inputs.working_directory }}
+
+      - name: Push on ecr new release
+        if: needs.release_and_tag.outputs.match == 'true' && (github.base_ref == 'master' || github.base_ref == 'main' )
         uses: ./.github/actions/push_on_ecr
         with:
           repository: ${{ inputs.repository }}
