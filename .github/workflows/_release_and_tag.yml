@@ -156,17 +156,17 @@ jobs:
         dockerfile: ${{ fromJson(inputs.dockerfiles) }}
     steps:
       - name: Push on ecr branch
-          uses: ./.github/actions/push_on_ecr
-          if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'dev'
-          with:
-            repository: ${{ inputs.repository }}
-            aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
-            aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
-            aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            dockerfile: ${{ matrix.dockerfile }}
-            image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
-            aws_region: ${{ inputs.aws_region }}
-            working_directory: ${{ inputs.working_directory }}
+        uses: ./.github/actions/push_on_ecr
+        if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'dev'
+        with:
+          repository: ${{ inputs.repository }}
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          dockerfile: ${{ matrix.dockerfile }}
+          image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
+          aws_region: ${{ inputs.aws_region }}
+          working_directory: ${{ inputs.working_directory }}
 
       - name: Push on ecr new release
         if: needs.release_and_tag.outputs.match == 'true' && (github.base_ref == 'master' || github.base_ref == 'main' )
