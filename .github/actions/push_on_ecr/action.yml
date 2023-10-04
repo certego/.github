@@ -4,6 +4,13 @@ inputs:
   repository:
     description: Repository name
     required: true
+  dockerfile:
+    description: Path for dockerfile from working directory
+    required: true
+  working_directory:
+    description: Docker build context
+    required: true
+
   aws_account_id:
     description: Aws User code
     required: true
@@ -12,9 +19,6 @@ inputs:
     required: true
   aws_secret_access_key:
     description: Aws secret access key
-    required: true
-  dockerfile:
-    description: Path for dockerfile
     required: true
   image_tag:
     description: Directory that must be run against the linters
@@ -45,6 +49,7 @@ runs:
         REPOSITORY: ${{ inputs.repository }}
         IMAGE_TAG: ${{ inputs.image_tag }}
       run: |
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG ${{inputs.dockerfile}}
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f ${{inputs.dockerfile}} .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       shell: bash
+      working-directory: ${{ inputs.working_directory }}

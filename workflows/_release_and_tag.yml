@@ -37,15 +37,22 @@ on:
         required: false
         default: false
       repository:
-        description: todo
+        description: Repository name
         type: string
         required: false
+        default: ${{ github.event.repository.name }}
+
       dockerfile:
-        description: todo
+        description: Path for dockerfile from working directory
         type: string
         required: false
+      working_directory:
+        description: Docker build context
+        type: string
+        required: false
+        default: .
       aws_region:
-        description: todo
+        description: Aws region
         type: string
         required: false
         default: eu-central-1
@@ -72,6 +79,7 @@ jobs:
           dockerfile: ${{ inputs.dockerfile }}
           image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
           aws_region: ${{ inputs.aws_region }}
+          working_directory: ${{ inputs.working_directory }}
 
       - name: Check Tag
         id: check-tag
@@ -161,3 +169,4 @@ jobs:
           dockerfile: ${{ inputs.dockerfile }}
           image_tag: ${{ github.event.pull_request.title }}
           aws_region: ${{ inputs.aws_region }}
+          working_directory: ${{ inputs.working_directory }}

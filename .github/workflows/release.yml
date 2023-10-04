@@ -22,5 +22,6 @@ jobs:
       publish_on_twitter: false
       publish_on_ecr: false
       repository: certego-test
-      dockerfile: .github/test/python_test/Dockerfile
+      working_directory: .github/test/python_test
+      dockerfile: Dockerfile
       aws_region: eu-central-1
