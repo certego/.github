@@ -32,7 +32,7 @@ runs:
       with:
         aws-region: ${{ inputs.aws_region}}
         aws-access-key-id: ${{ inputs.aws_access_key }}
-        aws-secret-access-key: ${{ inputs.secrets_aws_access_key }}
+        aws-secret-access-key: ${{ inputs.aws_secret_access_key }}
         role-to-assume: arn:aws:iam::${{inputs.aws_account_id}}:role/${{inputs.aws_role_to_assume}}
 
     - name: Login to Amazon ECR Private
