@@ -161,7 +161,7 @@ jobs:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
       - name: Push on ecr branch
         uses: ./.github/actions/push_on_ecr
-        if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop2' || github.base_ref == 'dev'
+        if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'dev'
         with:
           repository: ${{ inputs.repository }}
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
