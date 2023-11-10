@@ -26,12 +26,13 @@ Here are some examples:
 In `.vscode/settings.json`
 ```json
 {
+    "editor.formatOnSave": true,
+    "python.defaultInterpreterPath": "~/.virtualenvs/website/bin/python",
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
-        },
+        }
     },
     "isort.importStrategy": "fromEnvironment",
     "isort.check": true,
@@ -44,7 +45,12 @@ In `.vscode/settings.json`
         "-v"
     ],
     "flake8.importStrategy": "fromEnvironment",
-    "flake8.args": ["--config=${workspaceFolder}/.github/configurations/python_linters/.flake8"],
+    "flake8.args": [
+        "--config=${workspaceFolder}/.github/configurations/python_linters/.flake8"
+    ],
     "black-formatter.importStrategy": "fromEnvironment",
-    "black-formatter.args": ["--config", "${workspaceFolder}/.github/configurations/python_linters/.black"],
+    "black-formatter.args": [
+        "--config",
+        "${workspaceFolder}/.github/configurations/python_linters/.black"
+    ]
 }
