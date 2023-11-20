@@ -214,7 +214,7 @@ on:
         description: RabbitMQ management-alpine container version
         type: string
         required: false
-        default: latest
+        default: 3
 
       celery_app:
         description: Celery app name. Requires use_celery to be true
