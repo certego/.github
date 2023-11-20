@@ -325,7 +325,7 @@ jobs:
           fi
 
           if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
-            echo "pylint==3.0.2" >> requirements-linters.txt
+            echo "pylint==2.17.7" >> requirements-linters.txt
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
               echo "pylint-django==2.5.5" >> requirements-linters.txt
             fi
