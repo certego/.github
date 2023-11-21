@@ -54,7 +54,7 @@ In `.vscode/settings.json`
         "overrideConfigFile": ".github/configurations/node_linters/eslint/.eslintrc.json"
     },
     "eslint.format.enable": true,
-    "stylelint.configFile": /.github/configurations/node_linters/stylelint/.stylelintrc.json",
+    "stylelint.configFile": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
     "stylelint.validate": ["css", "less", "postcss", "scss"],
     "stylelint.snippet": ["css", "less", "postcss", "scss"],
     "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
