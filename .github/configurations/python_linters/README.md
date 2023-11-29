@@ -19,4 +19,38 @@ Customize files inside configurations.
 
 
 ## 💻 How to configure your IDE
-W.I.P.
+Since linters configurations aren't directly in the project tree, if you use liting plugins in your editor, you have to instruct them about correct path.  
+Here are some examples:
+
+- ### [VSCode](https://code.visualstudio.com/)
+In `.vscode/settings.json`
+```json
+{
+    "editor.formatOnSave": true,
+    "python.defaultInterpreterPath": "~/.virtualenvs/website/bin/python",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "isort.importStrategy": "fromEnvironment",
+    "isort.check": true,
+    "isort.args": [
+        "--sp=${workspaceFolder}/.github/configurations/python_linters/.isort.cfg"
+    ],
+    "pylint.importStrategy": "fromEnvironment",
+    "pylint.args": [
+        "--rcfile=${workspaceFolder}/.github/configurations/python_linters/.pylintrc",
+        "-v"
+    ],
+    "flake8.importStrategy": "fromEnvironment",
+    "flake8.args": [
+        "--config=${workspaceFolder}/.github/configurations/python_linters/.flake8"
+    ],
+    "black-formatter.importStrategy": "fromEnvironment",
+    "black-formatter.args": [
+        "--config",
+        "${workspaceFolder}/.github/configurations/python_linters/.black"
+    ]
+}
