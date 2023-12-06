@@ -75,4 +75,5 @@ After this configurations, the linters can be run from the menu **Tools -> Exter
   * _Program_: `$PyInterpreterDirectory$/isort`
   * _Arguments_: `--sp ../.github/configurations/python_linters/.isort.cfg --profile black $FilePath$`
   * _Working directory_: `$ProjectFileDir$/DjangoMainProject`
+
 With this configuration, the linters are run against the opened file in the editor; to do it against the whole codebase, change the variable *$FilePath$* to the Django root directory.
