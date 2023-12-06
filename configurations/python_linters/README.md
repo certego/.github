@@ -54,3 +54,25 @@ In `.vscode/settings.json`
         "${workspaceFolder}/.github/configurations/python_linters/.black"
     ]
 }
+```
+
+- ### [PyCharm](https://www.jetbrains.com/pycharm/)
+Linters can be run on demand as external tools in the IDE by adding their configurations under **File -> Settings... -> Tools -> External tools**.
+Then, add a configuration for each linter by clicking on the **+** button (the working directory must be set to the folder where the `manage.py` file is).
+After this configurations, the linters can be run from the menu **Tools -> External tools**.
+* Flake8
+  * _Name_: Flake8
+  * _Program_: $PyInterpreterDirectory$/flake8
+  * _Arguments_: $FilePath$ --config ../.github/configurations/python_linters/.flake8 
+  * _Working directory_: $ProjectFileDir$/DjangoMainProject
+* Black
+  * _Name_: Black
+  * _Program_: $PyInterpreterDirectory$/black
+  * _Arguments_: --config ../.github/configurations/python_linters/.black $FilePath$ 
+  * _Working directory_: $ProjectFileDir$/DjangoMainProject
+* isort
+  * _Name_: isort
+  * _Program_: $PyInterpreterDirectory$/isort
+  * _Arguments_: --sp ../.github/configurations/python_linters/.isort.cfg --profile black $FilePath$
+  * _Working directory_: $ProjectFileDir$/DjangoMainProject
+With this configuration, the linters are run against the opened file in the editor; to do it against the whole codebase, change the variable *$FilePath$* to the Django root directory.
