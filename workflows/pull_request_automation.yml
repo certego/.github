@@ -81,6 +81,7 @@ jobs:
       use_rabbitmq: true
       use_mongo: false
       use_celery: true
+      use_atlas: true
 
       celery_app: python_test.celery
       celery_queues: default

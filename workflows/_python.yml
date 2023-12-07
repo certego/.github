@@ -131,6 +131,11 @@ on:
         default: false
         type: boolean
         required: false
+      use_atlas:
+        description: Use atlas service
+        default: false
+        type: boolean
+        required: false
       use_celery:
         description: Create a celery worker
         default: false
@@ -435,6 +440,7 @@ jobs:
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
         with:
           use_mongo: ${{ inputs.use_mongo }}
+          use_atlas: ${{ inputs.use_atlas }}
           use_redis: ${{ inputs.use_redis }}
           use_postgres: ${{ inputs.use_postgres }}
           use_elastic_search: ${{ inputs.use_elastic_search }}
