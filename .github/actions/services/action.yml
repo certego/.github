@@ -174,7 +174,7 @@ runs:
             bash
 
         - name: Execute docker-compose up
-          if: inputs.use_postgres || inputs.use_elastic_search || use_memcached || use_redis || use_rabbitmq || use_mongo
+          if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached || inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
           run: |
             CLI=docker-compose
             if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
