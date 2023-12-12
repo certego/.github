@@ -90,6 +90,7 @@ jobs:
       use_mongo: false
       mongo_version: latest
       use_celery: true
+      use_atlas: true
 
       celery_app: python_test.celery
       celery_queues: default

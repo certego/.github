@@ -19,6 +19,10 @@ inputs:
       use_mongo:
         description: Use mongo service
         required: true
+      use_atlas:
+        description: Use atlas service
+        required: true
+
 
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
@@ -73,6 +77,18 @@ runs:
             echo "  mongo:" >> mongo.yml
           shell:
             bash
+
+        - name: Create atlas local instance
+          if: inputs.use_atlas
+          run: |
+            sudo apt-get install podman
+            curl https://fastdl.mongodb.org/mongocli/mongodb-atlas-cli_1.14.0_linux_x86_64.deb > /tmp/atlas_cli.deb
+            sudo dpkg -i /tmp/atlas_cli.deb
+            rm /tmp/atlas_cli.deb
+            atlas deployments setup mongo --type local --force --skipMongosh --skipSampleData --tier M0
+          shell:
+            bash
+
 
         - name: Create postgres docker-compose file
           if: inputs.use_postgres
@@ -158,6 +174,7 @@ runs:
             bash
 
         - name: Execute docker-compose up
+          if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached || inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo
           run: |
             CLI=docker-compose
             if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
@@ -187,6 +204,7 @@ runs:
             bash
 
         - name: Wait for docker to be ready
+          if: inputs.use_postgres || inputs.use_elastic_search
           run: |
             if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
              while [ "`docker inspect -f {{.State.Health.Status}} postgres`" != "healthy" ]; do
