@@ -1,8 +1,1 @@
-[tool.black]
-line-length=160
-extend-exclude='''
-/(
-  venv
-  | migrations/*
-)/
-'''
+../../../configurations/python_linters/.black

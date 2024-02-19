@@ -1,6 +1,1 @@
-{
-    "extends": [
-        "stylelint-config-standard-scss",
-        "./.certego-base.stylelintrc"
-    ]
-}
+../../../../configurations/node_linters/stylelint/.stylelintrc.json
