@@ -1,0 +1,1 @@
+../../../../../configurations/node_linters/prettier/.prettierrc.js
