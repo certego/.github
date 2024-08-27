@@ -86,7 +86,7 @@ jobs:
       elasticsearch_version: 8.11.1
       elasticsearch_port: 9200
       use_rabbitmq: true
-      rabbitmq_version: latest
+      rabbitmq_version: 3
       use_mongo: false
       mongo_version: latest
       use_celery: true

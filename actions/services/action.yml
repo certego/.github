@@ -60,8 +60,7 @@ runs:
         - name: Create mongo docker compose file
           if: inputs.use_mongo
           run: |
-            echo "version: '3.8'" > mongo.yml
-            echo "services:" >> mongo.yml
+            echo "services:" > mongo.yml
             echo "  mongo:" >> mongo.yml
             echo "    image: library/mongo:${{ inputs.mongo_version }}" >> mongo.yml
             echo "    container_name: mongo" >> mongo.yml
@@ -77,8 +76,7 @@ runs:
         - name: Create postgres docker compose file
           if: inputs.use_postgres
           run: |
-            echo "version: '3.8'" > postgres.yml
-            echo "services:" >> postgres.yml
+            echo "services:" > postgres.yml
             echo "  postgres:" >> postgres.yml
             echo "    image: library/postgres:${{ inputs.postgres_version }}-alpine" >> postgres.yml
             echo "    container_name: postgres" >> postgres.yml
@@ -99,8 +97,7 @@ runs:
         - name: Create elasticsearch docker compose file
           if: inputs.use_elastic_search
           run: |
-            echo "version: '3.8'" > elastic_search.yml
-            echo "services:" >> elastic_search.yml
+            echo "services:" > elastic_search.yml
             echo "  elastic_search:" >> elastic_search.yml
             echo "    image: elasticsearch:${{ inputs.elasticsearch_version }}" >> elastic_search.yml
             echo "    container_name: elastic_search" >> elastic_search.yml
@@ -120,8 +117,7 @@ runs:
         - name: Create memcached docker compose file
           if: inputs.use_memcached
           run: |
-            echo "version: '3.8'" > memcached.yml
-            echo "services:" >> memcached.yml
+            echo "services:" > memcached.yml
             echo "  memcached:" >> memcached.yml
             echo "    container_name: memcached" >> memcached.yml
             echo "    image: memcached:${{ inputs.memcached_version }}-alpine" >> memcached.yml
@@ -133,8 +129,7 @@ runs:
         - name: Create redis docker compose file
           if: inputs.use_redis
           run: |
-            echo "version: '3.8'" > redis.yml
-            echo "services:" >> redis.yml
+            echo "services:" > redis.yml
             echo "  redis:" >> redis.yml
             echo "    container_name: redis" >> redis.yml
             echo "    image: library/redis:${{ inputs.redis_version }}-alpine" >> redis.yml
@@ -146,8 +141,7 @@ runs:
         - name: Create rabbitmq docker compose file
           if: inputs.use_rabbitmq
           run: |
-            echo "version: '3.8'" > rabbitmq.yml
-            echo "services:" >> rabbitmq.yml
+            echo "services:" > rabbitmq.yml
             echo "  rabbitmq:" >> rabbitmq.yml
             echo "    container_name: rabbitmq" >> rabbitmq.yml
             echo "    image: library/rabbitmq:${{ inputs.rabbitmq_version }}-management-alpine" >> rabbitmq.yml
