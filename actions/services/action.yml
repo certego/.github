@@ -57,7 +57,7 @@ runs:
   using: "composite"
   steps:
 
-        - name: Create mongo docker-compose file
+        - name: Create mongo docker compose file
           if: inputs.use_mongo
           run: |
             echo "version: '3.8'" > mongo.yml
@@ -74,7 +74,7 @@ runs:
           shell:
             bash
 
-        - name: Create postgres docker-compose file
+        - name: Create postgres docker compose file
           if: inputs.use_postgres
           run: |
             echo "version: '3.8'" > postgres.yml
@@ -96,7 +96,7 @@ runs:
           shell:
             bash
 
-        - name: Create elasticsearch docker-compose file
+        - name: Create elasticsearch docker compose file
           if: inputs.use_elastic_search
           run: |
             echo "version: '3.8'" > elastic_search.yml
@@ -117,7 +117,7 @@ runs:
           shell:
             bash
 
-        - name: Create memcached docker-compose file
+        - name: Create memcached docker compose file
           if: inputs.use_memcached
           run: |
             echo "version: '3.8'" > memcached.yml
@@ -130,7 +130,7 @@ runs:
           shell:
             bash
 
-        - name: Create redis docker-compose file
+        - name: Create redis docker compose file
           if: inputs.use_redis
           run: |
             echo "version: '3.8'" > redis.yml
@@ -143,7 +143,7 @@ runs:
           shell:
             bash
 
-        - name: Create rabbitmq docker-compose file
+        - name: Create rabbitmq docker compose file
           if: inputs.use_rabbitmq
           run: |
             echo "version: '3.8'" > rabbitmq.yml
@@ -157,9 +157,9 @@ runs:
           shell:
             bash
 
-        - name: Execute docker-compose up
+        - name: Execute docker compose up
           run: |
-            CLI=docker-compose
+            CLI="docker compose"
             if [[ ${{ inputs.use_postgres }} != 'false' ]]; then
               CLI="${CLI} -f postgres.yml"
             fi
