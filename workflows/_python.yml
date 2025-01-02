@@ -290,7 +290,7 @@ jobs:
         with:
           requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
           exclude: ${{ inputs.ignore_requirements_licenses_regex }}
-          table-headers: true
+          headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
 

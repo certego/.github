@@ -138,7 +138,7 @@ jobs:
           requirements: ${{ inputs.requirements_path }}
           external: ${{ inputs.working_directory }}/licenses.csv
           external-format: csv
-          table-headers: true
+          headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
 
