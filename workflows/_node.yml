@@ -102,7 +102,7 @@ jobs:
           if [[ '${{ inputs.use_jest }}' != 'false' ]]; then
             npm i -D --package-lock-only jest @testing-library/jest-dom babel-jest @babel/core @babel/preset-env
             if [[ '${{ inputs.use_react }}' != 'false' ]]; then
-              npm i -D --package-lock-only  @testing-library/react @testing-library/jest-dom
+              npm i -D --package-lock-only  @testing-library/react
             fi
           fi
           if [[ '${{ inputs.use_eslint }}' != 'false' ]]; then
@@ -138,7 +138,7 @@ jobs:
           requirements: ${{ inputs.requirements_path }}
           external: ${{ inputs.working_directory }}/licenses.csv
           external-format: csv
-          table-headers: true
+          headers: true
           fail: 'StrongCopyleft,NetworkCopyleft,Error'
           fails-only: true
 
