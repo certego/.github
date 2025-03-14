@@ -65,7 +65,7 @@ jobs:
         BACKEND_EXCLUSIONS=""
         if ${{ inputs.backend_exclusions != ''}}; then
           for exclusion in ${{ inputs.backend_exclusions }}; do
-            BACKEND_EXCLUSIONS+=":(exclude)$exclusion "
+            BACKEND_EXCLUSIONS+=":(glob,exclude)$exclusion "
           done
         fi
         # No need to add other quotes since they will already be added.
@@ -84,7 +84,7 @@ jobs:
         FRONTEND_EXCLUSIONS=""
         if ${{ inputs.frontend_exclusions != ''}}; then
           for exclusion in ${{ inputs.frontend_exclusions }}; do
-            FRONTEND_EXCLUSIONS+=":(exclude)$exclusion "
+            FRONTEND_EXCLUSIONS+=":(glob,exclude)$exclusion "
           done
         fi
         FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} $FRONTEND_EXCLUSIONS | head -n -1 | wc -l)
