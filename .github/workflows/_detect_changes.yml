@@ -6,18 +6,26 @@ on:
         description: Backend directories separated by spaces
         required: false
         type: string
-        default: ''
+      
+      backend_exclusions:
+        description: Backend directories or files to be excluded separated by spaces
+        required: false
+        type: string
 
       frontend_directories:
         description: Frontend directories separated by spaces
         required: false
         type: string
-        default: ''
+      
+      frontend_exclusions:
+        description: Frontend directories or files to be excluded separated by spaces
+        required: false
+        type: string
 
       ubuntu_version:
         description: Ubuntu version to use
         type: string
-        default: latest
+        default: "24.04"
         required: false
 
     outputs:
@@ -54,9 +62,18 @@ jobs:
       if: ${{inputs.backend_directories != ''}}
       id: diff_check_backend
       run: |
-        BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} | head -n -1 | wc -l)
+        BACKEND_EXCLUSIONS=""
+        if ${{ inputs.backend_exclusions != ''}}; then
+          for exclusion in ${{ inputs.backend_exclusions }}; do
+            BACKEND_EXCLUSIONS+=":(exclude)$exclusion "
+          done
+        fi
+        # No need to add other quotes since they will already be added.
+        BACKEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $BACKEND_EXCLUSIONS | head -n -1 | wc -l)
         echo "backend=$BACKEND_CHANGES" >> $GITHUB_OUTPUT
         echo "Backend Changes: $BACKEND_CHANGES" >> $GITHUB_STEP_SUMMARY
+        echo "::debug::diff command:git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $BACKEND_EXCLUSIONS"
+        echo "::debug::diff command results: $(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $BACKEND_EXCLUSIONS | head -n -1 )"
         echo "backend $BACKEND_CHANGES"
 
 
@@ -64,8 +81,16 @@ jobs:
       if: ${{inputs.frontend_directories != ''}}
       id: diff_check_frontend
       run: |
-        FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} | head -n -1 | wc -l)
+        FRONTEND_EXCLUSIONS=""
+        if ${{ inputs.frontend_exclusions != ''}}; then
+          for exclusion in ${{ inputs.frontend_exclusions }}; do
+            FRONTEND_EXCLUSIONS+=":(exclude)$exclusion "
+          done
+        fi
+        FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} $FRONTEND_EXCLUSIONS | head -n -1 | wc -l)
         echo "frontend=$FRONTEND_CHANGES" >> $GITHUB_OUTPUT
         echo "Frontend Changes: $FRONTEND_CHANGES" >> $GITHUB_STEP_SUMMARY
+        echo "::debug::diff command:git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $FRONTEND_EXCLUSIONS"
+        echo "::debug::diff command results: $(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $FRONTEND_EXCLUSIONS | head -n -1 )"
         echo "frontend $FRONTEND_CHANGES"
 
