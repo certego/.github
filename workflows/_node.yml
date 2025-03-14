@@ -76,7 +76,7 @@ on:
       ubuntu_version:
         description: Ubuntu version to use
         type: string
-        default: "24.04"
+        default: latest
         required: false
 jobs:
   node:

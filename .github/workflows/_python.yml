@@ -10,7 +10,7 @@ on:
       ubuntu_version:
         description: Ubuntu version to use
         type: string
-        default: "24.04"
+        default: latest
         required: false
       working_directory:
         description: Directory that must be run against the linters

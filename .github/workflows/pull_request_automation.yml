@@ -19,6 +19,7 @@ jobs:
     with:
       backend_directories: .github
       frontend_directories: .github
+      ubuntu_version: latest
 
 
   node:
@@ -45,6 +46,7 @@ jobs:
       max_timeout: 15
       node_versions: >-
         ["20"]
+      ubuntu_version: latest
 
 
   python:
@@ -102,3 +104,4 @@ jobs:
       python_versions: >-
         ["3.10"]
       max_timeout: 15
+      ubuntu_version: latest
