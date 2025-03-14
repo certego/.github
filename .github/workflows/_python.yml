@@ -304,39 +304,59 @@ jobs:
           exit 1
         shell: bash
 
+      # TODO this comment is still relevant?
       # not the best solution because i do not think that dependabot supports this
       - name: Create requirements-linters.txt
         run: |
+          function check_linter_dependency_and_append_to_file {
+            #
+            # Function to check whether a specific linter is in the requirements file
+            # If it can be found inside the requirements, said linter dependency will be appended to a newly created requirements-linter.txt file.
+            # If the linter is not found inside the requirements file an error will be raised.
+            #
+            # 1st parameter: Name of the linter.
+            # 2nd parameter: Path of the requirements file.
+            #
+            if [[ -z $(grep -P "^$1[^a-zA-Z0-9_-].*" "$2") ]]; then
+              echo "::error::$1 dependency not found in $2 file!"
+              exit 1
+            else
+              echo "$1 dependency found in $2!"
+              echo "$(grep -P ^$1[^a-zA-Z0-9_-].* $2)" >> requirements-linters.txt
+            fi
+          }
+          CI_REQUIREMENTS_LINTERS="${GITHUB_WORKSPACE}/.github/configurations/python_linters/requirements-linters.txt"
           echo > requirements-linters.txt
 
           if [[ '${{ inputs.use_black}}' != 'false' ]]; then
-            echo "black==24.8.0" >> requirements-linters.txt
+            check_linter_dependency_and_append_to_file "black" "$CI_REQUIREMENTS_LINTERS"
           fi
 
           if [[ '${{ inputs.use_isort}}' != 'false' ]]; then
-            echo "isort==5.13.2" >> requirements-linters.txt
+            check_linter_dependency_and_append_to_file "isort" "$CI_REQUIREMENTS_LINTERS"
           fi
 
           if [[ '${{ inputs.use_flake8}}' != 'false' ]]; then
-            echo "flake8==7.1.1" >> requirements-linters.txt
+            check_linter_dependency_and_append_to_file "flake8" "$CI_REQUIREMENTS_LINTERS"
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-              echo "flake8-django @ git+https://github.com/terencehonles/flake8-django.git@a6e369e89d275dfd5514f2aa9d091aa36c5ff84b" >> requirements-linters.txt
+              check_linter_dependency_and_append_to_file "flake8-django" "$CI_REQUIREMENTS_LINTERS"
             fi
           fi
 
           if [[ '${{ inputs.use_pylint}}' != 'false' ]]; then
-            echo "pylint==3.2.6" >> requirements-linters.txt
+            check_linter_dependency_and_append_to_file "pylint" "$CI_REQUIREMENTS_LINTERS"
             if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-              echo "pylint-django==2.5.5" >> requirements-linters.txt
+              check_linter_dependency_and_append_to_file "pylint-django" "$CI_REQUIREMENTS_LINTERS"
             fi
           fi
 
           if [[ '${{ inputs.use_bandit}}' != 'false' ]]; then
-            echo "bandit==1.7.9" >> requirements-linters.txt
+            check_linter_dependency_and_append_to_file "bandit" "$CI_REQUIREMENTS_LINTERS"
           fi
           if [[ '${{ inputs.use_autoflake}}' != 'false' ]]; then
-            echo "autoflake==2.3.1" >> requirements-linters.txt
+            check_linter_dependency_and_append_to_file "autoflake" "$CI_REQUIREMENTS_LINTERS"
           fi
+          # TODO does this make any sense? It seems a copy paste of the same file
           cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-linter.txt/') >> requirements-linters.txt 2>/dev/null || exit 0
         shell: bash
         working-directory: ${{ inputs.install_from }}
