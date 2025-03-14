@@ -1,9 +1,6 @@
-name: Composite action  install apt requirements
+name: Composite action install apt requirements
 description: Composite action install apt requirements
 inputs:
-  working_directory:
-    description: Working directory 
-    required: true
   requirements_file:
     description: Requirements file
     required: true
@@ -11,15 +8,47 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Export apt requirements
-      id: export-apt-requirements
+    - name: Compute APT requirements file SHA256 hash
+      id: compute_apt_requirements_file_sha256_hash
       run: |
-        PKG=$(cat ${{ inputs.requirements_file }})
-        echo apt_packages=$PKG | awk '{print}' ORS=' ' >> $GITHUB_OUTPUT
+        COMPUTED_HASH=$(sha256sum ${{ inputs.requirements_file }} | cut -d ' ' -f 1)
+        echo "cache_key=$COMPUTED_HASH" >> $GITHUB_OUTPUT
+      shell: bash
+    
+    # Vital to be able to restore cache
+    # If write permission is not set, a permissions error will be raised
+    - name: Modification to /var/cache/apt/archives permissions
+      run: |
+        sudo chmod a+w /var/cache/apt/archives
       shell: bash
 
-    - name: Cache apt packages
-      id: cache-apt-packages
-      uses: awalsh128/cache-apt-pkgs-action@latest
+    - uses: actions/cache/restore@v4
+      id: restore_cache_from_parent_branch
       with:
-        packages: ${{ steps.export-apt-requirements.outputs.apt_packages }}
+        path: /var/cache/apt/archives/*.deb
+        key: ${{ github.base_ref }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.cache_key }}
+    
+    - uses: actions/cache/restore@v4
+      id: restore_cache_from_current_branch
+      if: steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true'
+      with:
+        path: /var/cache/apt/archives/*.deb
+        key: ${{ github.ref_name }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.cache_key }}
+
+    - name: Refresh repositories
+      if: steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true' && steps.restore_cache_from_current_branch.outputs.cache-hit != 'true'
+      run: |
+        sudo apt-get update
+      shell: bash
+
+    - name: Install requirements
+      run: |
+        sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' < ${{ inputs.requirements_file }})
+      shell: bash
+    
+    - uses: actions/cache/save@v4
+      id: cache_apt_requirements_for_current_branch
+      if: steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true' && steps.restore_cache_from_current_branch.outputs.cache-hit != 'true'
+      with:
+        path: /var/cache/apt/archives/*.deb
+        key: ${{ github.ref_name }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.cache_key }}
