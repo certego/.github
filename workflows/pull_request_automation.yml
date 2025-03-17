@@ -22,7 +22,6 @@ jobs:
       ubuntu_version: latest
 
 
-
   node:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.frontend > 0 }}
@@ -45,9 +44,9 @@ jobs:
       use_coverage: true
       upload_coverage: true
       max_timeout: 15
-      ubuntu_version: 22.04
       node_versions: >-
         ["20"]
+      ubuntu_version: latest
 
 
   python:
@@ -105,4 +104,4 @@ jobs:
       python_versions: >-
         ["3.10"]
       max_timeout: 15
-      ubuntu_version: 22.04
+      ubuntu_version: latest
