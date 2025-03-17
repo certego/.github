@@ -1,0 +1,39 @@
+name: Create APT cache
+
+# GitHub will remove any cache entries that have not been accessed in over 7 days.
+
+on: 
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - dev
+    paths:
+      # Path to APT requirements file
+      - '.github/test/python_test/packages.txt'
+
+
+jobs:
+  create-cache:
+    name: Create cache for dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Remember to set the same APT requirements file path set before!
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install  --no-install-recommends $(tr '\n' ' ' < apt_packages.txt)
+      
+      - name: Compute apt_packages.txt SHA256 hash
+        id: compute_apt_packages_sha256_hash
+        run: |
+          COMPUTED_HASH=$(sha256sum apt_packages.txt | cut -d ' ' -f 1)
+          echo "cache_key=$COMPUTED_HASH" >> $GITHUB_OUTPUT
+      
+      - uses: actions/cache/save@v4
+        with:
+          path: /var/cache/apt/archives/*.deb
+          key: ${{ github.ref_name }}-${{ steps.compute_apt_packages_sha256_hash.outputs.cache_key }}
