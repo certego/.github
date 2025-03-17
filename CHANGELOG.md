@@ -15,3 +15,5 @@
   * pylint 3.2.6 -> 3.3.5
 * Removed `awalsh128/cache-apt-pkgs-action@latest` action and rewrote APT caching using GitHub's `actions/cache/restore@v4` and `actions/cache/save@v4`.
 * Added both frontend and backend exclusions on _detect_changes.yaml (paths that won't be considered by git diff)
+* Updated CodeQL action v2 -> v3 (v2 has been [deprecated](https://github.blog/changelog/2024-01-12-code-scanning-deprecation-of-codeql-action-v2/) on december '24)
+* Removed `setup-python-dependencies` from `codeql/action.yml` since it has no effect anymore. See [this](https://github.blog/changelog/2024-01-23-codeql-2-16-python-dependency-installation-disabled-new-queries-and-bug-fixes/) for more information.
