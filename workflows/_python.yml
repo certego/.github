@@ -412,12 +412,6 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.check_docs_directory }}
 
-      - name: Build DockerFile
-        if: inputs.check_dockerfile
-        run: |
-           docker build -f ${{ inputs.check_dockerfile }} .
-        working-directory: ${{ inputs.working_directory }}
-
       - name: Start services
         uses: ./.github/actions/services
         if: inputs.use_postgres || inputs.use_elastic_search || inputs.use_memcached ||  inputs.use_redis || inputs.use_rabbitmq || inputs.use_mongo

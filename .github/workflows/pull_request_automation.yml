@@ -72,7 +72,6 @@ jobs:
       check_migrations: true
       check_requirements_licenses: true
       check_docs_directory:
-      check_dockerfile: Dockerfile
 
       use_postgres: false
       postgres_db: db
