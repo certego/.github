@@ -13,27 +13,31 @@ on:
       # Path to APT requirements file
       - '.github/test/python_test/packages.txt'
 
+# discard previous execution if you commit to a branch that is already running
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   create-cache:
-    name: Create cache for dependencies
+    name: Create cache for APT dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       # Remember to set the same APT requirements file path set before!
-      - name: Install dependencies
+      - name: Install APT dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install  --no-install-recommends $(tr '\n' ' ' < apt_packages.txt)
+          sudo apt-get -y install  --no-install-recommends $(tr '\n' ' ' < .github/test/python_test/packages.txt)
       
       - name: Compute apt_packages.txt SHA256 hash
         id: compute_apt_packages_sha256_hash
-        run: |
-          COMPUTED_HASH=$(sha256sum apt_packages.txt | cut -d ' ' -f 1)
-          echo "cache_key=$COMPUTED_HASH" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/misc/compute_files_hash
+        with:
+          file_paths: .github/test/python_test/packages.txt
       
       - uses: actions/cache/save@v4
         with:
           path: /var/cache/apt/archives/*.deb
-          key: ${{ github.ref_name }}-${{ steps.compute_apt_packages_sha256_hash.outputs.cache_key }}
+          key: ${{ github.ref_name }}-${{ steps.compute_apt_packages_sha256_hash.outputs.computed_hash }}
