@@ -8,8 +8,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Compute apt_packages.txt SHA256 hash
-      id: compute_apt_packages_sha256_hash
+    - name: Compute apt requirements file SHA256 hash
+      id: compute_apt_requirements_file_sha256_hash
       uses: ./.github/actions/misc/compute_files_hash
       with:
         file_paths: ${{ inputs.requirements_file }}
