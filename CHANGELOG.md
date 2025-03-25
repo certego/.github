@@ -27,3 +27,6 @@
 * Removed `setup-python-dependencies` from `codeql/action.yml` since it has no effect anymore. See [this](https://github.blog/changelog/2024-01-23-codeql-2-16-python-dependency-installation-disabled-new-queries-and-bug-fixes/) for more information.
 * Linters versions in step `Create requirements-linters.txt` of `_python.yml` action are now computed according to `configurations/python_linters/requirements-linters.txt`. As of now, linter updates are only required in `configurations/python_linters/requirements-linters.txt`.
 * Reworked Python requirements caching.
+* Updated some Github actions:
+  * setup-python v4 -> v5
+  * action-gh-release v1 -> v2

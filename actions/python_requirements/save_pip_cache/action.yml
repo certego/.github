@@ -12,8 +12,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # TODO non posso usare l'hash del file perchè quando vado ad aggiornare i requirements
-    # l'hash cambia e sicuramente non trovo la cache salvata
     - name: Generate random UUID
       id: generate_random_uuid
       run: |
