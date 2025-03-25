@@ -5,6 +5,9 @@ inputs:
     description: Requirements file
     required: true
 
+# TODO scomporre questa action in due:
+# - save apt cache
+# - restore apt cache
 runs:
   using: "composite"
   steps:

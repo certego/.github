@@ -26,4 +26,4 @@ runs:
       uses: actions/cache/save@v4
       with:
         path: ${{ inputs.virtual_environment_path }}
-        key: ${{ inputs.git_reference }}-${{ steps.compute_requirements_files_sha256_hash.outputs.computed_hash }}
+        key: ${{ inputs.git_reference }}-venv-${{ steps.compute_requirements_files_sha256_hash.outputs.computed_hash }}
