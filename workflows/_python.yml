@@ -304,8 +304,6 @@ jobs:
           exit 1
         shell: bash
 
-      # TODO this comment is still relevant?
-      # not the best solution because i do not think that dependabot supports this
       - name: Create requirements-linters.txt
         run: |
           function check_linter_dependency_and_append_to_file {
@@ -356,7 +354,6 @@ jobs:
           if [[ '${{ inputs.use_autoflake}}' != 'false' ]]; then
             check_linter_dependency_and_append_to_file "autoflake" "$CI_REQUIREMENTS_LINTERS"
           fi
-          # TODO does this make any sense? It seems a copy paste of the same file
           cat $(echo ${{ inputs.requirements_path }} | sed -e 's/.txt/-linter.txt/') >> requirements-linters.txt 2>/dev/null || exit 0
         shell: bash
         working-directory: ${{ inputs.install_from }}
