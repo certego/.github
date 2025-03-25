@@ -1,5 +1,5 @@
-name: Composite action install apt requirements
-description: Composite action install apt requirements
+name: Composite action install APT requirements
+description: Composite action to install APT requirements
 inputs:
   requirements_file:
     description: Requirements file
@@ -8,12 +8,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Compute APT requirements file SHA256 hash
+    - name: Compute apt requirements file SHA256 hash
       id: compute_apt_requirements_file_sha256_hash
-      run: |
-        COMPUTED_HASH=$(sha256sum ${{ inputs.requirements_file }} | cut -d ' ' -f 1)
-        echo "cache_key=$COMPUTED_HASH" >> $GITHUB_OUTPUT
-      shell: bash
+      uses: ./.github/actions/misc/compute_files_hash
+      with:
+        file_paths: ${{ inputs.requirements_file }}
     
     # Vital to be able to restore cache
     # If write permission is not set, a permissions error will be raised
@@ -26,17 +25,19 @@ runs:
       id: restore_cache_from_parent_branch
       with:
         path: /var/cache/apt/archives/*.deb
-        key: ${{ github.base_ref }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.cache_key }}
+        key: ${{ github.base_ref }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.computed_hash }}
     
     - uses: actions/cache/restore@v4
       id: restore_cache_from_current_branch
       if: steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true'
       with:
         path: /var/cache/apt/archives/*.deb
-        key: ${{ github.ref_name }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.cache_key }}
+        key: ${{ github.ref_name }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.computed_hash }}
 
     - name: Refresh repositories
-      if: steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true' && steps.restore_cache_from_current_branch.outputs.cache-hit != 'true'
+      if: >
+        steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true' &&
+        steps.restore_cache_from_current_branch.outputs.cache-hit != 'true'
       run: |
         sudo apt-get update
       shell: bash
@@ -48,7 +49,9 @@ runs:
     
     - uses: actions/cache/save@v4
       id: cache_apt_requirements_for_current_branch
-      if: steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true' && steps.restore_cache_from_current_branch.outputs.cache-hit != 'true'
+      if: >
+        steps.restore_cache_from_parent_branch.outputs.cache-hit != 'true' && 
+        steps.restore_cache_from_current_branch.outputs.cache-hit != 'true'
       with:
         path: /var/cache/apt/archives/*.deb
-        key: ${{ github.ref_name }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.cache_key }}
+        key: ${{ github.ref_name }}-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.computed_hash }}

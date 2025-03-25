@@ -16,13 +16,13 @@ on:
 
 jobs:
   create-cache:
-    name: Create cache for dependencies
+    name: Create cache for APT dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       # Remember to set the same APT requirements file path set before!
-      - name: Install dependencies
+      - name: Install APT dependencies
         run: |
           sudo apt-get update
           sudo apt-get -y install  --no-install-recommends $(tr '\n' ' ' < apt_packages.txt)
