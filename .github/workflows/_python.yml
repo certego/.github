@@ -2,144 +2,76 @@ name: Reusable python linter workflow
 on:
   workflow_call:
     inputs:
+      # Base configs
       python_versions:
-        description: Python versions to use
+        description: Python versions to use (in the form of a JSON array)
         type: string
         required: true
+      ubuntu_version:
+        description: Ubuntu version to use
+        type: string
+        default: latest
+        required: false
       working_directory:
         description: Directory that must be run against the linters
         type: string
         required: true
-
-      use_autoflake:
-        description: Use autoflake linter
-        default: false
-        type: boolean
-        required: false
-      use_black:
-        description: Use black formatter
-        default: false
-        type: boolean
-        required: false
-      use_isort:
-        description: Use isort formatter
-        default: false
-        type: boolean
-        required: false
-      use_flake8:
-        description: Use flake8 linter
-        default: false
-        type: boolean
-        required: false
-      use_pylint:
-        description: Use pylint linter
-        default: false
-        type: boolean
-        required: false
-      use_bandit:
-        description: Use bandit linter
-        default: false
-        type: boolean
-        required: false
-
-      run_codeql:
-        description: Run codeql
-        default: false
-        type: boolean
-        required: false
-
       requirements_path:
         description: Path to the requirements.txt file
         type: string
         required: true
-
       install_from:
         description: Directory that must be used to install the packages
         type: string
         required: false
         default: .
-
       packages_path:
-        description: Path to the packages.txt file
+        description: Path to the packages.txt file (APT requirements)
         type: string
         required: false
+      env:
+        description: Environment variables to set
+        type: string
+        required: false
+        default: >-
+          {}
+      max_timeout:
+        description: Max time that the CI can be run
+        type: number
+        required: false
+        default: 30
 
-      custom_command:
-        description: String of custom command to run
-        type: string
-        required: false
-      django_settings_module:
-        description: Path to the django settings file
-        type: string
-        required: false
-        default: ''
-
-      check_migrations:
-        description: Check if migrations are valid. Require django_settings_module to be set.
+      # Formatters
+      use_black:
+        description: Use black formatter
         type: boolean
         required: false
-        default: false
-      check_requirements_licenses:
-        description: Check if requirements have a valid license. Require django_settings_module to be set.
-        type: boolean
-        required: false
-        default: true
-      ignore_requirements_licenses_regex:
-        description: Regex of repositories of which ignore license
-        type: string
-        required: false
-        default: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
-
-      check_docs_directory:
-        description: Check docs using rstcheck inside this directory
-        type: string
-        required: false
-        default: ''
-      check_dockerfile:
-        description: Check dockerfile build. WARNING action total time may increase significantly
-        type: string
-        required: false
-        default: ''
-
-      use_postgres:
-        description: Use postgres service
-        default: false
-        type: boolean
-        required: false
-      use_elastic_search:
-        description: Use elastic_search service
-        default: false
-        type: boolean
-        required: false
-      use_memcached:
-        description: Use memcached service
-        default: false
-        type: boolean
-        required: false
-      use_redis:
-        description: Use redis service
-        default: false
-        type: boolean
-        required: false
-      use_rabbitmq:
-        description: Use rabbitmq service
-        default: false
-        type: boolean
-        required: false
-      use_mongo:
-        description: Use mongo service
-        default: false
-        type: boolean
-        required: false
-      use_celery:
-        description: Create a celery worker
-        default: false
+      use_isort:
+        description: Use isort formatter
         type: boolean
         required: false
 
+      # Linters
+      use_autoflake:
+        description: Use autoflake linter
+        type: boolean
+        required: false
+      use_bandit:
+        description: Use bandit linter
+        type: boolean
+        required: false
+      use_flake8:
+        description: Use flake8 linter
+        type: boolean
+        required: false
+      use_pylint:
+        description: Use pylint linter
+        type: boolean
+        required: false
+
+      # Coverage configs
       use_coverage:
         description: Use coverage.py.
-        default: false
         type: boolean
         required: false
       coverage_config_path:
@@ -149,21 +81,80 @@ on:
         default: .coveragerc
       upload_coverage:
         description: Upload coverage.py report to github
-        default: false
         type: boolean
         required: false
 
-      tags_for_slow_tests:
-        description: Tags for tests that will be run only on master/main branch, space separated. Can be used only for django projects.
-        default: slow
-        type: string
+      # CodeQL configs
+      run_codeql:
+        description: Run codeql
+        type: boolean
         required: false
-      tags_for_manual_tests:
-        description: Tags for tests that will not be run on the CI, space separated. Can be used only for django projects.
-        default: manual
-        type: string
+      
+      # Services
+      use_celery:
+        description: Create a celery worker
+        type: boolean
+        required: false
+      use_elastic_search:
+        description: Use elastic_search service
+        type: boolean
+        required: false
+      use_memcached:
+        description: Use memcached service
+        type: boolean
+        required: false
+      use_mongo:
+        description: Use mongo service
+        type: boolean
+        required: false
+      use_postgres:
+        description: Use postgres service
+        type: boolean
+        required: false
+      use_rabbitmq:
+        description: Use rabbitmq service
+        type: boolean
+        required: false
+      use_redis:
+        description: Use redis service
+        type: boolean
         required: false
 
+      # Services configs
+      ## Celery service configs
+      celery_app:
+        description: Celery app name. Requires use_celery to be true
+        type: string
+        required: false
+      celery_queues:
+        description: Celery queues separated by ,. Requires use_celery to be true
+        type: string
+        required: false
+        default: default
+      ## Elasticsearch service configs
+      elasticsearch_version:
+        description: Elasticsearch container version
+        type: string
+        required: false
+        default: latest
+      elasticsearch_port:
+        description: Elasticsearch container port
+        type: string
+        required: false
+        default: 9200
+      ## Memcached service configs
+      memcached_version:
+        description: Memcached alpine container version
+        type: string
+        required: false
+        default: latest
+      ## Mongo service configs
+      mongo_version:
+        description: Mongo container version
+        type: string
+        required: false
+        default: latest
+      ## Postgres service configs
       postgres_db:
         description: Postgres service db. Requires use_postgres to be true
         type: string
@@ -184,66 +175,63 @@ on:
         type: string
         required: false
         default: latest
-
-      mongo_version:
-        description: Mongo container version
+      ## RabbitMQ service configs
+      rabbitmq_version:
+        description: RabbitMQ management-alpine container version
         type: string
         required: false
         default: latest
-      elasticsearch_version:
-        description: Elasticsearch container version
-        type: string
-        required: false
-        default: 8.11.1
-      elasticsearch_port:
-        description: Elasticsearch container port
-        type: string
-        required: false
-        default: 9200
-      memcached_version:
-        description: Memcached alpine container version
-        type: string
-        required: false
-        default: latest
+      ## Redis service configs
       redis_version:
         description: Redis alpine container version
         type: string
         required: false
         default: latest
-      rabbitmq_version:
-        description: RabbitMQ management-alpine container version
+      
+
+      # Django configs
+      django_settings_module:
+        description: Path to the django settings file
         type: string
         required: false
-        default: 3
-
-      celery_app:
-        description: Celery app name. Requires use_celery to be true
+      check_migrations:
+        description: Check if migrations are valid. Require django_settings_module to be set.
+        type: boolean
+        required: false
+      check_requirements_licenses:
+        description: Check if requirements have a valid license. Require django_settings_module to be set.
+        type: boolean
+        required: false
+        default: true
+      ignore_requirements_licenses_regex:
+        description: Regex of repositories of which ignore license
+        type: string
+        required: false
+        default: uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*
+      tags_for_slow_tests:
+        description: Tags for tests that will be run only on master/main branch, space separated. Can be used only for django projects.
+        default: slow
+        type: string
+        required: false
+      tags_for_manual_tests:
+        description: Tags for tests that will not be run on the CI, space separated. Can be used only for django projects.
+        default: manual
         type: string
         required: false
 
-      celery_queues:
-        description: Celery queues separated by ,. Requires use_celery to be true
+      # Misc configs
+      custom_command:
+        description: String of custom command to run
         type: string
         required: false
-        default: default
 
-      env:
-        description: Environment variables to set
+      check_docs_directory:
+        description: Check docs using rstcheck inside this directory
         type: string
         required: false
-        default: >-
-          {}
-
-      max_timeout:
-        description: Max time that the CI can be run
-        type: number
-        required: false
-        default: 30
-
-      ubuntu_version:
-        description: Ubuntu version to use
+      check_dockerfile:
+        description: Check dockerfile build. WARNING action total time may increase significantly
         type: string
-        default: latest
         required: false
 
 jobs:
@@ -443,12 +431,6 @@ jobs:
           python3 -m sphinx -a -T -E -b html -d  _build/doctrees -D language=en . _build/html
         shell: bash
         working-directory: ${{ inputs.check_docs_directory }}
-
-      - name: Build DockerFile
-        if: inputs.check_dockerfile
-        run: |
-           docker build -f ${{ inputs.check_dockerfile }} .
-        working-directory: ${{ inputs.working_directory }}
 
       - name: Start services
         uses: ./.github/actions/services
