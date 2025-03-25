@@ -1,11 +1,18 @@
-# 1.6.x
-## 1.6.0
+# 2.0.x
+
+## 2.0.0
+
 ### Features
+
 * Added "release.yml" action to to push containers to AWS ECR
 * Added *create_apt_cache.yaml* workflow to cache APT requirements each time a commit is pushed on selected branch and **when the requirements file has changed**.
+
 ### Bugfix
+
 * Updated python linters also in '_python.yml' workflow (missing from previous release)
+
 ### Changes
+
 * Deprecation of license check table-headers
 * Updated Python linters:
   * bandit 1.7.9 -> 1.8.3
