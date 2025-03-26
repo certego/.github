@@ -2,12 +2,12 @@ name: Composite action save Python virtual environment
 description: Composite action to save Python virtual environment
 inputs:
   virtual_environment_path:
-    description: Path to virtual environment.
+    description: Path to the virtual environment.
     required: false
     default: ".venv"
   requirements_paths:
-    description: Comma separeted list of requirements files. They will be used to compute the hash for the cache key.
-    required: false
+    description: Space separeted list of requirements files. They will be used to compute the hash for the cache key.
+    required: true
   git_reference:
     description: A git reference (name of the branch, reference to the PR) that will be used to build the cache key.
     required: false

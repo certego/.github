@@ -6,8 +6,8 @@ inputs:
     required: false
     default: ".venv"
   requirements_paths:
-    description: Comma separeted list of requirements files. They will be used to compute the hash for the cache key.
-    required: false
+    description: Space separeted list of requirement files. They will be used to compute the hash for the cache key.
+    required: true
   git_reference:
     description: A git reference (name of the branch, reference to the PR) that will be used to build the cache key.
     required: false

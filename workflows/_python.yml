@@ -319,7 +319,7 @@ jobs:
         id: restore_python_virtual_environment_pr
         uses: ./.github/actions/python_requirements/restore_virtualenv/
         with:
-          requirements_paths: "${{ inputs.requirements_path }},requirements-linters.txt,requirements-dev.txt,requirements-docs.txt"
+          requirements_paths: "${{ inputs.requirements_path }} requirements-linters.txt requirements-dev.txt requirements-docs.txt"
 
       - name: Restore Python virtual environment related to target branch
         id: restore_python_virtual_environment_target_branch
@@ -375,7 +375,7 @@ jobs:
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
         uses: ./.github/actions/python_requirements/save_virtualenv
         with:
-          requirements_paths: "${{ inputs.requirements_path }},requirements-linters.txt,requirements-dev.txt,requirements-docs.txt"
+          requirements_paths: "${{ inputs.requirements_path }} requirements-linters.txt requirements-dev.txt requirements-docs.txt"
 
       - name: Save pip cache related to the PR event
         if: >
