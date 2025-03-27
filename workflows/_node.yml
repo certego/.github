@@ -88,7 +88,8 @@ jobs:
         node_version: ${{ fromJson(inputs.node_versions) }}
         language: ['javascript']
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out latest commit for current branch
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
