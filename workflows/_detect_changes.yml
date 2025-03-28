@@ -3,22 +3,22 @@ on:
   workflow_call:
     inputs:
       backend_directories:
-        description: Backend directories separated by spaces
+        description: Space separated list of backend directories
         required: false
         type: string
       
       backend_exclusions:
-        description: Backend directories or files to be excluded separated by spaces
+        description: Space separated list of Backend directories or files to be excluded
         required: false
         type: string
 
       frontend_directories:
-        description: Frontend directories separated by spaces
+        description: Space separated list of frontend directories
         required: false
         type: string
       
       frontend_exclusions:
-        description: Frontend directories or files to be excluded separated by spaces
+        description: Space separated list of frontend directories or files to be excluded
         required: false
         type: string
 
