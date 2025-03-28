@@ -30,7 +30,8 @@ runs:
         PERMISSIONS_FILE_PATH="/tmp/apt_cache_dir_permissions.facl"
         echo "apt_cache_dir_permissions_file=$PERMISSIONS_FILE_PATH" > $GITHUB_OUTPUT
         sudo getfacl /var/cache/apt/archives > $PERMISSIONS_FILE_PATH
-        echo "::debug::Original permissions given to /var/cache/apt/archives: $(ls -l /var/cache/apt/archives)"
+        ARCHIVES_PERMISSIONS=$(ls -ld /var/cache/apt/archives)
+        echo "::debug::Original permissions given to /var/cache/apt/archives: $ARCHIVES_PERMISSIONS"
         echo "::debug::Created /var/cache/apt/archives permissions backup to $PERMISSIONS_FILE_PATH"
       shell: bash
     
@@ -39,6 +40,7 @@ runs:
     - name: Add write permission for all to /var/cache/apt/archives
       run: |
         sudo chmod a+w /var/cache/apt/archives
+        echo "$ARCHIVES_PERMISSIONS"
         echo "::debug::New permissions given to /var/cache/apt/archives: $(ls -l /var/cache/apt/archives)"
       shell: bash
     
@@ -51,6 +53,7 @@ runs:
     
     - name: Restore original permissions to /var/cache/apt/archives and delete backup
       run: |
+        echo "$(ls /tmp/)"
         permissions_file=${{ steps.backup_apt_cache_dir_permissions.outputs.apt_cache_dir_permissions_file }}
         sudo setfacl --restore="$permissions_file"
         echo "::debug::Restored original permissions to /var/cache/apt/archives: $(ls -l /var/cache/apt/archives)"
