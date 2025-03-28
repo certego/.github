@@ -32,14 +32,7 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install  --no-install-recommends $(tr '\n' ' ' < .github/test/python_test/packages.txt)
       
-      - name: Compute APT dependencies file SHA256 hash
-        id: compute_apt_dependencies_file_sha256_hash
-        uses: ./.github/actions/misc/compute_files_hash
-        with:
-          file_paths: .github/test/python_test/packages.txt
-      
       - name: Save APT cache
-        uses: actions/cache/save@v4
+        uses: ./.github/actions/apt_requirements/save_apt_cache
         with:
-          path: /var/cache/apt/archives/*.deb
-          key: ${{ github.ref_name }}-${{ steps.compute_apt_dependencies_file_sha256_hash.outputs.computed_hash }}
+          apt_requirements_file_path: .github/test/python_test/packages.txt

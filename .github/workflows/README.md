@@ -179,8 +179,7 @@ The workflow is composed of a single job:
 1. **Create cache for APT dependencies** - This job, as described by its name, creates a cache for APT dependencies and stores it on GitHub. It is composed of four steps:
    1. **Check out latest commit on current branch** - This step checks out the latest commit on the current branch of the repository.
    2. **Install APT dependencies** - This step refreshes APT repositories and then install the project dependecies. This action is required to produce the APT cache that will be saved later.
-   3. **Compute APT dependencies file SHA256 hash** - This step computes the SHA256 of the APT dependency file that will be used as cache key.
-   4. **Save APT cache** - This step saves APT cache on GitHub. The GitHub's [**cache/save**](https://github.com/actions/cache/tree/main/save) action is used.
+   3. **Save APT cache** - This step saves APT cache on GitHub. The GitHub's [**save_apt_cache**](../actions/apt_requirements/save_apt_cache/README.md) action is used.
 
 ## [Create Python cache](create_python_cache.yaml)
 
