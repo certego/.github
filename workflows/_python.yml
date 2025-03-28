@@ -294,7 +294,7 @@ jobs:
       
       - name: Save APT cache related to PR event
         if: >
-          steps.restore_apt_cache_pr.outputs.cache-hit != 'true' &&
+          steps.restore_apt_cache_pr.outputs.cache-hit != 'true'
         uses: ./.github/actions/apt_requirements/save_apt_cache
         with:
           apt_requirements_file_path: ${{ inputs.packages_path }}
