@@ -22,7 +22,7 @@ runs:
       id: compute_apt_requirements_file_sha256_hash
       uses: ./.github/actions/misc/compute_files_hash
       with:
-        file_paths: ${{ inputs.requirements_file }}
+        file_paths: ${{ inputs.apt_requirements_file_path }}
 
     - name: Backup /var/cache/apt/archives permissions
       id: backup_apt_cache_dir_permissions
