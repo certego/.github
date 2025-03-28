@@ -48,7 +48,7 @@ It is composed of nine steps:
    5. *use_stylelint*
 4. **Install packages** - This step install all missing packages from the dependency file in the directory specified by the *working_directory* input variable.
 5. **Run linters** - This step uses [**node_linter**](../actions/node_linter/action.yml) action to run linters against the frontend source code.
-6. **Check packages licenses** - This step uses [**pilosus/action-pip-license-checker**](https://github.com/pilosus/action-pip-license-checker) to check the licenses used by the project requirements. 
+6. **Check packages licenses** - This step uses [**pilosus/action-pip-license-checker**](https://github.com/pilosus/action-pip-license-checker) to check the licenses used by the project requirements.
 7. **Run CodeQL** - This step uses [**codeql**](../actions/codeql/action.yml) action to run CodeQL to discover vulnerabilities across the codebase.
 8. **Run custom command** - This step is performed only if the input variable *custom_command* is not empty. The step simply run the bash command described in the previously mentioned input variable in the working directory specified by the *working_directory* input variable.
 9. **Run jest tests** - This step runs Jest tests if the input variable *use_jest* is set to true. Finally, if *use_coverage* and *upload_coverage* are set to true, a coverage report is generated and uploaded.

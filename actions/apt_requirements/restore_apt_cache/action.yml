@@ -27,10 +27,11 @@ runs:
     - name: Backup /var/cache/apt/archives permissions
       id: backup_apt_cache_dir_permissions
       run: |
-        echo "apt_cache_dir_permissions_file=/tmp/apt_cache_dir_permissions.facl" > $GITHUB_OUTPUT
-        sudo getfacl /var/cache/apt/archives > $apt_cache_dir_permissions_file
+        PERMISSIONS_FILE_PATH="/tmp/apt_cache_dir_permissions.facl"
+        echo "apt_cache_dir_permissions_file=$PERMISSIONS_FILE_PATH" > $GITHUB_OUTPUT
+        sudo getfacl /var/cache/apt/archives > $PERMISSIONS_FILE_PATH
         echo "::debug::Original permissions given to /var/cache/apt/archives: $(ls -l /var/cache/apt/archives)"
-        echo "::debug::Created /var/cache/apt/archives permissions backup to $apt_cache_dir_permissions_file"
+        echo "::debug::Created /var/cache/apt/archives permissions backup to $PERMISSIONS_FILE_PATH"
       shell: bash
     
     # Vital to be able to restore cache
