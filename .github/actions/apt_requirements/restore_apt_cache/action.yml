@@ -49,7 +49,7 @@ runs:
       id: restore_apt_cache
       with:
         path: /var/cache/apt/archives/*.deb
-        key: ${{ github.base_ref }}-apt-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.computed_hash }}
+        key: ${{ inputs.git_reference }}-apt-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.computed_hash }}
     
     - name: Restore original permissions to /var/cache/apt/archives and delete backup
       run: |
