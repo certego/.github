@@ -299,28 +299,6 @@ jobs:
         with:
           apt_requirements_file_path: ${{ inputs.packages_path }}
 
-      - name: Check requirements licenses
-        if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
-        id: license_check_report
-        continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v2
-        with:
-          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
-          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
-          headers: true
-          fail: 'StrongCopyleft,NetworkCopyleft,Error'
-          fails-only: true
-
-      - name: Print wrong licenses
-        if: steps.license_check_report.outcome == 'failure'
-        run: |
-          echo "License check failed"
-          echo "===================="
-          echo "${{ steps.license_check_report.outputs.report }}"
-          echo "===================="
-          exit 1
-        shell: bash
-
       - name: Create linter requirements file
         uses: ./.github/actions/python_requirements/create_linter_requirements_file
         with:
@@ -398,6 +376,30 @@ jobs:
           pip install -r requirements-docs.txt
         shell: bash
         working-directory: ${{ inputs.install_from }}
+
+      - name: Check requirements licenses
+        if: >
+            inputs.check_requirements_licenses && 
+            steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
+        id: license_check_report
+        continue-on-error: true
+        uses: pilosus/action-pip-license-checker@v2
+        with:
+          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
+          headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Error'
+          fails-only: true
+
+      - name: Print wrong licenses
+        if: steps.license_check_report.outcome == 'failure'
+        run: |
+          echo "License check failed"
+          echo "===================="
+          echo "${{ steps.license_check_report.outputs.report }}"
+          echo "===================="
+          exit 1
+        shell: bash
 
       - name: Save Python virtual environment related to PR event
         if: >
