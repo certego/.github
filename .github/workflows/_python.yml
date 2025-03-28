@@ -245,7 +245,8 @@ jobs:
         language: ['python']
     env: ${{ fromJson(inputs.env) }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out latest commit
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -264,33 +265,39 @@ jobs:
         shell:
           bash
 
-      - name: Install apt requirements
-        if: inputs.packages_path
-        uses: ./.github/actions/apt_requirements
+      - name: Restore APT cache related to PR event
+        id: restore_apt_cache_pr
+        uses: ./.github/actions/apt_requirements/restore_apt_cache
         with:
-          requirements_file: ${{ inputs.packages_path }}
-
-      - name: Check requirements licenses
-        if: inputs.check_requirements_licenses && steps.cache-virtualenv.outputs.cache-hit != 'true'
-        id: license_check_report
-        continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v2
+          apt_requirements_file_path: ${{ inputs.packages_path }}
+      
+      - name: Restore APT cache related to target branch
+        id: restore_apt_cache_target_branch
+        if: steps.restore_apt_cache_pr.outputs.cache-hit != 'true'
+        uses: ./.github/actions/apt_requirements/restore_apt_cache
         with:
-          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
-          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
-          headers: true
-          fail: 'StrongCopyleft,NetworkCopyleft,Error'
-          fails-only: true
-
-      - name: Print wrong licenses
-        if: steps.license_check_report.outcome == 'failure'
+          apt_requirements_file_path: ${{ inputs.packages_path }}
+          git_reference: ${{ github.base_ref }}
+      
+      - name: Refresh APT repositories
+        if: >
+          steps.restore_apt_cache_pr.outputs.cache-hit != 'true' &&
+          steps.restore_apt_cache_target_branch.outputs.cache-hit != 'true'
         run: |
-          echo "License check failed"
-          echo "===================="
-          echo "${{ steps.license_check_report.outputs.report }}"
-          echo "===================="
-          exit 1
+          sudo apt-get update
         shell: bash
+
+      - name: Install APT requirements
+        run: |
+          sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' < ${{ inputs.packages_path }})
+        shell: bash
+      
+      - name: Save APT cache related to PR event
+        if: >
+          steps.restore_apt_cache_pr.outputs.cache-hit != 'true'
+        uses: ./.github/actions/apt_requirements/save_apt_cache
+        with:
+          apt_requirements_file_path: ${{ inputs.packages_path }}
 
       - name: Create linter requirements file
         uses: ./.github/actions/python_requirements/create_linter_requirements_file
@@ -319,7 +326,7 @@ jobs:
         id: restore_python_virtual_environment_pr
         uses: ./.github/actions/python_requirements/restore_virtualenv/
         with:
-          requirements_paths: "${{ inputs.requirements_path }},requirements-linters.txt,requirements-dev.txt,requirements-docs.txt"
+          requirements_paths: "${{ inputs.requirements_path }} requirements-linters.txt requirements-dev.txt requirements-docs.txt"
 
       - name: Restore Python virtual environment related to target branch
         id: restore_python_virtual_environment_target_branch
@@ -370,14 +377,38 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
-      - name: Save Python virtual environment related to the PR event
+      - name: Check requirements licenses
+        if: >
+            inputs.check_requirements_licenses && 
+            steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
+        id: license_check_report
+        continue-on-error: true
+        uses: pilosus/action-pip-license-checker@v2
+        with:
+          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
+          headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Error'
+          fails-only: true
+
+      - name: Print wrong licenses
+        if: steps.license_check_report.outcome == 'failure'
+        run: |
+          echo "License check failed"
+          echo "===================="
+          echo "${{ steps.license_check_report.outputs.report }}"
+          echo "===================="
+          exit 1
+        shell: bash
+
+      - name: Save Python virtual environment related to PR event
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
         uses: ./.github/actions/python_requirements/save_virtualenv
         with:
-          requirements_paths: "${{ inputs.requirements_path }},requirements-linters.txt,requirements-dev.txt,requirements-docs.txt"
+          requirements_paths: "${{ inputs.requirements_path }} requirements-linters.txt requirements-dev.txt requirements-docs.txt"
 
-      - name: Save pip cache related to the PR event
+      - name: Save pip cache related to PR event
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' &&
           steps.restore_pip_cache_pr.outputs.cache-hit != 'true'

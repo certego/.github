@@ -6,6 +6,7 @@
 
 * Added "release.yml" action to to push containers to AWS ECR
 * Added *create_apt_cache.yaml* workflow to cache APT requirements each time a commit is pushed on selected branch and **when the requirements file has changed**.
+* Added documentation.
 
 ### Bugfix
 

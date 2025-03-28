@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Set up Python's virtual environment
+      - name: Set up Python virtual environment
         uses: ./.github/actions/python_requirements/create_virtualenv
 
       - name: Install Python dependencies

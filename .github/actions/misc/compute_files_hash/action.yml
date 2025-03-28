@@ -2,8 +2,8 @@ name: Composite action compute files hash
 description: Composite action to compute a single hash of one or more files
 inputs:
   file_paths:
-    description: Comma separeted list of files.
-    required: false
+    description: Space separeted list of files for which a single SHA256 hash will be computed.
+    required: true
 
 outputs:
   computed_hash:
@@ -16,11 +16,13 @@ runs:
     - name: Compute files SHA256 hash
       id: compute_files_sha256_hash
       run: |
+        if [[ -z '${{ inputs.file_paths }}' ]]; then
+          echo "::error::file_paths cannot be empty!"
+          exit 1
+        fi
         JOINED_FILES="cat "
         # Create a bash array of file paths
-        IFS=',' read -r -a files <<< "${{ inputs.file_paths }}"
-        echo "::debug::File paths array is composed by: ${files[@]}"
-        for file in ${files[@]};
+        for file in ${{ inputs.file_paths }};
         do
           if [[ -f $file ]]; then
             # Concat file path to cat command

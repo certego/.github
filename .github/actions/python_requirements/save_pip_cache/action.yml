@@ -1,8 +1,8 @@
-name: Composite action save pip's cache
-description: Composite action to save pip's cache
+name: Composite action save pip cache
+description: Composite action to save pip cache
 inputs:
   custom_pip_cache_path:
-    description: Path to pip cache.
+    description: Path to the pip cache.
     required: false
   git_reference:
     description: A git reference (name of the branch, reference to the PR) that will be used to build the cache key.
@@ -27,6 +27,7 @@ runs:
         else
           echo "pip_cache_path=${{ inputs.custom_pip_cache_path }}" >> $GITHUB_OUTPUT
         fi
+        echo "::debug::The pip cache path is $pip_cache_path"
       shell: bash
     - name: Save pip cache
       uses: actions/cache/save@v4

@@ -1,5 +1,5 @@
-name: Composite action restore pip's cache
-description: Composite action to restore pip's cache
+name: Composite action restore pip cache
+description: Composite action to restore pip cache
 inputs:
   custom_pip_cache_path:
     description: Path to pip cache.
@@ -32,6 +32,7 @@ runs:
         else
           echo "pip_cache_path=${{ inputs.custom_pip_cache_path }}" >> $GITHUB_OUTPUT
         fi
+        echo "::debug::Pip cache path $pip_cache_path"
       shell: bash
     - name: Restore pip cache
       id: restore_pip_cache
