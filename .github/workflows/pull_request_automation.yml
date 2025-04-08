@@ -62,6 +62,8 @@ jobs:
       use_pylint: true
       use_bandit: false
       use_autoflake: true
+      use_ruff_format: true
+      use_ruff_linter: true
 
       run_codeql: true
 

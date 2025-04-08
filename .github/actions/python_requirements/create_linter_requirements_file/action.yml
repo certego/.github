@@ -17,13 +17,24 @@ inputs:
   use_bandit:
     description: Use bandit linter
     required: false
+  use_black:
+    description: Use black formatter
+    required: false
   use_flake8:
     description: Use flake8 linter
+    required: false
+  use_isort:
+    description: Use isort formatter
     required: false
   use_pylint:
     description: Use pylint linter
     required: false
-  
+  use_ruff_formatter:
+    description: Use ruff formatter
+    required: false
+  use_ruff_linter:
+    description: Use ruff linter
+    required: false
 
 
 runs:
@@ -76,8 +87,13 @@ runs:
         if [[ '${{ inputs.use_bandit }}' != 'false' ]]; then
           check_linter_dependency_and_append_to_file "bandit" "$CI_REQUIREMENTS_LINTERS"
         fi
+
         if [[ '${{ inputs.use_autoflake }}' != 'false' ]]; then
           check_linter_dependency_and_append_to_file "autoflake" "$CI_REQUIREMENTS_LINTERS"
+        fi
+
+        if [[ '${{ inputs.use_ruff_formatter }}' != 'false' || '${{ inputs.use_ruff_linter }}' != 'false' ]]; then
+          check_linter_dependency_and_append_to_file "ruff" "$CI_REQUIREMENTS_LINTERS"
         fi
 
         if [[ -z '${{ inputs.project_linter_requirements_file }}' ]]; then

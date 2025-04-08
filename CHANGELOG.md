@@ -1,5 +1,15 @@
 # 2.0.x
 
+## 2.1.0
+
+### Feature
+
+* Added "Ruff" to the list of available Python linters.
+
+### Bugfix
+
+* Added missing inputs for "create_linter_requirements_file" action.
+
 ## 2.0.0
 
 ### Features

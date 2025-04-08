@@ -133,10 +133,12 @@ It is composed of one job:
 * **max_timeout** - Optional - Maximum amount of time (in minutes) the workflow is allowed to run. By default, it is set to `30`.
 * **use_black** - Optional - Whether to use black formatter. By default, it is set to `false`.
 * **use_isort** - Optional - Whether to use isort formatter. By default, it is set to `false`.
+* **use_ruff_formatter** - Optional - Whether to use ruff formatter. By default, it is set to `false`.
 * **use_autoflake** - Optional - Whether to use autoflake linter. By default, it is set to `false`.
 * **use_bandit** - Optional - Whether to use bandit linter. By default, it is set to `false`.
 * **use_flake8** - Optional - Whether to use flake8 linter. By default, it is set to `false`.
 * **use_pylint** - Optional - Whether to use pylint linter. By default, it is set to `false`.
+* **use_ruff_linter** - Optional - Whether to use ruff linter. By default, it is set to `false`.
 * **use_coverage** - Optional - Whether to use coverage. By default, it is set to `false`.
 * **coverage_config_path** - Optional - Path to the coverage configuration file. By default, it is set to `.coveragerc`.
 * **upload_coverage** - Optional - Whether to upload coverage report to GitHub. To work, it needs *use_coverage* to be true. By default, it is set to `false`.
