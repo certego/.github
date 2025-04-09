@@ -5,6 +5,7 @@ extend-exclude = [
     ".github",
     ".idea",
     ".vscode",
+    "**/migrations/*"
 ]
 
 include = ["*.py"]

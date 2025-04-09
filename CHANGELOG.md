@@ -1,4 +1,4 @@
-# 2.0.x
+# 2.1.x
 
 ## 2.1.0
 
@@ -9,6 +9,8 @@
 ### Bugfix
 
 * Added missing inputs for "create_linter_requirements_file" action.
+
+# 2.0.x
 
 ## 2.0.0
 
