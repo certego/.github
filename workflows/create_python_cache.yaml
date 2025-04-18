@@ -27,6 +27,11 @@ jobs:
       - name: Check out latest commit
         uses: actions/checkout@v4
 
+      # Uncomment only if necessary
+      #- name: Install system dependencies required by Python packages
+      #  run: |
+      #        sudo apt-get update && sudo apt install <package1> <package2>...
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
