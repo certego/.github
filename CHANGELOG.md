@@ -1,3 +1,11 @@
+# 2.1.x
+
+## 2.1.0
+
+### Changes
+
+* Added "Install system dependencies required by Python packages" step to "Create Python cache" workflow.
+
 # 2.0.x
 
 ## 2.0.0
