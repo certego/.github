@@ -81,7 +81,7 @@ jobs:
       use_memcached: false
       memcached_version: latest
       use_elastic_search: false
-      elasticsearch_version: 8.11.1
+      elasticsearch_version: 9.0.3
       elasticsearch_port: 9200
       use_rabbitmq: true
       rabbitmq_version: 3
