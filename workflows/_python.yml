@@ -50,6 +50,10 @@ on:
         description: Use isort formatter
         type: boolean
         required: false
+      use_ruff_formatter:
+        description: Use ruff formatter
+        type: boolean
+        required: false
 
       # Linters
       use_autoflake:
@@ -66,6 +70,10 @@ on:
         required: false
       use_pylint:
         description: Use pylint linter
+        type: boolean
+        required: false
+      use_ruff_linter:
+        description: Use ruff linter
         type: boolean
         required: false
 
@@ -306,8 +314,12 @@ jobs:
           django_settings_module: ${{ inputs.django_settings_module }}
           use_autoflake: ${{ inputs.use_autoflake }}
           use_bandit: ${{ inputs.use_bandit }}
+          use_black: ${{ inputs.use_black }}
           use_flake8: ${{ inputs.use_flake8 }}
+          use_isort: ${{ inputs.use_isort }}
           use_pylint: ${{ inputs.use_pylint }}
+          use_ruff_formatter: ${{ inputs.use_ruff_formatter }}
+          use_ruff_linter: ${{ inputs.use_ruff_linter }}
 
       - name: Create dev requirements file
         uses: ./.github/actions/python_requirements/create_dev_requirements_file
@@ -416,7 +428,15 @@ jobs:
 
       - name: Run linters
         uses: ./.github/actions/python_linter
-        if: inputs.use_black || inputs.use_isort || inputs.use_flake8 || inputs.use_pylint || inputs.use_bandit || inputs.use_autoflake
+        if: > 
+          inputs.use_black ||
+          inputs.use_isort ||
+          inputs.use_flake8 ||
+          inputs.use_pylint ||
+          inputs.use_bandit ||
+          inputs.use_autoflake ||
+          inputs.use_ruff_formatter ||
+          inputs.use_ruff_linter
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
@@ -425,6 +445,8 @@ jobs:
           use_pylint: ${{ inputs.use_pylint }}
           use_bandit: ${{ inputs.use_bandit }}
           use_autoflake: ${{ inputs.use_autoflake }}
+          use_ruff_formatter: ${{ inputs.use_ruff_formatter }}
+          use_ruff_linter: ${{ inputs.use_ruff_linter }}
 
       - name: Run CodeQL
         if: inputs.run_codeql

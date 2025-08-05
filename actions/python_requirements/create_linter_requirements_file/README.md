@@ -13,6 +13,7 @@ As of today only the following linters are supported:
 * `isort`
 * `pylint`
 * `pylint-django`
+* `ruff`
 
 ## Documentation
 
@@ -23,5 +24,9 @@ As of today only the following linters are supported:
 * **django_settings_module** - Optional - Path to the Django settings file. It's used to make GitHub action aware of Django presence. In the case of a Django project, `flake8-django` and `pylint-django`, may be used and hence they will be added to the newly created requirements file. **Be careful: if a relative path is used this will depend on *install_from*.** Defaults to empty strings, and hence **no Django settings file**.
 * **use_autoflake** - Optional - Flag to state whether to use or not `autoflake` linter. It defaults to false.
 * **use_bandit** - Optional - Flag to state whether to use or not `bandit` linter. It defaults to false.
+* **use_black** - Optional - Flag to state whether to use `black` formatter. It defaults to false.
 * **use_flake8** - Optional - Flag to state whether to use or not `flake8` linter. It defaults to false.
+* **use_isort** - Optional - Flag to state whether to use or not `isort` formatter. It defaults to false.
 * **use_pylint** - Optional - Flag to state whether to use or not `pylint` linter. It defaults to false.
+* **use_ruff_formatter** - Optional - Flag to state whether to use `ruff` **formatter** (so without the linting). It defaults to false.
+* **use_ruff_linter** - Optional - Flag to state whether to use `ruff` **linter** (so without the formatting). It defaults to false.

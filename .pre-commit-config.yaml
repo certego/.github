@@ -43,3 +43,12 @@ repos:
     hooks:
     -   id: autoflake
         args: ["-i", "--remove-all-unused-imports", "--remove-unused-variables", "--ignore-init-module-imports", "--ignore-pass-statements"]
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.7
+    hooks:
+      - id: ruff-format
+        args: ["--config", "./.github/configurations/python_linters/.ruff.toml"]
+      - id: ruff
+        name: ruff-lint
+        args: ["--config", "./.github/configurations/python_linters/.ruff.toml"]

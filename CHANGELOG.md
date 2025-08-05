@@ -4,9 +4,11 @@
 * Added "release.yml" action to to push containers to AWS ECR
 * Added *create_apt_cache.yaml* workflow to cache APT requirements each time a commit is pushed on selected branch and **when the requirements file has changed**.
 * Added documentation.
+* Added "Ruff" to the list of available Python linters.
 #### Bugfix
 * Updated python linters also in '_python.yml' workflow (missing from previous release)
 * Explicitly disabled `xpack.security` in Elasticsearch container, since it is enabled by default in newer versions of Elasticsearch
+* Added missing inputs for "create_linter_requirements_file" action.
 #### Changes
 * Deprecation of license check table-headers
 * Updated Python linters:
