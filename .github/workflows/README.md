@@ -191,11 +191,12 @@ The workflow is composed of a single job:
 
 1. **Create cache for Python dependencies** - This job, as described by its name, creates a cache for Python dependencies and stores it on GitHub. It is composed of four steps:
    1. **Check out latest commit** - This step checks out the latest commit on the current branch for the repository.
-   2. **Set up Python** - This step install Python on the runner.
-   3. **Set up Python virtual environment** - This step uses [**create_virtualenv**](../actions/python_requirements/create_virtualenv/README.md) action to create a Python virtual environment.
-   4. **Install Python dependencies** - This step install Python requirements to produce the final virtual environment that will be cached. Also, installing the Python dependencies, creates the pip cache.
-   5. **Save pip cache** - This step uses [**save_pip_cache**](../actions/python_requirements/save_pip_cache/README.md) action to save pip's download cache on GitHub.
-   6. **Create virtual environment cache** - This step uses [**save_virtualenv**](../actions/python_requirements/save_virtualenv/README.md) action to save virtual environment on GitHub's cache.
+   2. **Install system dependencies required by Python Packages** - **OPTIONAL** - Sometimes, Python packages require one or more system dependencies. For instance, `python-ldap` Python package requires `libldap2-dev` and `libsasl2-dev`, System dependencies, for a successful installation. This step allows user to install system dependencies required by Python packages.
+   3. **Set up Python** - This step install Python on the runner.
+   4. **Set up Python virtual environment** - This step uses [**create_virtualenv**](../actions/python_requirements/create_virtualenv/README.md) action to create a Python virtual environment.
+   5. **Install Python dependencies** - This step install Python requirements to produce the final virtual environment that will be cached. Also, installing the Python dependencies, creates the pip cache.
+   6. **Save pip cache** - This step uses [**save_pip_cache**](../actions/python_requirements/save_pip_cache/README.md) action to save pip's download cache on GitHub.
+   7. **Create virtual environment cache** - This step uses [**save_virtualenv**](../actions/python_requirements/save_virtualenv/README.md) action to save virtual environment on GitHub's cache.
 
 ## [CI](pull_request_automation.yml)
 

@@ -1,31 +1,15 @@
-# 2.1.x
-
-## 2.1.0
-
-### Feature
-
-* Added "Ruff" to the list of available Python linters.
-
-### Bugfix
-
-* Added missing inputs for "create_linter_requirements_file" action.
-
-# 2.0.x
-
-## 2.0.0
-
-### Features
-
+## 2.0.x
+### 2.0.0
+#### Features
 * Added "release.yml" action to to push containers to AWS ECR
 * Added *create_apt_cache.yaml* workflow to cache APT requirements each time a commit is pushed on selected branch and **when the requirements file has changed**.
 * Added documentation.
-
-### Bugfix
-
+* Added "Ruff" to the list of available Python linters.
+#### Bugfix
 * Updated python linters also in '_python.yml' workflow (missing from previous release)
-
-### Changes
-
+* Explicitly disabled `xpack.security` in Elasticsearch container, since it is enabled by default in newer versions of Elasticsearch
+* Added missing inputs for "create_linter_requirements_file" action.
+#### Changes
 * Deprecation of license check table-headers
 * Updated Python linters:
   * bandit 1.7.9 -> 1.8.3
@@ -43,3 +27,4 @@
 * Updated some Github actions:
   * setup-python v4 -> v5
   * action-gh-release v1 -> v2
+* Added "Install system dependencies required by Python packages" step to "Create Python cache" workflow.
