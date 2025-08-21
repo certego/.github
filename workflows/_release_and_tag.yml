@@ -36,16 +36,12 @@ on:
         type: boolean
         required: false
         default: false
-      repository:
-        description: Repository name
-        type: string
-        required: false
-        default: ${{ github.event.repository.name }}
 
-      dockerfiles:
-        description: Path for dockerfiles from working directory
+      docker_mapping:
+        description: List[Dict[dockerfile sep "dockerfile_path", repository sep "repository_name"]]
         type: string
         required: false
+
       working_directory:
         description: Docker build context
         type: string
@@ -148,39 +144,68 @@ jobs:
           access_token_secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 
 
-  push_on_ecr:
+  push_on_ecr_branch:
     runs-on: ubuntu-latest
-    needs: release_and_tag
-    if: github.event.pull_request.merged == true && inputs.publish_on_ecr == true
+    environment: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || ( github.base_ref == 'develop' || github.base_ref == 'dev' )  && 'stag' || 'test' }}
+    if: inputs.publish_on_ecr == true
     strategy:
       matrix:
-        dockerfile: ${{ fromJson(inputs.dockerfiles) }}
+        docker_mapping: ${{ fromJson(inputs.docker_mapping) }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
-      - name: Push on ecr branch
+
+      - name: Push on ecr branch from merge
         uses: ./.github/actions/push_on_ecr
-        if: github.base_ref == 'master' || github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'dev'
+        if: github.event.pull_request.merged == true && (github.base_ref == 'master' || github.base_ref == 'develop')
         with:
-          repository: ${{ inputs.repository }}
+          repository: ${{ matrix.docker_mapping.repository }}
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          dockerfile: ${{ matrix.dockerfile }}
+          dockerfile: ${{ matrix.docker_mapping.dockerfile }}
           image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
           aws_region: ${{ inputs.aws_region }}
           working_directory: ${{ inputs.working_directory }}
+          image_target: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
+
+      - name: Push on ecr branch from push
+        uses: ./.github/actions/push_on_ecr
+        if: github.ref_name == 'test' || github.ref_name == 'opentofu'
+        with:
+          repository: ${{ matrix.docker_mapping.repository }}
+          aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          dockerfile: ${{ matrix.docker_mapping.dockerfile }}
+          image_tag: 'test'
+          aws_region: ${{ inputs.aws_region }}
+          working_directory: ${{ inputs.working_directory }}
+          image_target: 'test'
+
+  push_on_ecr_tag:
+    runs-on: ubuntu-latest
+    needs: release_and_tag
+    environment: "prod"
+    if: github.event.pull_request.merged == true && inputs.publish_on_ecr == true
+    strategy:
+      matrix:
+        docker_mapping: ${{ fromJson(inputs.docker_mapping) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # otherwise, you do not retrieve the tags
 
       - name: Push on ecr new release
         if: needs.release_and_tag.outputs.match == 'true' && (github.base_ref == 'master' || github.base_ref == 'main' )
         uses: ./.github/actions/push_on_ecr
         with:
-          repository: ${{ inputs.repository }}
+          repository: ${{ matrix.docker_mapping.repository }}
           aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY}}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          dockerfile: ${{ inputs.dockerfile }}
+          dockerfile: ${{ matrix.docker_mapping.dockerfile }}
           image_tag: ${{ github.event.pull_request.title }}
           aws_region: ${{ inputs.aws_region }}
           working_directory: ${{ inputs.working_directory }}
