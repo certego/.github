@@ -106,3 +106,11 @@ jobs:
         ["3.12"]
       max_timeout: 15
       ubuntu_version: latest
+
+  opentofu_test:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.infrastructure > 0 }}
+    uses: ./.github/workflows/_opentofu.yml
+    secrets: inherit
+    with:
+      working_directory: .

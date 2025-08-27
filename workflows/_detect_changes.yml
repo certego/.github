@@ -16,9 +16,19 @@ on:
         description: Space separated list of frontend directories
         required: false
         type: string
-      
+
       frontend_exclusions:
         description: Space separated list of frontend directories or files to be excluded
+        required: false
+        type: string
+
+      infrastructure_directories:
+        description: Space separated list of infrastructure directories
+        required: false
+        type: string
+
+      infrastructure_exclusions:
+        description: Space separated list of infrastructure directories or files to be excluded
         required: false
         type: string
 
@@ -37,6 +47,10 @@ on:
         description: Number of files changed in frontend
         value: ${{ jobs.detect-changes.outputs.frontend }}
 
+      infrastructure:
+        description: Number of files changed in infrastructure
+        value: ${{ jobs.detect-changes.outputs.infrastructure }}
+
 jobs:
   detect-changes:
     name: Detect changes
@@ -44,6 +58,8 @@ jobs:
     outputs:
       backend: ${{steps.diff_check_backend.outputs.backend}}
       frontend: ${{steps.diff_check_frontend.outputs.frontend}}
+      infrastructure: ${{steps.diff_check_infrastructure.outputs.infrastructure}}
+
     steps:
     - name: Check out PR target branch
       uses: actions/checkout@v4
@@ -56,7 +72,7 @@ jobs:
         clean: false
 
     - name: Generate summary
-      if: ${{inputs.backend_directories != ''}} | ${{inputs.frontend_directories != ''}}
+      if: ${{inputs.backend_directories != ''}} | ${{inputs.frontend_directories != ''}} | ${{inputs.infrastructure_directories != ''}}
       run: |
         echo "### Detect Changes summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
@@ -92,7 +108,23 @@ jobs:
         FRONTEND_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} $FRONTEND_EXCLUSIONS | head -n -1 | wc -l)
         echo "frontend=$FRONTEND_CHANGES" >> $GITHUB_OUTPUT
         echo "Frontend Changes: $FRONTEND_CHANGES" >> $GITHUB_STEP_SUMMARY
-        echo "::debug::diff command:git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $FRONTEND_EXCLUSIONS"
-        echo "::debug::diff command results: $(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.backend_directories }} $FRONTEND_EXCLUSIONS | head -n -1 )"
+        echo "::debug::diff command:git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} $FRONTEND_EXCLUSIONS"
+        echo "::debug::diff command results: $(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.frontend_directories }} $FRONTEND_EXCLUSIONS | head -n -1 )"
         echo "frontend $FRONTEND_CHANGES"
 
+    - name: Generate diffs for infrastructure
+      if: ${{inputs.infrastructure_directories != ''}}
+      id: diff_check_infrastructure
+      run: |
+        INFRASTRUCTURE_EXCLUSIONS=""
+        if ${{ inputs.infrastructure_exclusions != ''}}; then
+          for exclusion in ${{ inputs.infrastructure_exclusions }}; do
+            INFRASTRUCTURE_EXCLUSIONS+=":(glob,exclude)$exclusion "
+          done
+        fi
+        INFRASTRUCTURE_CHANGES=$(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.infrastructure_directories }} $INFRASTRUCTURE_EXCLUSIONS | head -n -1 | wc -l)
+        echo "infrastructure=$INFRASTRUCTURE_CHANGES" >> $GITHUB_OUTPUT
+        echo "Infrastructure Changes: $INFRASTRUCTURE_CHANGES" >> $GITHUB_STEP_SUMMARY
+        echo "::debug::diff command:git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.infrastructure_directories }} $INFRASTRUCTURE_EXCLUSIONS"
+        echo "::debug::diff command results: $(git diff --compact-summary origin/${{ github.base_ref }} -- ${{ inputs.infrastructure_directories }} $INFRASTRUCTURE_EXCLUSIONS | head -n -1 )"
+        echo "infrastructure $INFRASTRUCTURE_CHANGES"

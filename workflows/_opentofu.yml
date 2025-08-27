@@ -1,0 +1,51 @@
+name: Reusable opentofu workflow
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: Directory that must be run against the linters
+        type: string
+        required: true
+
+
+jobs:
+  python:
+    name: Run opentofu test suite
+    runs-on: ubuntu-latest
+    env:
+      STAGE: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || ( github.base_ref == 'develop' || github.base_ref == 'dev' )  && 'stag' || 'test' }}
+    strategy:
+      matrix:
+        directory: ["infrastructure", "application" ]
+      fail-fast: false
+    environment: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || ( github.base_ref == 'develop' || github.base_ref == 'dev' )  && 'stag' || 'test' }}
+    permissions: write-all
+    steps:
+      - name: Check out latest commit
+        uses: actions/checkout@v4
+
+      - name: tofu fmt ${{ matrix.directory }}
+        uses: dflook/tofu-fmt-check@v2
+        with:
+          path: ${{inputs.working_directory}}/opentofu/${{ env.STAGE }}/${{ matrix.directory }}
+
+      - name: tofu validate ${{ matrix.directory }}
+        uses: dflook/tofu-validate@v2
+        with:
+          path: ${{inputs.working_directory}}/opentofu/${{ env.STAGE }}/${{ matrix.directory }}
+
+      - name: tofu plan ${{ matrix.directory }}
+        uses: dflook/tofu-plan@v2
+        env:
+          GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+          TF_VAR_github_token : ${{ secrets.GITHUB_TOKEN }}
+          TF_VAR_github_organization_name : certego
+          TF_VAR_aws_account_id : ${{ secrets.AWS_ACCOUNT_ID }}
+          TF_VAR_aws_access_key : ${{ secrets.AWS_ACCESS_KEY }}
+          TF_VAR_aws_secret_key : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          path: ${{inputs.working_directory}}/opentofu/${{ env.STAGE }}/${{ matrix.directory }}
+          label: ${{ matrix.path }}
+          # TODO per qualche ragione di permessi (credo del token github) non riesce a recuperarsi le chiavi
+          exclude: |
+            module.github_ecr_access_keys
