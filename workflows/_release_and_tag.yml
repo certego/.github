@@ -4,7 +4,8 @@ on:
     inputs:
       branches_that_trigger_release:
         description: Branches that will trigger a check on the tag. Otherwise, no check will be made.
-        type:
+        type: string
+        required: true
 
       append_to_release:
         description: Append project's wheel and tarball to newly created release
