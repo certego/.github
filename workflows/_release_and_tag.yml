@@ -89,6 +89,25 @@ jobs:
             echo "match=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Create Tag and Release
+        id: create-release
+        if: steps.check-tag.outputs.match == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.pull_request.title }}
+          name: Version ${{ github.event.pull_request.title }}
+          draft: false
+          generate_release_notes: true
+          prerelease: false
+          target_commitish: ${{ github.base_ref }}
+          append_body: true
+
+      - name: Checkout created tag
+        uses: actions/checkout@v4
+        if: steps.check-tag.outputs.match == 'true' && ( inputs.publish_on_test_pypi || inputs.publish_on_pypi)
+        with:
+          fetch-depth: 0 # otherwise, you do not retrieve the tags
+
       - uses: actions/setup-python@v5
         if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
         with:
@@ -104,27 +123,14 @@ jobs:
         run: |
           python -m build --sdist --wheel --outdir dist/
 
-      - name: Create Tag and Release
-        id: create-release
-        if: steps.check-tag.outputs.match == 'true'
+      - name: Update release with assets
+        id: update-release
+        if: steps.check-tag.outputs.match == 'true' && inputs.append_to_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.pull_request.title }}
-          name: Version ${{ github.event.pull_request.title }}
-          draft: false
-          generate_release_notes: true
-          prerelease: false
-          target_commitish: ${{ github.base_ref }}
-          append_body: true
           files: |
-            dist/*-${{ github.event.pull_request.title }}*.tar.gz
-            dist/*-${{ github.event.pull_request.title }}*.whl
-
-      - name: Checkout created tag
-        uses: actions/checkout@v4
-        if: steps.check-tag.outputs.match == 'true' && ( inputs.publish_on_test_pypi || inputs.publish_on_pypi)
-        with:
-          fetch-depth: 0 # otherwise, you do not retrieve the tags
+            dist/*-${{ github.ref_name }}*.tar.gz
+            dist/*-${{ github.ref_name }}*.whl
 
       - name: Publish to test PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
