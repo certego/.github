@@ -1,3 +1,7 @@
+## 2.1.x
+### 2.1.0
+#### Features
+* Build and append project assets to Github releases.
 ## 2.0.x
 ### 2.0.0
 #### Features
