@@ -2,6 +2,19 @@ name: Reusable release and tag workflow
 on:
   workflow_call:
     inputs:
+      branches_that_trigger_release:
+        description: Branches that will trigger a check on the tag. Otherwise, no check will be made.
+        type: string
+        required: false
+        default: >-
+          ["master", "main", "prod"]
+
+      append_to_release:
+        description: Append project's wheel and tarball to newly created release
+        type: boolean
+        required: false
+        default: false
+
       publish_on_pypi:
         description: Upload on pypi public index
         type: boolean
@@ -72,7 +85,7 @@ jobs:
 
       - name: Check Tag
         id: check-tag
-        if: github.base_ref == 'master' || github.base_ref == 'main'
+        if: contains(fromJSON(inputs.branches_that_trigger_release), github.base_ref)
         run: |
           if [[ "${{ github.event.pull_request.title }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "match=true" >> $GITHUB_OUTPUT
@@ -98,19 +111,28 @@ jobs:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
 
       - uses: actions/setup-python@v5
-        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi)
+        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
         with:
           python-version: "3.x"
 
       - name: Install pypa/build
-        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi)
+        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
         run: |
           python -m pip install build --user
 
       - name: Build a binary wheel and a source tarball
-        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi)
+        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
         run: |
           python -m build --sdist --wheel --outdir dist/
+
+      - name: Update release with assets
+        id: update-release
+        if: steps.check-tag.outputs.match == 'true' && inputs.append_to_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*-${{ github.ref_name }}*.tar.gz
+            dist/*-${{ github.ref_name }}*.whl
 
       - name: Publish to test PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
