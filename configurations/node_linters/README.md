@@ -59,7 +59,7 @@ In `.vscode/settings.json`
     "stylelint.snippet": ["css", "less", "postcss", "scss"],
     "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
     "editor.semanticHighlighting.enabled": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "prettier.prettier-vscode",
     "[javascriptreact]": {
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
