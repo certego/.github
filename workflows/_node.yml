@@ -102,7 +102,7 @@ jobs:
         if: >
           inputs.use_prettier || inputs.use_eslint || inputs.use_stylelint
         run: |
-          xargs npm i -D --package-lock-only < ./.github/configurations/node_linters/packages-linters.txt
+          xargs npm i -D --package-lock-only < ${GITHUB_WORKSPACE}/.github/configurations/node_linters/packages-linters.txt
         working-directory: ${{ inputs.working_directory }}
 
       - name: Install packages
