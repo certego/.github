@@ -1,0 +1,7 @@
+prettier
+eslint
+@eslint/js
+eslint-config-next
+eslint-plugin-jest
+stylelint
+stylelint-config-standard-scss
