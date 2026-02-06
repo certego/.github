@@ -93,45 +93,22 @@ pre-commit install -c .github/.pre-commit-config.yaml
 ```
 Pre-commit will add hook `.git/hooks/pre-commit` for you.
 
-### Node.js
-Add to `package.json` these scripts (configure paths), CI automatically installs and calls them:
+### Node.JS
+CI automatically installs and calls code analyzers this way:
 ```
-"config": {
-    "eslint": ".github/configurations/node_linters/eslint/.eslintrc.json",
-    "stylelint": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
-    "prettier": ".github/configurations/node_linters/prettier/.prettierrc.js"
-},
-"scripts": {
-    "test": "TZ=UTC jest ./tests --silent",
-    "test-coverage": "npm test -- --coverage=true",
-    "lint-config-install": "cd $(dirname $npm_package_config_eslint) && npm i",
-    "lint": "eslint -c $npm_package_config_eslint 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}'",
-    "lint-fix": "npm run lint -- --fix",
-    "lint-scss-config-install": "cd $(dirname $npm_package_config_stylelint) && npm i",
-    "lint-scss": "stylelint --config $npm_package_config_stylelint 'src/scss/**/*.{css,scss}'",
-    "lint-scss-fix": "npm run lint-scss -- --fix",
-    "formatter": "prettier --config $npm_package_config_prettier 'src/**/*.{js,jsx}' 'tests/**/*.{js,jsx}' 'src/scss/**/*.{css,scss}' --check",
-    "formatter-fix": "npm run formatter -- --write"
-},
+npm run lint
+npm run lint-scss
+npm run formatter
 ```
-For local installation and customization see [here](configurations/node_linters/README.md).
+For local installation and customization, see [here](configurations/node_linters/README.md)
 
 #### (Opt.) Pre-commit
-To enable pre-commit add this to your `package.json` (configure paths, prettier is optional).
-**Note:** starting point of `husky install` must be same directory as .git
+Add `husky` to your `package.json`:
 ```
-    "scripts": {
-        "prepare": "cd ./ && husky install .github/.husky"
-    },
-    "lint_staged": {
-        "*.{js,jsx}": ["eslint -c .github/configurations/node_linters/eslint/.eslintrc.json"] //, "prettier --config .github/configurations/node_linters/prettier/.prettierrc.js"],
-        "*.{css,scss}": ["stylelint --config .github/configurations/node_linters/stylelint/.stylelintrc.json"] // , "prettier --config .github/configurations/node_linters/prettier/.prettierrc.js"]
-    },
+npm i -D husky && npx husky init
 ```
-Then execute this command:
-```
-npm i -D husky lint-staged && npm run prepare
-```
+Configure your `.husky/pre-commit` file like [this](.husky-pre-commit).
+When an `npm install` is executed, husky installs a pre-commit hook in git.
 
 
 ## 🔧 Development
