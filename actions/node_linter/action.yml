@@ -38,7 +38,6 @@ runs:
     - name: Lint with eslint
       run: |
         if [[ ${{ inputs.use_eslint }} != 'false' ]]; then
-          npm run lint-config-install
           npm run lint
         else
           echo "Skipping eslint"
@@ -49,7 +48,6 @@ runs:
     - name: Lint with stylelint
       run: |
         if [[ ${{ inputs.use_stylelint }} != 'false' ]]; then
-          npm rum lint-scss-config-install
           npm run lint-scss
         else
           echo "Skipping stylelint"

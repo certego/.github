@@ -1,6 +1,10 @@
 ## 2.0.x
+### 2.0.1
+#### Features
+* Update and rearrangement of node linters. Now are easier to use.
 ### 2.0.0
 #### Features
+* Build and append project assets to Github releases.
 * Added "release.yml" action to to push containers to AWS ECR
 * Added *create_apt_cache.yaml* workflow to cache APT requirements each time a commit is pushed on selected branch and **when the requirements file has changed**.
 * Added documentation.

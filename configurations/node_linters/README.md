@@ -2,43 +2,31 @@
 
 # ⬡ Node.js linters
 
+## 🔧 Dependencies
+To use locally, add dependencies to your project:
+```bash
+xargs npm i -D < ./.github/configurations/node_linters/requirements-linters.txt
+```
+and add these scripts to `package.json`:
+```
+"config": {
+    "eslint": ".github/configurations/node_linters/eslint.config.mjs",
+    "stylelint": ".github/configurations/node_linters/.stylelintrc.json",
+    "prettier": ".github/configurations/node_linters/.prettierrc.json"
+},
+"scripts": {
+    "lint": "eslint -c $npm_package_config_eslint",
+    "lint-fix": "npm run lint -- --fix",
+    "lint-scss": "stylelint --config $npm_package_config_stylelint '**/*.{css,scss}'",
+    "lint-scss-fix": "npm run lint-scss -- --fix",
+    "formatter": "prettier --config $npm_package_config_prettier --check",
+    "formatter-fix": "npm run formatter -- --write"
+},
+```
+
+
 ## 📖 How to use
-Download repo via `git subtree` (see [here](/README.md)).
 Customize configurations files (if needed).
-
-- ### [ESLint](https://eslint.org/)
-To use locally, install these dependencies:
-```bash
-npm i -D eslint
-npm run lint-config-install
-```
-To run:
-```bash
-npm run lint
-```
-
-- ### [Stylelint](https://stylelint.io/)
-To use locally, install these dependencies:
-```bash
-npm i -D stylelint
-npm run lint-scss-config-install
-```
-To run:
-```bash
-npm run lint-scss
-```
-
-- ### (Opt.) [Prettier](https://prettier.io/)
-To use locally, enable configurations and customize
-- Enable/disable `eslint-config-prettier` in ESlint config file
-Install these dependencies:
-```bash
-npm i -D prettier
-```
-To run:
-```
-npm run formatter
-```
 
 
 ## 💻 How to configure your IDE
@@ -49,22 +37,20 @@ Here are some examples:
 In `.vscode/settings.json`
 ```json
 {
-    "editor.formatOnSave": true,
-    "eslint.options": {
-        "overrideConfigFile": ".github/configurations/node_linters/eslint/.eslintrc.json"
-    },
-    "eslint.format.enable": true,
-    "stylelint.configFile": ".github/configurations/node_linters/stylelint/.stylelintrc.json",
     "stylelint.validate": ["css", "less", "postcss", "scss"],
     "stylelint.snippet": ["css", "less", "postcss", "scss"],
-    "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
-    "editor.semanticHighlighting.enabled": true,
+    "eslint.format.enable": true,
+    "eslint.workingDirectories": ["./", "./functions"],
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "[javascriptreact]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-    },
     "[javascript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-    }
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "editor.formatOnSave": true,
+    "editor.semanticHighlighting.enabled": true,
+    "eslint.options": {
+        "overrideConfigFile": ".github/configurations/node_linters/eslint/eslint.config.mjs"
+    },
+    "stylelint.configFile": ".github/configurations/node_linters/.stylelintrc.json",
+    "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
 }
 ```
