@@ -48,9 +48,9 @@ In `.vscode/settings.json`
     "editor.formatOnSave": true,
     "editor.semanticHighlighting.enabled": true,
     "eslint.options": {
-        "overrideConfigFile": ".github/configurations/node_linters/eslint/eslint.config.mjs"
+        "overrideConfigFile": ".github/configurations/node_linters/eslint.config.mjs"
     },
     "stylelint.configFile": ".github/configurations/node_linters/.stylelintrc.json",
-    "prettier.configPath": ".github/configurations/node_linters/prettier/.prettierrc.js",
+    "prettier.configPath": ".github/configurations/node_linters/.prettierrc.json",
 }
 ```
