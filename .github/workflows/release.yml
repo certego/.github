@@ -30,7 +30,6 @@ jobs:
       publish_on_npm: false
       publish_on_twitter: false
       publish_on_ecr: false
-      repository: certego-test
       working_directory: .github/test/python_test
       docker_mapping: '[{ dockerfile: "docker/Dockerfile", repository: "test"}]'
       aws_region: eu-central-1

@@ -33,9 +33,12 @@ jobs:
         uses: dflook/tofu-validate@v2
         with:
           path: ${{inputs.working_directory}}/opentofu/${{ env.STAGE }}/${{ matrix.directory }}
+        env:
+          TERRAFORM_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: tofu plan ${{ matrix.directory }}
         uses: dflook/tofu-plan@v2
+        id: tofu_plan
         env:
           GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
           TF_VAR_github_token : ${{ secrets.GITHUB_TOKEN }}
@@ -43,6 +46,7 @@ jobs:
           TF_VAR_aws_account_id : ${{ secrets.AWS_ACCOUNT_ID }}
           TF_VAR_aws_access_key : ${{ secrets.AWS_ACCESS_KEY }}
           TF_VAR_aws_secret_key : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TERRAFORM_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         with:
           path: ${{inputs.working_directory}}/opentofu/${{ env.STAGE }}/${{ matrix.directory }}
           label: ${{ matrix.path }}
