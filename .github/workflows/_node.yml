@@ -98,23 +98,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
 
-      - name: Add dependencies
+      - name: Add dependencies (if not already present)
+        if: >
+          inputs.use_prettier || inputs.use_eslint || inputs.use_stylelint
         run: |
-          if [[ '${{ inputs.use_jest }}' != 'false' ]]; then
-            npm i -D --package-lock-only jest @testing-library/jest-dom babel-jest @babel/core @babel/preset-env
-            if [[ '${{ inputs.use_react }}' != 'false' ]]; then
-              npm i -D --package-lock-only  @testing-library/react
-            fi
-          fi
-          if [[ '${{ inputs.use_eslint }}' != 'false' ]]; then
-            npm i -D --package-lock-only eslint
-          fi
-          if [[ '${{ inputs.use_prettier }}' != 'false' ]]; then
-            npm i -D --package-lock-only prettier
-          fi
-          if [[ '${{ inputs.use_stylelint }}' != 'false' ]]; then
-            npm i -D --package-lock-only stylelint
-          fi
+          xargs npm i -D --package-lock-only < ${GITHUB_WORKSPACE}/.github/configurations/node_linters/packages-linters.txt
         working-directory: ${{ inputs.working_directory }}
 
       - name: Install packages

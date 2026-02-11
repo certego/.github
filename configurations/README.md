@@ -25,13 +25,15 @@ pip install coverage
 To add additional dependecies to CI, insert them in `requirements-dev.txt` file (inside *<requirements_path>* folder).
 
 ### Node.js
-To use locally, install these dependencies:
+To use locally, install Jest or similar:
 ```
-npm i -D jest @testing-library/jest-dom babel-jest @babel/core @babel/preset-env
+npm i -D jest jest-environment-jsdom @testing-library/react @testing-library/dom @testing-library/jest-dom
 ```
-To add React support, install:
+and after configuration add these scripts to your `package.json`:
 ```
-npm i -D @testing-library/jest-dom @testing-library/react
+scripts {
+    "test": "TZ=UTC jest ./tests --silent",
+}
 ```
 To launch:
 ```bash
@@ -50,7 +52,13 @@ pip install coverage
 To add additional dependecies to CI, insert them in `requirements-dev.txt` file (inside *<requirements_path>* folder).
 
 ### Node.js
-To use locally, install [test](#nodejs-1) dependencies, and run:
+To use locally, follow Tests configuration and add this scripts to your `package.json`:
+```
+scripts {
+    "test-coverage": "npm test -- --coverage=true",
+}
+```
+To launch:
 ```bash
 npm run test-coverage
 ```
