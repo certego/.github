@@ -19,11 +19,7 @@ and add these scripts to `package.json`:
     "lint-fix": "npm run lint -- --fix",
     "lint-scss": "stylelint --config $npm_package_config_stylelint '**/*.{css,scss}'",
     "lint-scss-fix": "npm run lint-scss -- --fix",
-<<<<<<< HEAD
     "formatter": "prettier --config $npm_package_config_prettier . --check",
-=======
-    "formatter": "prettier --config $npm_package_config_prettier --check",
->>>>>>> main
     "formatter-fix": "npm run formatter -- --write"
 },
 ```
