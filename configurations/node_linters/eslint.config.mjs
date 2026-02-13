@@ -14,6 +14,7 @@ const nextVitals = requireFromCwd('eslint-config-next/core-web-vitals');
 // eslint-plugin-import
 const compat = new FlatCompat({
     baseDirectory: import.meta.dirname,
+    resolvePluginsRelativeTo: process.cwd()
 });
 const eslintImport = [
     ...compat.config({
