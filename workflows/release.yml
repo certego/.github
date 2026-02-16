@@ -4,6 +4,15 @@ on:
   pull_request:
     types:
       - closed
+    branches:
+      - 'master'
+      - 'main'
+      - 'develop'
+      - 'test'
+  push:
+    branches:
+      - 'test'
+      - 'opentofu'
 
 # discard previous execution if you commit to a branch that is already running
 concurrency:
@@ -24,8 +33,6 @@ jobs:
       append_to_release: false
       branches_that_trigger_release: >-
        ["master", "main", "prod"]
-      repository: certego-test
       working_directory: .github/test/python_test
-      dockerfiles: >-
-        ["Dockerfile"]
+      docker_mapping: '[{ dockerfile: "docker/Dockerfile", repository: "test"}]'
       aws_region: eu-central-1

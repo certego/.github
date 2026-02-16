@@ -3,5 +3,9 @@ eslint
 @eslint/js
 eslint-config-next
 eslint-plugin-jest
+eslint-plugin-import
+eslint-import-resolver-next
+eslint-import-resolver-typescript
+eslint-plugin-jsdoc
 stylelint
 stylelint-config-standard-scss
