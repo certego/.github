@@ -36,7 +36,7 @@ runs:
       shell: bash
     - name: Restore pip cache
       id: restore_pip_cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         key: ${{ steps.generate_random_uuid.outputs.computed_uuid }}
         path: ${{ steps.get_pip_cache_directory.outputs.pip_cache_path }}

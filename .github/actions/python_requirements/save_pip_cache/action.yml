@@ -30,7 +30,7 @@ runs:
         echo "::debug::The pip cache path is $pip_cache_path"
       shell: bash
     - name: Save pip cache
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ steps.get_pip_cache_directory.outputs.pip_cache_path }}
         key: ${{ inputs.git_reference }}-pip-cache-${{ steps.generate_random_uuid.outputs.computed_uuid }}

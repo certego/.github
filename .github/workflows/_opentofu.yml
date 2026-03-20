@@ -22,7 +22,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Check out latest commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: tofu fmt ${{ matrix.directory }}
         uses: dflook/tofu-fmt-check@v2
