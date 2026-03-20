@@ -18,7 +18,7 @@ runs:
       with:
         file_paths: ${{ inputs.apt_requirements_file_path }}
     - name: Save APT cache
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: /var/cache/apt/archives/*.deb
         key: ${{ inputs.git_reference }}-apt-${{ steps.compute_apt_requirements_file_sha256_hash.outputs.computed_hash }}

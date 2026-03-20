@@ -45,7 +45,7 @@ runs:
       shell: bash
     
     - name: Restore APT cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       id: restore_apt_cache
       with:
         path: /var/cache/apt/archives/*.deb

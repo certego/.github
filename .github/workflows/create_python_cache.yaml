@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out latest commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Uncomment only if necessary
       #- name: Install system dependencies required by Python packages
@@ -33,7 +33,7 @@ jobs:
       #        sudo apt-get update && sudo apt install <package1> <package2>...
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
