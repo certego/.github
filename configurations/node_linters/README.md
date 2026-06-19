@@ -19,8 +19,8 @@ and add these scripts to `package.json`:
     "lint-fix": "npm run lint -- --fix",
     "lint-scss": "stylelint --config $npm_package_config_stylelint '**/*.{css,scss}'",
     "lint-scss-fix": "npm run lint-scss -- --fix",
-    "formatter": "prettier --config $npm_package_config_prettier --check",
-    "formatter-fix": "npm run formatter -- --write"
+    "format": "prettier --config $npm_package_config_prettier --check",
+    "format-fix": "npm run format -- --write"
 },
 ```
 
@@ -39,14 +39,9 @@ In `.vscode/settings.json`
 {
     "stylelint.validate": ["css", "less", "postcss", "scss"],
     "stylelint.snippet": ["css", "less", "postcss", "scss"],
-    "eslint.format.enable": true,
     "eslint.workingDirectories": ["./", "./functions"],
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
     "editor.formatOnSave": true,
-    "editor.semanticHighlighting.enabled": true,
     "eslint.options": {
         "overrideConfigFile": ".github/configurations/node_linters/eslint.config.mjs"
     },

@@ -12,6 +12,7 @@ Otherwise you can simply open an issue.
 
 
 ## 📖 Setup
+**VERY IMPORTANT**  
 CI files of base directory must be *hard linked* in the `.github/.github` folder, so they can be tested.
 Since GitHub is not able to store the fact that these files are hardlink, you need to restore it executing [this script](.github/hooks/post-merge) at every checkout.  
 From project root:

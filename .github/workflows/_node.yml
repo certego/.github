@@ -30,7 +30,7 @@ on:
         required: false
 
       use_eslint:
-        description: Use eslint formatter
+        description: Use eslint linter
         default: true
         type: boolean
         required: false
