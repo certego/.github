@@ -98,7 +98,7 @@ CI automatically installs and calls code analyzers this way:
 ```
 npm run lint
 npm run lint-scss
-npm run formatter
+npm run format
 ```
 For local installation and customization, see [here](configurations/node_linters/README.md)
 
