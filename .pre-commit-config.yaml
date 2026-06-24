@@ -17,7 +17,7 @@ repos:
         args: ["-c", ".github/configurations/python_linters/.bandit.yaml"]
 
 -   repo: https://github.com/pycqa/flake8
-    rev: 7.1.2
+    rev: 7.3.0
     hooks:
     - id: flake8
       exclude: docs/conf.py
@@ -27,13 +27,13 @@ repos:
       additional_dependencies: ["git+https://github.com/terencehonles/flake8-django.git@a6e369e89d275dfd5514f2aa9d091aa36c5ff84b"]
 
 -   repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+    rev: 8.0.1
     hooks:
       - id: isort
         args: ["--settings-path", ".github/configurations/python_linters/.isort.cfg", "--filter-files", "--skip", "venv"]
 
 -   repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 26.5.1
     hooks:
       - id: black
         args: ["--config", ".github/configurations/python_linters/.black"]
