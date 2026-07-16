@@ -287,10 +287,11 @@ jobs:
           apt_requirements_file_path: ${{ inputs.packages_path }}
           git_reference: ${{ github.base_ref }}
       
+      # Always refresh the APT index. Skipping this on an APT cache hit left a
+      # stale index, so `apt-get install` returned 404 when a pinned package
+      # version was rotated out of the mirror. The update is cheap; the cache
+      # still serves the .deb downloads.
       - name: Refresh APT repositories
-        if: >
-          steps.restore_apt_cache_pr.outputs.cache-hit != 'true' &&
-          steps.restore_apt_cache_target_branch.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
         shell: bash
