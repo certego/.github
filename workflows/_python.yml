@@ -513,7 +513,11 @@ jobs:
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
           
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test"
+                # No '-a' (append): it is incompatible with coverage parallel
+                # mode (concurrency=multiprocessing / parallel=true) used by
+                # projects that run the Django test suite with --parallel.
+                # A single coverage run does not need append anyway.
+                CMD="${CMD} manage.py test"
                 # manage manual tags
                 if [[ -n '${{ inputs.tags_for_manual_tests }}' ]]; then
                   for tag in ${{ inputs.tags_for_manual_tests }}; do
@@ -541,6 +545,18 @@ jobs:
           $CMD
         working-directory: ${{ inputs.working_directory }}
         env: ${{ secrets }}
+        shell: bash
+
+      - name: Combine coverage data
+        if: inputs.use_coverage && inputs.upload_coverage
+        run: |
+          # When coverage runs in parallel mode (concurrency=multiprocessing),
+          # each worker process writes its own .coverage.* file; merge them
+          # before reporting. No-op for projects not using parallel coverage.
+          if ls .coverage.* >/dev/null 2>&1; then
+            coverage combine
+          fi
+        working-directory: ${{ inputs.working_directory }}
         shell: bash
 
       - name: Create coverage output
