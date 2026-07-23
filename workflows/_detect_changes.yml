@@ -72,7 +72,7 @@ jobs:
         clean: false
 
     - name: Generate summary
-      if: ${{inputs.backend_directories != ''}} | ${{inputs.frontend_directories != ''}} | ${{inputs.infrastructure_directories != ''}}
+      if: ${{ inputs.backend_directories != '' || inputs.frontend_directories != '' || inputs.infrastructure_directories != '' }}
       run: |
         echo "### Detect Changes summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
