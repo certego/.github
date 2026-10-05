@@ -189,7 +189,7 @@ This workflow is run in the event of **a push on branches *main*, *master*, *dev
 
 The workflow is composed of a single job:
 
-1. **Create cache for Python dependencies** - This job, as described by its name, creates a cache for Python dependencies and stores it on GitHub. It runs as a matrix over the Python versions in the `PYTHON_VERSIONS` repository/organization variable, a JSON array of quoted versions (e.g. `["3.12", "3.14"]`), defaulting to `["3.12"]` when unset. It produces one virtual environment cache per version (the version is part of the cache key); keep the variable aligned with the `python_versions` passed to [**_python**](_python.yml). It is composed of four steps:
+1. **Create cache for Python dependencies** - This job, as described by its name, creates a cache for Python dependencies and stores it on GitHub. It runs as a matrix over the Python versions in the `PYTHON_VERSIONS` repository/organization variable, a JSON array of quoted versions (e.g. `["3.12", "3.14"]`), defaulting to `["3.12"]` when unset. It produces one virtual environment cache per version (the version is part of the cache key); [**CI**](pull_request_automation.yml) reads the same variable, so tests and caches use the same versions. It is composed of four steps:
    1. **Check out latest commit** - This step checks out the latest commit on the current branch for the repository.
    2. **Install system dependencies required by Python Packages** - **OPTIONAL** - Sometimes, Python packages require one or more system dependencies. For instance, `python-ldap` Python package requires `libldap2-dev` and `libsasl2-dev`, System dependencies, for a successful installation. This step allows user to install system dependencies required by Python packages.
    3. **Set up Python** - This step install Python on the runner.
@@ -206,7 +206,7 @@ It is composed of three jobs:
 
 1. **detect-changes** - This job detects and enumerates changes to backend and/or frontend files. To do so, it uses the [**_detect_changes**](_detect_changes.yml) workflow.
 2. **node** - If any changes to the frontend files are found, [**_node**](_node.yml) workflow is run.
-3. **python** - If any changes to the backend files are found, [**_python**](_python.yml) workflow is run.
+3. **python** - If any changes to the backend files are found, [**_python**](_python.yml) workflow is run, with *python_versions* read from the `PYTHON_VERSIONS` variable (default `["3.12"]`), the same one used by [**Create Python cache**](create_python_cache.yaml).
 
 ## [Release and publish](release.yml)
 

@@ -102,8 +102,8 @@ jobs:
       custom_command: whoami ; ls -la
       env: >-
         {"KEY": "VALUE"}
-      python_versions: >-
-        ["3.12", "3.14"]
+      # Same variable as create_python_cache.yaml, so cache and test versions match
+      python_versions: ${{ vars.PYTHON_VERSIONS || '["3.12"]' }}
       max_timeout: 15
       ubuntu_version: latest
 
