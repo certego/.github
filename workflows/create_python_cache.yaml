@@ -24,6 +24,8 @@ jobs:
     name: Create cache for Python dependencies (${{ matrix.python_version }})
     runs-on: ubuntu-latest
     strategy:
+      # A version that fails to build must not cancel the other caches
+      fail-fast: false
       matrix:
         python_version: ["3.12", "3.14"]
     steps:
