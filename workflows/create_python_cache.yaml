@@ -27,7 +27,8 @@ jobs:
       # A version that fails to build must not cancel the other caches
       fail-fast: false
       matrix:
-        python_version: ["3.12", "3.14"]
+        # JSON array of quoted versions, e.g. ["3.12", "3.14"]
+        python_version: ${{ fromJSON(vars.PYTHON_VERSIONS || '["3.12"]') }}
     steps:
       - name: Check out latest commit
         uses: actions/checkout@v5
