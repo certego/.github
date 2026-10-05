@@ -21,8 +21,11 @@ concurrency:
 
 jobs:
   create-python-cache:
-    name: Create cache for Python dependencies
+    name: Create cache for Python dependencies (${{ matrix.python_version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.12", "3.14"]
     steps:
       - name: Check out latest commit
         uses: actions/checkout@v5
@@ -35,7 +38,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python_version }}
 
       - name: Set up Python virtual environment
         uses: ./.github/actions/python_requirements/create_virtualenv

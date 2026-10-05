@@ -4,16 +4,19 @@ This action restores a Python virtual environment from GitHub's cache.
 
 Combined with [**save_virtualenv**](../save_virtualenv/README.md), **it helps save time by avoiding the installation of Python requirements**.
 
-The action is composed of three steps:
+The action is composed of four steps:
 
 1. **Compute requirements files SHA256 hash** - This step uses [**misc/compute_files_hash**](../../misc/compute_files_hash/README.md) action to compute a single SHA256 hash of the files described by the *requirements_paths*. The computed SHA256 hash will be part of the cache key.
-2. **Restore virtual environment** - This step does the heavy lifting of restoring the virtual environment from GitHub's cache. It uses the GitHub's [**cache/restore**](https://github.com/actions/cache/blob/main/restore/README.md) action with the following parameters:
+2. **Get Python version** - This step reads the `major.minor` version (e.g. `3.14`) of the active Python interpreter. It will be part of the cache key, so a virtual environment built with a different Python version is never restored.
+3. **Restore virtual environment** - This step does the heavy lifting of restoring the virtual environment from GitHub's cache. It uses the GitHub's [**cache/restore**](https://github.com/actions/cache/blob/main/restore/README.md) action with the following parameters:
    * **path** - A list of files, directories, or paths to restore - set to the virtual environment path input variable *virtual_environment_path*.
-   * **key** - An explicit key for a cache entry - set to the combination of three strings:
+   * **key** - An explicit key for a cache entry - set to the combination of five strings:
       * *git_reference*, provided as an input to the action.
-      * A static part, `-venv-`
+      * A static part, `-venv-py`
+      * The Python `major.minor` version, e.g. `3.14`.
+      * A dash, `-`
       * The previously computed SHA256 hash of the requirements files.
-3. **Activate restored virtual environment** - If the Python virtual environment was found in the GitHub's cache, it needs to be activated. This is performed using [**python_requirements/create_virtualenv**](../create_virtualenv/README.md) action with the following parameters:
+4. **Activate restored virtual environment** - If the Python virtual environment was found in the GitHub's cache, it needs to be activated. This is performed using [**python_requirements/create_virtualenv**](../create_virtualenv/README.md) action with the following parameters:
    * **virtualenv_path** - set to the Python virtual environment path.
    * **activate_only** - set to true because it doesn't need to be created.
 

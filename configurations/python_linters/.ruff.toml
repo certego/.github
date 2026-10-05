@@ -20,6 +20,7 @@ respect-gitignore = false
 
 show-fixes = true
 
+# Minimum supported version (also covers 3.14); override with --target-version for newer-only projects
 target-version = "py312"
 
 # Format settings level

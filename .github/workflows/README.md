@@ -189,7 +189,7 @@ This workflow is run in the event of **a push on branches *main*, *master*, *dev
 
 The workflow is composed of a single job:
 
-1. **Create cache for Python dependencies** - This job, as described by its name, creates a cache for Python dependencies and stores it on GitHub. It is composed of four steps:
+1. **Create cache for Python dependencies** - This job, as described by its name, creates a cache for Python dependencies and stores it on GitHub. It runs as a matrix over Python `3.12` and `3.14`, producing one virtual environment cache per version (the version is part of the cache key). It is composed of four steps:
    1. **Check out latest commit** - This step checks out the latest commit on the current branch for the repository.
    2. **Install system dependencies required by Python Packages** - **OPTIONAL** - Sometimes, Python packages require one or more system dependencies. For instance, `python-ldap` Python package requires `libldap2-dev` and `libsasl2-dev`, System dependencies, for a successful installation. This step allows user to install system dependencies required by Python packages.
    3. **Set up Python** - This step install Python on the runner.

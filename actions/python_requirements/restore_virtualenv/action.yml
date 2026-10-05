@@ -27,12 +27,17 @@ runs:
       with:
         file_paths: ${{ inputs.requirements_paths }}
 
+    - name: Get Python version
+      id: get_python_version
+      shell: bash
+      run: echo "python_version=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')" >> "$GITHUB_OUTPUT"
+
     - name: Restore virtual environment
       id: restore_virtual_environment
       uses: actions/cache/restore@v5
       with:
         path: ${{ inputs.virtual_environment_path }}
-        key: ${{ inputs.git_reference }}-venv-${{ steps.compute_requirements_files_sha256_hash.outputs.computed_hash }}
+        key: ${{ inputs.git_reference }}-venv-py${{ steps.get_python_version.outputs.python_version }}-${{ steps.compute_requirements_files_sha256_hash.outputs.computed_hash }}
     
     - name: Activate restored virtual environment
       if: >

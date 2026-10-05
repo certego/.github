@@ -103,7 +103,7 @@ jobs:
       env: >-
         {"KEY": "VALUE"}
       python_versions: >-
-        ["3.12"]
+        ["3.12", "3.14"]
       max_timeout: 15
       ubuntu_version: latest
 
