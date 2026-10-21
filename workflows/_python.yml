@@ -45,6 +45,11 @@ on:
         type: boolean
         required: false
         default: true
+      free_disk_space:
+        description: On a virtualenv cache miss, delete unused runner toolchains (~30-70s) before installing requirements, for projects whose requirements fill the runner disk.
+        type: boolean
+        required: false
+        default: false
       cache_key:
         description: >
           Prefix of the venv and APT cache keys. Empty keeps the per-ref behaviour (PR ref, then base_ref fallback).
@@ -420,6 +425,7 @@ jobs:
       # Only on a venv miss: the install can fill the runner disk, and the rm costs 30-70s.
       - name: Free disk space
         if: >
+          inputs.free_disk_space &&
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' &&
           steps.restore_python_virtual_environment_target_branch.outputs.cache-hit != 'true'
         run: |
