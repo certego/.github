@@ -6,7 +6,7 @@
 #### Bugfix
 * `_node.yml`: Jest step keeps its exit code when coverage is uploaded (failing tests used to go green) and its output stays in the job log.
 #### Changes
-* `_python.yml`: the license check is its own job (`Check requirements licenses`, add it to required checks; it now runs on every run, not only on a venv cache miss), the virtualenv is installed with `uv`.
+* `_python.yml`: the license check is its own job (`Check requirements licenses`, add it to required checks; it now runs on every run, not only on a venv cache miss), the virtualenv is installed with `uv` and has no `pip` (custom commands must use `uv pip`).
 * `actions/services`: postgres healthcheck is now 1s x 60 retries instead of 10s x 5.
 
 ## 2.0.x

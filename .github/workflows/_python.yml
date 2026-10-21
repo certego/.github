@@ -444,8 +444,6 @@ jobs:
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
         run: |
-          # uv venvs ship without pip; callers' custom commands may still call it
-          uv pip install pip
           uv pip install -r requirements-dev.txt
           uv pip install -r requirements-linters.txt
           uv pip install -r requirements-docs.txt
