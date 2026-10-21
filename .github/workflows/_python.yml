@@ -40,6 +40,18 @@ on:
         type: number
         required: false
         default: 30
+      run_tests:
+        description: Run linters, CodeQL, docs, migrations check, tests and coverage. When false only installs requirements and warms the caches.
+        type: boolean
+        required: false
+        default: true
+      cache_key:
+        description: >
+          Prefix of the venv and APT cache keys. Empty keeps the per-ref behaviour (PR ref, then base_ref fallback).
+          Set (e.g. `ci`) to share one cache across refs, warmed by a default-branch push with run_tests false.
+        type: string
+        required: false
+        default: ''
 
       # Formatters
       use_black:
@@ -198,6 +210,11 @@ on:
       
 
       # Django configs
+      use_db_snapshot:
+        description: Cache a pg_dump of the migrated database keyed on the migration files and run tests with --keepdb. Requires use_postgres and django_settings_module.
+        type: boolean
+        required: false
+        default: false
       django_settings_module:
         description: Path to the django settings file
         type: string
@@ -226,6 +243,14 @@ on:
         default: manual
         type: string
         required: false
+      test_parallelism:
+        description: >
+          Value passed to `manage.py test --parallel` (e.g. `auto` or a number). Empty, the default, runs serially.
+          Opt in only if the suite is parallel-safe: workers get their own cloned database but share every other service.
+          Can be used only for django projects.
+        default: ''
+        type: string
+        required: false
 
       # Misc configs
       custom_command:
@@ -243,6 +268,36 @@ on:
         required: false
 
 jobs:
+  # Own job: a Docker action's image is built at job setup even when the step's `if` is false.
+  licenses:
+    name: Check requirements licenses
+    if: inputs.check_requirements_licenses
+    runs-on: ubuntu-${{ inputs.ubuntu_version }}
+    steps:
+      - name: Check out latest commit
+        uses: actions/checkout@v5
+
+      - name: Check requirements licenses
+        id: license_check_report
+        continue-on-error: true
+        uses: pilosus/action-pip-license-checker@v2
+        with:
+          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
+          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
+          headers: true
+          fail: 'StrongCopyleft,NetworkCopyleft,Error'
+          fails-only: true
+
+      - name: Print wrong licenses
+        if: steps.license_check_report.outcome == 'failure'
+        run: |
+          echo "License check failed"
+          echo "===================="
+          echo "${{ steps.license_check_report.outputs.report }}"
+          echo "===================="
+          exit 1
+        shell: bash
+
   python:
     name: Run python test suite
     runs-on: ubuntu-${{ inputs.ubuntu_version }}
@@ -278,10 +333,11 @@ jobs:
         uses: ./.github/actions/apt_requirements/restore_apt_cache
         with:
           apt_requirements_file_path: ${{ inputs.packages_path }}
+          git_reference: ${{ inputs.cache_key || github.ref_name }}
       
       - name: Restore APT cache related to target branch
         id: restore_apt_cache_target_branch
-        if: steps.restore_apt_cache_pr.outputs.cache-hit != 'true'
+        if: steps.restore_apt_cache_pr.outputs.cache-hit != 'true' && inputs.cache_key == ''
         uses: ./.github/actions/apt_requirements/restore_apt_cache
         with:
           apt_requirements_file_path: ${{ inputs.packages_path }}
@@ -307,6 +363,7 @@ jobs:
         uses: ./.github/actions/apt_requirements/save_apt_cache
         with:
           apt_requirements_file_path: ${{ inputs.packages_path }}
+          git_reference: ${{ inputs.cache_key || github.ref_name }}
 
       - name: Create linter requirements file
         uses: ./.github/actions/python_requirements/create_linter_requirements_file
@@ -335,48 +392,45 @@ jobs:
           check_docs_directory: ${{ inputs.check_docs_directory }}
           django_settings_module: ${{ inputs.django_settings_module }}
 
+      # setup-uv's `activate-environment` runs `uv venv --clear`, so the venv restore must come after it.
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.3.1
+        with:
+          python-version: ${{ matrix.python_version }}
+          activate-environment: "true"
+          github-token: ${{ github.token }}
+          # Off: the venv cache is the fast path, and on a venv hit the uv cache post step fails on a missing dir.
+          enable-cache: "false"
+
       - name: Restore Python virtual environment related to PR event
         id: restore_python_virtual_environment_pr
         uses: ./.github/actions/python_requirements/restore_virtualenv/
         with:
           requirements_paths: "${{ inputs.requirements_path }} requirements-linters.txt requirements-dev.txt requirements-docs.txt"
+          git_reference: ${{ inputs.cache_key || github.ref_name }}
 
       - name: Restore Python virtual environment related to target branch
         id: restore_python_virtual_environment_target_branch
-        if: steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
+        if: steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' && inputs.cache_key == ''
         uses: ./.github/actions/python_requirements/restore_virtualenv/
         with:
           requirements_paths: ${{ inputs.requirements_path }}
           git_reference: ${{ github.base_ref }}
 
-      - name: Create Python virtual environment
-        if: >
-         steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' && 
-         steps.restore_python_virtual_environment_target_branch.outputs.cache-hit != 'true'
-        uses: ./.github/actions/python_requirements/create_virtualenv
-
-      - name: Restore pip cache related to PR event
-        id: restore_pip_cache_pr
-        if: > 
-          steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' && 
-          steps.restore_python_virtual_environment_target_branch.outputs.cache-hit != 'true'
-        uses: ./.github/actions/python_requirements/restore_pip_cache
-
-      - name: Restore pip cache related to target branch
-        id: restore_pip_cache_target_branch
+      # Only on a venv miss: the install can fill the runner disk, and the rm costs 30-70s.
+      - name: Free disk space
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' &&
-          steps.restore_python_virtual_environment_target_branch.outputs.cache-hit != 'true' &&
-          steps.restore_pip_cache_pr.outputs.cache-hit != 'true'
-        uses: ./.github/actions/python_requirements/restore_pip_cache
-        with:
-          git_reference: ${{ github.base_ref }}
-      
+          steps.restore_python_virtual_environment_target_branch.outputs.cache-hit != 'true'
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/share/swift
+        shell: bash
+
       - name: Install project requirements
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' &&
           steps.restore_python_virtual_environment_target_branch.outputs.cache-hit != 'true'
-        run: pip install -r ${{ inputs.requirements_path }}
+        run: uv pip install -r ${{ inputs.requirements_path }}
         shell: bash
         working-directory: ${{ inputs.install_from }}
 
@@ -384,35 +438,11 @@ jobs:
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
         run: |
-          pip install -r requirements-dev.txt
-          pip install -r requirements-linters.txt
-          pip install -r requirements-docs.txt
+          uv pip install -r requirements-dev.txt
+          uv pip install -r requirements-linters.txt
+          uv pip install -r requirements-docs.txt
         shell: bash
         working-directory: ${{ inputs.install_from }}
-
-      - name: Check requirements licenses
-        if: >
-            inputs.check_requirements_licenses && 
-            steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
-        id: license_check_report
-        continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v2
-        with:
-          requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
-          exclude: ${{ inputs.ignore_requirements_licenses_regex }}
-          headers: true
-          fail: 'StrongCopyleft,NetworkCopyleft,Error'
-          fails-only: true
-
-      - name: Print wrong licenses
-        if: steps.license_check_report.outcome == 'failure'
-        run: |
-          echo "License check failed"
-          echo "===================="
-          echo "${{ steps.license_check_report.outputs.report }}"
-          echo "===================="
-          exit 1
-        shell: bash
 
       - name: Save Python virtual environment related to PR event
         if: >
@@ -420,16 +450,12 @@ jobs:
         uses: ./.github/actions/python_requirements/save_virtualenv
         with:
           requirements_paths: "${{ inputs.requirements_path }} requirements-linters.txt requirements-dev.txt requirements-docs.txt"
-
-      - name: Save pip cache related to PR event
-        if: >
-          steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true' &&
-          steps.restore_pip_cache_pr.outputs.cache-hit != 'true'
-        uses: ./.github/actions/python_requirements/save_pip_cache
+          git_reference: ${{ inputs.cache_key || github.ref_name }}
 
       - name: Run linters
         uses: ./.github/actions/python_linter
-        if: > 
+        if: >
+          inputs.run_tests && (
           inputs.use_black ||
           inputs.use_isort ||
           inputs.use_flake8 ||
@@ -437,7 +463,7 @@ jobs:
           inputs.use_bandit ||
           inputs.use_autoflake ||
           inputs.use_ruff_formatter ||
-          inputs.use_ruff_linter
+          inputs.use_ruff_linter )
         with:
           working_directory: ${{ inputs.working_directory }}
           use_black: ${{ inputs.use_black }}
@@ -450,14 +476,14 @@ jobs:
           use_ruff_linter: ${{ inputs.use_ruff_linter }}
 
       - name: Run CodeQL
-        if: inputs.run_codeql
+        if: inputs.run_tests && inputs.run_codeql
         uses: ./.github/actions/codeql
         with:
           language: python
           working_directory: ${{ inputs.working_directory }}
 
       - name: Build Docs
-        if: inputs.check_docs_directory
+        if: inputs.run_tests && inputs.check_docs_directory
         run: |
           rstcheck -r  --report-level error --ignore-directives automodule,autoclass .
           python3 -m sphinx -a -T -E -b html -d  _build/doctrees -D language=en . _build/html
@@ -491,6 +517,40 @@ jobs:
           celery -A ${{ inputs.celery_app }} worker -E -c 1 -n worker -Q ${{ inputs.celery_queues }} --detach
         working-directory: ${{ inputs.working_directory }}
 
+      - name: Cache Database State
+        id: db-cache
+        if: inputs.use_db_snapshot
+        uses: actions/cache@v5
+        with:
+          path: db-snapshot.sql
+          key: ${{ runner.os }}-db-${{ github.event_name }}-${{ hashFiles('**/migrations/0*.py') }}
+          # Newest push (warm-up) snapshot only, never an older PR one that could hold a since-edited migration.
+          restore-keys: ${{ runner.os }}-db-push-
+
+      - name: Restore Database from Cache
+        # An exact or restore-keys match both leave the snapshot on disk.
+        if: inputs.use_db_snapshot && hashFiles('db-snapshot.sql') != ''
+        run: |
+          # Seeds the live and test DB so `--keepdb` skips migrations; `-i` is required or the redirect is a silent no-op.
+          docker exec -i postgres psql -U "$PG_USER" -d "$PG_DB" < db-snapshot.sql
+          # A migration applied in the snapshot but gone from disk (renamed, squashed): migrate from zero instead.
+          find . -path ./.venv -prune -o -path '*/migrations/0*.py' -print | awk -F/ '{sub(/\.py$/, "", $NF); print $(NF-2) "/" $NF}' | sort > "$RUNNER_TEMP/on_disk"
+          apps=$(cut -d/ -f1 "$RUNNER_TEMP/on_disk" | sort -u | paste -sd'|')
+          stale=$(docker exec postgres psql -U "$PG_USER" -d "$PG_DB" -Atc "SELECT app || '/' || name FROM django_migrations" \
+            | awk -v re="^($apps)/" '$0 ~ re' | sort | comm -23 - "$RUNNER_TEMP/on_disk")
+          if [[ -n "$stale" ]]; then
+            echo "::notice::DB snapshot holds migrations missing on disk, migrating from zero: $stale"
+            docker exec postgres dropdb -U "$PG_USER" "$PG_DB"
+            docker exec postgres createdb -U "$PG_USER" "$PG_DB"
+            exit 0
+          fi
+          docker exec postgres createdb -U "$PG_USER" "test_${PG_DB}" || true
+          docker exec -i postgres psql -U "$PG_USER" -d "test_${PG_DB}" < db-snapshot.sql
+        env:
+          PG_USER: ${{ inputs.postgres_user }}
+          PG_DB: ${{ inputs.postgres_db }}
+        shell: bash
+
       - name: Run custom command
         if: inputs.custom_command
         run: |
@@ -500,14 +560,28 @@ jobs:
         working-directory: ${{ inputs.working_directory }}
         shell: bash
 
+      - name: Store cache
+        if: inputs.use_db_snapshot && steps.db-cache.outputs.cache-hit != 'true'
+        run: |
+          docker exec postgres pg_dump -U "$PG_USER" -d "$PG_DB" > db-snapshot.sql
+          # Seed the test DB too, so `--keepdb` skips migrations on this cache-miss run as well.
+          docker exec postgres dropdb -U "$PG_USER" --if-exists "test_${PG_DB}"
+          docker exec postgres createdb -U "$PG_USER" "test_${PG_DB}"
+          docker exec -i postgres psql -U "$PG_USER" -d "test_${PG_DB}" < db-snapshot.sql
+        env:
+          PG_USER: ${{ inputs.postgres_user }}
+          PG_DB: ${{ inputs.postgres_db }}
+        shell: bash
+
       - name: Check migrations
-        if: inputs.check_migrations && inputs.django_settings_module
+        if: inputs.run_tests && inputs.check_migrations && inputs.django_settings_module
         run: |
           django-admin makemigrations --dry-run >/dev/null
         working-directory: ${{ inputs.working_directory }}
         shell: bash
 
       - name: Run unittest
+        if: inputs.run_tests
         run: |
           CMD="python"
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
@@ -519,6 +593,12 @@ jobs:
                 # projects that run the Django test suite with --parallel.
                 # A single coverage run does not need append anyway.
                 CMD="${CMD} manage.py test"
+                if [[ '${{ inputs.use_db_snapshot }}' == 'true' ]]; then
+                  CMD="${CMD} --keepdb"
+                fi
+                if [[ -n '${{ inputs.test_parallelism }}' ]]; then
+                  CMD="${CMD} --parallel=${{ inputs.test_parallelism }}"
+                fi
                 # manage manual tags
                 if [[ -n '${{ inputs.tags_for_manual_tests }}' ]]; then
                   for tag in ${{ inputs.tags_for_manual_tests }}; do
@@ -549,7 +629,7 @@ jobs:
         shell: bash
 
       - name: Combine coverage data
-        if: inputs.use_coverage && inputs.upload_coverage
+        if: inputs.run_tests && inputs.use_coverage && inputs.upload_coverage
         run: |
           # When coverage runs in parallel mode (concurrency=multiprocessing),
           # each worker process writes its own .coverage.* file; merge them
@@ -561,7 +641,7 @@ jobs:
         shell: bash
 
       - name: Create coverage output
-        if: inputs.use_coverage && inputs.upload_coverage
+        if: inputs.run_tests && inputs.use_coverage && inputs.upload_coverage
         id: coverage-output
         run: |
           echo "Uploading coverage.py report"

@@ -88,9 +88,10 @@ runs:
             echo "      - 5432:5432" >> postgres.yml
             echo "    healthcheck:" >> postgres.yml
             echo "      test: pg_isready" >> postgres.yml
-            echo "      interval: 10s" >> postgres.yml
+            # 1s interval: the first probe fires only after one interval, and 60 retries keep a slow cold start tolerated.
+            echo "      interval: 1s" >> postgres.yml
             echo "      timeout: 5s" >> postgres.yml
-            echo "      retries: 5" >> postgres.yml
+            echo "      retries: 60" >> postgres.yml
           shell:
             bash
 

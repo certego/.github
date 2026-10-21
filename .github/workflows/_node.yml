@@ -151,6 +151,7 @@ jobs:
         if: ${{ inputs.use_jest }}
         id: jest-tests
         run: |
+          set -o pipefail
           if [[ '${{ inputs.use_coverage }}' != 'false' ]]; then
             CMD="npm test -- --silent --coverage"
           else
@@ -160,9 +161,13 @@ jobs:
           if [[ '${{ inputs.use_coverage }}' != 'false' ]] && [[ '${{ inputs.upload_coverage }}' != 'false' ]]; then
             echo "Uploading jest coverage report"
             echo "## Jest coverage report" >> $GITHUB_STEP_SUMMARY
-            echo "$($CMD | grep -Ev "^(>|$)")" > jest-coverage.txt
-            head -n -1 jest-coverage.txt | tail -n +2 >> $GITHUB_STEP_SUMMARY
+            set +e
+            $CMD 2>&1 | tee jest-coverage.txt
+            TEST_EXIT_CODE=${PIPESTATUS[0]}
+            set -e
+            grep -Ev "^(>|$)" jest-coverage.txt | head -n -1 | tail -n +2 >> $GITHUB_STEP_SUMMARY || true
             rm jest-coverage.txt
+            exit $TEST_EXIT_CODE
           else
             $CMD
           fi

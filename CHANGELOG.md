@@ -1,3 +1,14 @@
+## Unreleased
+#### Features
+* `_python.yml`: new opt-in inputs `run_tests` (default `true`; `false` only warms caches), `cache_key` (share venv/APT caches across refs), `use_db_snapshot` (cached `pg_dump` + `--keepdb`) and `test_parallelism` (`manage.py test --parallel`).
+* `_release_and_tag.yml`: optional per-image `docker_mapping[].context`, falling back to `working_directory`.
+* Documented recommended caller patterns in `workflows/README.md`.
+#### Bugfix
+* `_node.yml`: Jest step keeps its exit code when coverage is uploaded (failing tests used to go green) and its output stays in the job log.
+#### Changes
+* `_python.yml`: the license check is its own job, the virtualenv is installed with `uv`, and disk space is freed only on a virtualenv cache miss.
+* `actions/services`: postgres healthcheck is now 1s x 60 retries instead of 10s x 5.
+
 ## 2.0.x
 ### 2.0.1
 #### Features
