@@ -165,14 +165,14 @@ It is composed of two jobs:
 * **postgres_version** - Optional - PostgresDB's container version. Requires *use_postgres* to be true. By default, it is set to `latest`.
 * **rabbitmq_version** - Optional - RabbitMQ's container version. Requires *use_rabbitmq* to be true. By default, it is set to `latest`.
 * **redis_version** - Optional - Redis' container version. Requires *use_redis* to be true. By default, it is set to `latest`.
-* **use_db_snapshot** - Optional - Whether to cache a `pg_dump` of the migrated database keyed on the migration files and run tests with `--keepdb`. Requires *use_postgres* and *django_settings_module*. By default, it is set to `false`.
+* **use_db_snapshot** - Optional - Whether to cache a `pg_dump` of the migrated database keyed on the migration files and run tests with `--keepdb`. Requires *use_postgres*, *django_settings_module*, *use_coverage* (the non-coverage path runs `unittest discover`, ignoring it) and a *custom_command* that runs `migrate`. Uses `dropdb --force`, so Postgres 13+. By default, it is set to `false`.
 * **django_settings_module** - Optional - Path to the Django settings file. By default, it is set to an empty string.
 * **check_migrations** - Optional - Whether to check that the project's migrations are valid. Requires *django_settings_module* to be set. By default, it is set to `false`.
 * **check_requirements_licenses** - Optional - Whether to check that the requirements license is valid. Requires *django_settings_module* to be set. By default, it is set to `true`.
 * **ignore_requirements_licenses_regex** - Optional - A regex that describes which directories should be ignored when checking the validity of requirements licenses. By default, it is set to `uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*`.
 * **tags_for_slow_tests** - Optional - A space separated list of tags for tests that will only be run on the master/main branch. **Works only for Django projects**. By default, it is set to an `slow`.
 * **tags_for_manual_tests** - Optional - A space separated list of tags for tests that will only be run **manually** (CI will ignore them). **Works only for Django projects**. By default, it is set to `manual`.
-* **test_parallelism** - Optional - Value passed to `manage.py test --parallel` (e.g. `auto` or a number). Empty runs serially. Opt in only if the suite is parallel-safe. **Works only for Django projects**. By default, it is set to an empty string.
+* **test_parallelism** - Optional - Value passed to `manage.py test --parallel` (e.g. `auto` or a number). Empty runs serially. Opt in only if the suite is parallel-safe. **Works only for Django projects with *use_coverage***. By default, it is set to an empty string.
 * **custom_command** - Optional - A custom bash command to run. By default, it is set to an empty string.
 * **check_docs_directory** - Optional - Path to the documentation directory in which `rstcheck` will be run to check documentation files. By default, it is set to an empty string.
 * **check_dockerfile** - Optional - Path to a Dockerfile to be checked. **Warning: if set it may significantly increase the action time**. By default, it is set to an empty string.

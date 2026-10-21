@@ -271,7 +271,7 @@ jobs:
   # Own job: a Docker action's image is built at job setup even when the step's `if` is false.
   licenses:
     name: Check requirements licenses
-    if: inputs.check_requirements_licenses
+    if: inputs.run_tests && inputs.check_requirements_licenses
     runs-on: ubuntu-${{ inputs.ubuntu_version }}
     steps:
       - name: Check out latest commit
@@ -438,6 +438,8 @@ jobs:
         if: >
           steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
         run: |
+          # uv venvs ship without pip; callers' custom commands may still call it
+          uv pip install pip
           uv pip install -r requirements-dev.txt
           uv pip install -r requirements-linters.txt
           uv pip install -r requirements-docs.txt
@@ -523,7 +525,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: db-snapshot.sql
-          key: ${{ runner.os }}-db-${{ github.event_name }}-${{ hashFiles('**/migrations/0*.py') }}
+          key: ${{ runner.os }}-db-${{ github.event_name }}-${{ hashFiles('**/migrations/0*.py', '!.venv/**') }}
           # Newest push (warm-up) snapshot only, never an older PR one that could hold a since-edited migration.
           restore-keys: ${{ runner.os }}-db-push-
 
@@ -532,7 +534,7 @@ jobs:
         if: inputs.use_db_snapshot && hashFiles('db-snapshot.sql') != ''
         run: |
           # Seeds the live and test DB so `--keepdb` skips migrations; `-i` is required or the redirect is a silent no-op.
-          docker exec -i postgres psql -U "$PG_USER" -d "$PG_DB" < db-snapshot.sql
+          docker exec -i postgres psql -v ON_ERROR_STOP=1 -U "$PG_USER" -d "$PG_DB" < db-snapshot.sql
           # A migration applied in the snapshot but gone from disk (renamed, squashed): migrate from zero instead.
           find . -path ./.venv -prune -o -path '*/migrations/0*.py' -print | awk -F/ '{sub(/\.py$/, "", $NF); print $(NF-2) "/" $NF}' | sort > "$RUNNER_TEMP/on_disk"
           apps=$(cut -d/ -f1 "$RUNNER_TEMP/on_disk" | sort -u | paste -sd'|')
@@ -540,12 +542,12 @@ jobs:
             | awk -v re="^($apps)/" '$0 ~ re' | sort | comm -23 - "$RUNNER_TEMP/on_disk")
           if [[ -n "$stale" ]]; then
             echo "::notice::DB snapshot holds migrations missing on disk, migrating from zero: $stale"
-            docker exec postgres dropdb -U "$PG_USER" "$PG_DB"
+            docker exec postgres dropdb --force -U "$PG_USER" "$PG_DB"
             docker exec postgres createdb -U "$PG_USER" "$PG_DB"
             exit 0
           fi
           docker exec postgres createdb -U "$PG_USER" "test_${PG_DB}" || true
-          docker exec -i postgres psql -U "$PG_USER" -d "test_${PG_DB}" < db-snapshot.sql
+          docker exec -i postgres psql -v ON_ERROR_STOP=1 -U "$PG_USER" -d "test_${PG_DB}" < db-snapshot.sql
         env:
           PG_USER: ${{ inputs.postgres_user }}
           PG_DB: ${{ inputs.postgres_db }}
@@ -567,7 +569,7 @@ jobs:
           # Seed the test DB too, so `--keepdb` skips migrations on this cache-miss run as well.
           docker exec postgres dropdb -U "$PG_USER" --if-exists "test_${PG_DB}"
           docker exec postgres createdb -U "$PG_USER" "test_${PG_DB}"
-          docker exec -i postgres psql -U "$PG_USER" -d "test_${PG_DB}" < db-snapshot.sql
+          docker exec -i postgres psql -v ON_ERROR_STOP=1 -U "$PG_USER" -d "test_${PG_DB}" < db-snapshot.sql
         env:
           PG_USER: ${{ inputs.postgres_user }}
           PG_DB: ${{ inputs.postgres_db }}
