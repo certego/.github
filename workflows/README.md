@@ -76,9 +76,10 @@ It is composed of nine steps:
 
 This sub workflow runs Python linters and tests against the codebase.
 
-It is composed of one job:
+It is composed of two jobs:
 
-1. **python** - This job is composed of thirty-one steps:
+1. **licenses** - Runs only if *check_requirements_licenses* is true. Checks the requirements licenses with [**pilosus/action-pip-license-checker**](https://github.com/pilosus/action-pip-license-checker), printing the offending licenses on failure. It is its own job because GitHub builds a Docker action's image during job setup even when the step is skipped.
+2. **python** - This job is composed of the steps below. Only when *run_tests* is true do linters, CodeQL, docs, migrations check, tests and coverage output run; otherwise the job just installs requirements and warms the caches. The virtualenv is installed with [**uv**](https://github.com/astral-sh/setup-uv) (`uv pip install`) instead of pip, the virtualenv cache is restored after setup-uv, and *Free disk space* runs only when *free_disk_space* is true and on a virtualenv cache miss. The pip cache and `create_virtualenv` steps are no longer used here (the actions are kept for consumers). When *cache_key* is set, it is used as `git_reference` for the APT and virtualenv caches and the target branch fallbacks are skipped. When *use_db_snapshot* is true, the steps **Cache Database State**, **Restore Database from Cache** and **Store cache** run around **Run custom command**: the migrated database is dumped with `pg_dump` (container `postgres`, using *postgres_user*/*postgres_db*), cached by the hash of the migration files, restored (live and `test_` database) on the next run, and `manage.py test` gets `--keepdb`. The snapshot falls back to the newest `push` snapshot (`<os>-db-push-` restore key), so it is warmed by push runs; a snapshot holding migrations missing on disk is discarded and the database is migrated from zero.
    1. **Check out latest commit** - Checks out the latest commit on the current branch of the repository using the GitHub's [**checkout**](https://github.com/actions/checkout) action.
    2. **Set up Python** - Sets up Python on the runner machine using GitHub's [**setup-python**](https://github.com/actions/setup-python) action with the following parameter:
       1. **python-version** - Which Python version to use - It is set according to the *python_versions* input variable.
@@ -131,6 +132,9 @@ It is composed of one job:
 * **packages_path** - Optional - Path to the APT requirements file of the Python project. By default, it is set to an empty string.
 * **env** - Optional - A JSON object containing a set of environment variables to be added to the system's environment. By default, it is set to an empty JSON object `{}`.
 * **max_timeout** - Optional - Maximum amount of time (in minutes) the workflow is allowed to run. By default, it is set to `30`.
+* **run_tests** - Optional - Whether to run linters, CodeQL, docs, migrations check, tests and coverage output. When `false` only requirements are installed and caches are warmed. By default, it is set to `true`.
+* **free_disk_space** - Optional - Whether to delete unused runner toolchains (Android SDK, .NET, GHC, Swift; ~30-70s) on a virtualenv cache miss, for projects whose requirements do not fit on the runner disk. By default, it is set to `false`.
+* **cache_key** - Optional - Prefix of the virtualenv and APT cache keys. Empty keeps the per-ref behaviour (PR ref, then target branch fallback); when set (e.g. `ci`) one cache is shared across refs and the fallback is skipped. By default, it is set to an empty string.
 * **use_black** - Optional - Whether to use black formatter. By default, it is set to `false`.
 * **use_isort** - Optional - Whether to use isort formatter. By default, it is set to `false`.
 * **use_ruff_formatter** - Optional - Whether to use ruff formatter. By default, it is set to `false`.
@@ -162,12 +166,14 @@ It is composed of one job:
 * **postgres_version** - Optional - PostgresDB's container version. Requires *use_postgres* to be true. By default, it is set to `latest`.
 * **rabbitmq_version** - Optional - RabbitMQ's container version. Requires *use_rabbitmq* to be true. By default, it is set to `latest`.
 * **redis_version** - Optional - Redis' container version. Requires *use_redis* to be true. By default, it is set to `latest`.
+* **use_db_snapshot** - Optional - Whether to cache a `pg_dump` of the migrated database keyed on the migration files and run tests with `--keepdb`. Requires *use_postgres*, *django_settings_module*, *use_coverage* (the non-coverage path runs `unittest discover`, ignoring it) and a *custom_command* that runs `migrate`. Uses `dropdb --force`, so Postgres 13+. By default, it is set to `false`.
 * **django_settings_module** - Optional - Path to the Django settings file. By default, it is set to an empty string.
 * **check_migrations** - Optional - Whether to check that the project's migrations are valid. Requires *django_settings_module* to be set. By default, it is set to `false`.
 * **check_requirements_licenses** - Optional - Whether to check that the requirements license is valid. Requires *django_settings_module* to be set. By default, it is set to `true`.
 * **ignore_requirements_licenses_regex** - Optional - A regex that describes which directories should be ignored when checking the validity of requirements licenses. By default, it is set to `uWSGI.*|lunardate.*|.*QuokkaClient.*|pyquokka.*`.
 * **tags_for_slow_tests** - Optional - A space separated list of tags for tests that will only be run on the master/main branch. **Works only for Django projects**. By default, it is set to an `slow`.
 * **tags_for_manual_tests** - Optional - A space separated list of tags for tests that will only be run **manually** (CI will ignore them). **Works only for Django projects**. By default, it is set to `manual`.
+* **test_parallelism** - Optional - Value passed to `manage.py test --parallel` (e.g. `auto` or a number). Empty runs serially. Opt in only if the suite is parallel-safe. **Works only for Django projects with *use_coverage***. By default, it is set to an empty string.
 * **custom_command** - Optional - A custom bash command to run. By default, it is set to an empty string.
 * **check_docs_directory** - Optional - Path to the documentation directory in which `rstcheck` will be run to check documentation files. By default, it is set to an empty string.
 * **check_dockerfile** - Optional - Path to a Dockerfile to be checked. **Warning: if set it may significantly increase the action time**. By default, it is set to an empty string.
@@ -215,3 +221,47 @@ TODO
 ## [Reusable release and tag workflow](_release_and_tag.yml)
 
 TODO
+
+In the ECR steps, `working_directory` is `docker_mapping[].context` when set, falling back to the *working_directory* input, so each image can be built from its own directory.
+
+## Recommended caller patterns
+
+Suggestions for the workflows that call the reusable ones above; none are required.
+
+* **Path filters** - Give each caller workflow (python, node, infrastructure) its own `paths:` filter instead of a single [**_detect_changes**](_detect_changes.yml) job, so unrelated PRs do not start it.
+* **Draft PRs** - Trigger on `types: [opened, synchronize, reopened, ready_for_review]` and gate the jobs with `if: ${{ !github.event.pull_request.draft }}`.
+* **Concurrency** - Cancel superseded runs with `concurrency: { group: "${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true }`.
+* **Warm shared caches** - GitHub only shares caches saved on the base branch across PRs. Set *cache_key* (e.g. `ci`) in `_python.yml` and add a `push` trigger on the default branch calling it with `run_tests: false`, so PRs restore the venv and APT caches saved by that push (and, with *use_db_snapshot*, the `push` database snapshot).
+* **Release title check** - Reject PRs into the release branch whose title is not an unused `MAJOR.MINOR.PATCH`:
+
+```yaml
+name: Check release title
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+    branches: [master]
+permissions:
+  contents: read
+jobs:
+  check-title:
+    if: github.head_ref == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # need all tags
+      - name: Validate PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ ! "$TITLE" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::PR title '$TITLE' must be MAJOR.MINOR.PATCH (e.g. 6.6.16)."
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/$TITLE" >/dev/null \
+             || gh release view "$TITLE" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::error::Version '$TITLE' already exists as a tag or release."
+            exit 1
+          fi
+```

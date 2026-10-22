@@ -189,7 +189,7 @@ jobs:
           dockerfile: ${{ matrix.docker_mapping.dockerfile }}
           image_tag: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
           aws_region: ${{ inputs.aws_region }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ matrix.docker_mapping.context || inputs.working_directory }}
           image_target: ${{ ( github.base_ref == 'main' || github.base_ref == 'master' )  && 'prod' || 'stag' }}
 
       - name: Push on ecr branch from push
@@ -203,7 +203,7 @@ jobs:
           dockerfile: ${{ matrix.docker_mapping.dockerfile }}
           image_tag: 'test'
           aws_region: ${{ inputs.aws_region }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ matrix.docker_mapping.context || inputs.working_directory }}
           image_target: 'test'
 
   push_on_ecr_tag:
@@ -230,4 +230,4 @@ jobs:
           dockerfile: ${{ matrix.docker_mapping.dockerfile }}
           image_tag: ${{ github.event.pull_request.title }}
           aws_region: ${{ inputs.aws_region }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ matrix.docker_mapping.context || inputs.working_directory }}
