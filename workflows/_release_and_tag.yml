@@ -66,6 +66,12 @@ on:
         required: false
         default: eu-central-1
 
+      dependency_track_project_name:
+        description: Dependency-Track project name. When set, the SBOM of the wheel installed with its dependencies is uploaded on release. Requires the DEPENDENCY_TRACK_API_KEY secret.
+        type: string
+        required: false
+        default: ""
+
 
 jobs:
   release_and_tag:
@@ -107,19 +113,37 @@ jobs:
           fetch-depth: 0 # otherwise, you do not retrieve the tags
 
       - uses: actions/setup-python@v6
-        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
+        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release || inputs.dependency_track_project_name != '')
         with:
           python-version: "3.x"
 
       - name: Install pypa/build
-        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
+        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release || inputs.dependency_track_project_name != '')
         run: |
           python -m pip install build --user
 
       - name: Build a binary wheel and a source tarball
-        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release)
+        if: steps.check-tag.outputs.match == 'true' && (inputs.publish_on_pypi || inputs.publish_on_test_pypi || inputs.append_to_release || inputs.dependency_track_project_name != '')
         run: |
           python -m build --sdist --wheel --outdir dist/
+
+      - name: Install the built wheel with its dependencies
+        if: steps.check-tag.outputs.match == 'true' && inputs.dependency_track_project_name != ''
+        continue-on-error: true # the SBOM must never fail the release: the action warns on the missing directory
+        env:
+          TAG: ${{ github.event.pull_request.title }}
+        run: |
+          python -m pip install --target "$RUNNER_TEMP/sbom-root" dist/*-"$TAG"*.whl
+
+      - name: Upload SBOM to Dependency-Track
+        if: steps.check-tag.outputs.match == 'true' && inputs.dependency_track_project_name != ''
+        uses: ./.github/actions/dependency_track
+        with:
+          path: ${{ runner.temp }}/sbom-root
+          project_name: ${{ inputs.dependency_track_project_name }}
+          project_version: ${{ github.event.pull_request.title }}
+          is_latest: "true"
+          api_key: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
 
       - name: Update release with assets
         id: update-release
