@@ -1,0 +1,54 @@
+name: Composite action dependency track
+description: Generate a CycloneDX SBOM of a directory with syft and upload it to Dependency-Track. Never fails the job.
+inputs:
+  path:
+    description: Directory to scan (what ships, e.g. a wheel installed with "pip install --target" or an unzipped package)
+    required: true
+  project_name:
+    description: Dependency-Track project name
+    required: true
+  project_version:
+    description: Dependency-Track project version (release tag, "stag", "prod"...)
+    required: true
+  is_latest:
+    description: Mark the uploaded version as the latest one of the project ("true" or "false")
+    required: false
+    default: "false"
+  api_key:
+    description: Dependency-Track API key with BOM_UPLOAD and PROJECT_CREATION_UPLOAD permissions
+    required: true
+  url:
+    description: Dependency-Track base URL
+    required: false
+    default: https://dtrack.certego.net:8443
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate the SBOM and upload it to Dependency-Track
+      shell: bash
+      env:
+        SCAN_PATH: ${{ inputs.path }}
+        DT_PROJECT_NAME: ${{ inputs.project_name }}
+        DT_PROJECT_VERSION: ${{ inputs.project_version }}
+        DT_IS_LATEST: ${{ inputs.is_latest }}
+        DT_API_KEY: ${{ inputs.api_key }}
+        DT_URL: ${{ inputs.url }}
+      run: |
+        echo "::add-mask::$DT_API_KEY"
+        work_dir=$(mktemp -d)
+        echo "Generating SBOM and uploading it to Dependency-Track..."
+        if [ -d "$SCAN_PATH" ] && SCAN_ABS_PATH=$(realpath "$SCAN_PATH") \
+          && docker run --rm -v "$SCAN_ABS_PATH:/scan:ro" -e SYFT_FILE_METADATA_SELECTION=none ghcr.io/anchore/syft:v1.55.0@sha256:4cc92b64ca74ffca4c94d4c8fcc01f217731375300be14d0b6eeb2e82eaa110a "dir:/scan" --source-name "$DT_PROJECT_NAME" --source-version "$DT_PROJECT_VERSION" -o cyclonedx-json > "$work_dir/sbom.raw.json" \
+          && jq '(.metadata.component."bom-ref") as $root | ([.dependencies[]?.dependsOn[]?] | unique) as $depended | [.components[]? | select(.purl) | ."bom-ref" | select(. as $r | $depended | bsearch($r) < 0)] as $top | .dependencies = ([(.dependencies // [])[] | select(.ref != $root)] + [{ref: $root, dependsOn: $top}])' "$work_dir/sbom.raw.json" > "$work_dir/sbom.json" \
+          && printf 'X-Api-Key: %s\n' "$DT_API_KEY" > "$work_dir/dt-header" \
+          && curl -fsS --max-time 120 -X POST "$DT_URL/api/v1/bom" \
+            -H @"$work_dir/dt-header" \
+            --form-string autoCreate=true --form-string "projectName=$DT_PROJECT_NAME" --form-string "projectVersion=$DT_PROJECT_VERSION" \
+            --form-string "isLatest=$DT_IS_LATEST" -F bom=@"$work_dir/sbom.json"; then
+          echo "SBOM uploaded."
+        else
+          echo "::warning::SBOM generation or upload failed; the build is not affected."
+        fi
+        rm -rf "$work_dir"
+        exit 0
