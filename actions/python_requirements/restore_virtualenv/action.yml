@@ -27,12 +27,18 @@ runs:
       with:
         file_paths: ${{ inputs.requirements_paths }}
 
+    - name: Get Python version
+      id: get_python_version
+      # The venv links to its interpreter by full path, so a venv from another patch release is broken
+      run: echo "version=$(python -c 'import platform; print(platform.python_version())')" >> $GITHUB_OUTPUT
+      shell: bash
+
     - name: Restore virtual environment
       id: restore_virtual_environment
       uses: actions/cache/restore@v5
       with:
         path: ${{ inputs.virtual_environment_path }}
-        key: ${{ inputs.git_reference }}-venv-${{ steps.compute_requirements_files_sha256_hash.outputs.computed_hash }}
+        key: ${{ inputs.git_reference }}-venv-py${{ steps.get_python_version.outputs.version }}-${{ steps.compute_requirements_files_sha256_hash.outputs.computed_hash }}
     
     - name: Activate restored virtual environment
       if: >
