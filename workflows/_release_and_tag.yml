@@ -126,9 +126,11 @@ jobs:
         if: steps.check-tag.outputs.match == 'true' && inputs.append_to_release
         uses: softprops/action-gh-release@v2
         with:
+          # on pull_request events github.ref_name is "<n>/merge", not the tag
+          tag_name: ${{ github.event.pull_request.title }}
           files: |
-            dist/*-${{ github.ref_name }}*.tar.gz
-            dist/*-${{ github.ref_name }}*.whl
+            dist/*-${{ github.event.pull_request.title }}*.tar.gz
+            dist/*-${{ github.event.pull_request.title }}*.whl
 
       - name: Publish to test PyPi
         uses: pypa/gh-action-pypi-publish@release/v1
