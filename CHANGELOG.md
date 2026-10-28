@@ -1,3 +1,8 @@
+## 2.1.x
+### 2.1.0
+#### Features
+* Added `actions/dependency_track` composite action: it generates a CycloneDX SBOM of a directory with syft and uploads it to Dependency-Track, without ever failing the job.
+* Added `dependency_track_project_name` input to `_release_and_tag.yml`: on release it uploads the SBOM of the built wheel installed with its dependencies. Requires the `DEPENDENCY_TRACK_API_KEY` secret.
 ## 2.0.x
 ### 2.0.1
 #### Features

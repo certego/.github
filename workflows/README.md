@@ -215,3 +215,13 @@ TODO
 ## [Reusable release and tag workflow](_release_and_tag.yml)
 
 TODO
+
+### Dependency-Track SBOM
+
+When the optional input `dependency_track_project_name` is set and the PR title is a release tag, after the wheel is built the workflow installs it with its dependencies into an empty directory (`pip install --target "$RUNNER_TEMP/sbom-root"`) and uploads the SBOM of that directory with the [**dependency_track**](../actions/dependency_track/action.yml) action (version = tag, `is_latest` = `true`). The upload never fails the job.
+
+#### Inputs
+
+| Name | Description | Type | Required | Default |
+|------|-------------|------|----------|---------|
+| dependency_track_project_name | Dependency-Track project name. Empty disables the upload. Needs the `DEPENDENCY_TRACK_API_KEY` secret (`secrets: inherit`). | string | No | `""` |
