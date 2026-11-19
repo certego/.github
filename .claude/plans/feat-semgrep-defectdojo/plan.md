@@ -28,3 +28,21 @@ SCA findings already reach DefectDojo from Dependency-Track; SAST from the CI mu
 - Real pinned Semgrep image on a fixture with the default rulesets: JSON has `.results`.
 - Branch -> environment `case` block run for each branch.
 - `actionlint` not installed here.
+
+## Review round 1 (2026-11-19)
+
+- Fixed: the Product name could differ from the Dependency-Track one (`certego.net` → `Certego.net`
+  here, `Certego Net` via the `app:` tag and the sync Lambda). Both actions now build the same slug
+  (lowercase, anything but `[a-z0-9]` → `-`) and Semgrep title-cases it like the Lambda.
+- Fixed: finding paths were `/src/...`; Semgrep now runs with `-w /src` on `.`, paths are repository-relative.
+- Fixed: `curl --fail-with-body` so DefectDojo's error (401/403/400) shows in the log; `set -f`
+  around the rules loop; `timeout-minutes: 30` on the job; README wording (findings are counted, only
+  errors warn).
+- Checked: `secrets: inherit` reaches the called workflow without a `secrets:` block; job-level
+  `permissions` only narrows; Semgrep CE 1.185.0 runs the three registry rulesets without login and
+  `--metrics=off`; DefectDojo 3.5.200 has `Semgrep JSON Report`, matches the test by engagement +
+  title + scan type, scopes `close_old_findings` to the test. Real run on a fixture: 323 rules,
+  findings at `app/a.py`; Product names `Service Portal`, `Certego Tools`, `Certego Net`; with a
+  401 the log shows DefectDojo's answer and the step exits 0; `actionlint` on `_sast.yml` exit 0.
+- Left as is: `_release_and_tag.yml` does not pass `application` (libraries get the repository-name
+  default, and the sync skips libraries anyway); no README for `dependency_track` (pre-existing).

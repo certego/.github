@@ -230,7 +230,7 @@ The [**dependency_track**](../actions/dependency_track/action.yml) action also t
 
 ## [Reusable SAST workflow](_sast.yml)
 
-This sub workflow runs [Semgrep CE](https://semgrep.dev/docs/) and imports the findings into DefectDojo. It never fails the job: errors and findings only produce a `::warning::`.
+This sub workflow runs [Semgrep CE](https://semgrep.dev/docs/) and imports the findings into DefectDojo. It never fails the job: findings are only counted in the log, and a scan or import error produces a `::warning::` with DefectDojo's answer.
 
 It is composed of one job with three steps:
 

@@ -13,7 +13,7 @@ It is composed of one step:
 ### Inputs
 
 * `path` - Optional - Directory to scan. By default, it is set to `.`.
-* `application` - Optional - Application name; `-` and `_` become spaces and each word is capitalised (`certego-tools` becomes the Product `Certego Tools`). By default, it is set to the repository name.
+* `application` - Optional - Application name; it is turned into the same lowercase slug as the `app:` tag of the [**dependency_track**](../dependency_track/action.yml) action (anything but letters and digits becomes `-`), then `-` becomes a space and each word is capitalised, like the Dependency-Track sync, so `certego-tools` (or `certego_tools`) is the Product `Certego Tools`. By default, it is set to the repository name.
 * `environment` - Mandatory - DefectDojo Engagement name: `prod` or `stag`.
 * `rules` - Optional - Space separated Semgrep rulesets, each passed as `--config`. By default, it is set to `p/default p/secrets p/owasp-top-ten`.
 * `api_key` - Mandatory - DefectDojo API v2 token allowed to import scans into the `Applications` product type.

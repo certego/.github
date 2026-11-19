@@ -39,17 +39,20 @@ runs:
       run: |
         echo "::add-mask::$DD_API_KEY"
         work_dir=$(mktemp -d)
-        application=${APPLICATION:-${GITHUB_REPOSITORY#*/}}
-        product_name=$(printf '%s' "$application" | tr '_-' '  ' | awk '{for (i = 1; i <= NF; i++) $i = toupper(substr($i, 1, 1)) tolower(substr($i, 2)); print}')
+        # Same slug as the dependency_track action's app: tag, title-cased like the sync Lambda, so SAST and SCA share a Product
+        application=$(printf '%s' "${APPLICATION:-${GITHUB_REPOSITORY#*/}}" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '-')
+        product_name=$(printf '%s' "$application" | tr '-' ' ' | awk '{for (i = 1; i <= NF; i++) $i = toupper(substr($i, 1, 1)) substr($i, 2); print}')
+        set -f
         set --
         for rule in $SEMGREP_RULES; do set -- "$@" --config "$rule"; done
+        set +f
         echo "Running Semgrep and importing the findings into DefectDojo ($product_name / $DD_ENVIRONMENT)..."
         # Semgrep CE 1.185.0; without --error it exits 0 when findings exist, so non-zero means a real failure
         if [ -d "$SCAN_PATH" ] && SCAN_ABS_PATH=$(realpath "$SCAN_PATH") \
-          && docker run --rm -v "$SCAN_ABS_PATH:/src:ro" -v "$work_dir:/out" semgrep/semgrep:1.185.0@sha256:67518c174185a2043fdbed16c70631b79209499b3671178e7194379b48295a0d semgrep scan --metrics=off --json --output /out/semgrep.json "$@" /src \
+          && docker run --rm -v "$SCAN_ABS_PATH:/src:ro" -v "$work_dir:/out" -w /src semgrep/semgrep:1.185.0@sha256:67518c174185a2043fdbed16c70631b79209499b3671178e7194379b48295a0d semgrep scan --metrics=off --json --output /out/semgrep.json "$@" . \
           && echo "Semgrep findings: $(jq '.results | length' "$work_dir/semgrep.json")" \
           && printf 'Authorization: Token %s\n' "$DD_API_KEY" > "$work_dir/dd-header" \
-          && curl -fsS --max-time 300 -X POST "$DD_URL/api/v2/reimport-scan/" \
+          && curl --fail-with-body -sS --max-time 300 -X POST "$DD_URL/api/v2/reimport-scan/" \
             -H @"$work_dir/dd-header" \
             --form-string "scan_type=Semgrep JSON Report" --form-string "product_type_name=Applications" \
             --form-string "product_name=$product_name" --form-string "engagement_name=$DD_ENVIRONMENT" \
