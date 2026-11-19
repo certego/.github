@@ -3,6 +3,8 @@
 #### Features
 * Added `actions/dependency_track` composite action: it generates a CycloneDX SBOM of a directory with syft and uploads it to Dependency-Track, without ever failing the job.
 * Added `dependency_track_project_name` input to `_release_and_tag.yml`: on release it uploads the SBOM of the built wheel installed with its dependencies. Requires the `DEPENDENCY_TRACK_API_KEY` secret.
+* Added `actions/semgrep` composite action and `_sast.yml` reusable workflow: Semgrep CE on push to the release branches (`main`/`master` → `prod`, `develop`/`dev`/`stag` → `stag`), findings imported into DefectDojo (Product = application, Engagement = environment) without ever failing the job. Requires the `DEFECTDOJO_API_KEY` secret.
+* Added `application` input to `actions/dependency_track`: the project is created with the tag `app:<application>` (default: repository name).
 ## 2.0.x
 ### 2.0.1
 #### Features

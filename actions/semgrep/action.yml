@@ -1,0 +1,63 @@
+name: Composite action semgrep
+description: Run Semgrep CE on a directory and import the findings into DefectDojo. Never fails the job.
+inputs:
+  path:
+    description: Directory to scan
+    required: false
+    default: .
+  application:
+    description: Application name, the DefectDojo Product (title case). Defaults to the repository name
+    required: false
+    default: ""
+  environment:
+    description: DefectDojo Engagement, "prod" or "stag"
+    required: true
+  rules:
+    description: Space separated Semgrep rulesets, each passed as --config
+    required: false
+    default: p/default p/secrets p/owasp-top-ten
+  api_key:
+    description: DefectDojo API v2 token allowed to import scans into the Applications product type
+    required: true
+  url:
+    description: DefectDojo base URL
+    required: false
+    default: https://dtrack.certego.net:8443
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Semgrep and import the findings into DefectDojo
+      shell: bash
+      env:
+        SCAN_PATH: ${{ inputs.path }}
+        APPLICATION: ${{ inputs.application }}
+        DD_ENVIRONMENT: ${{ inputs.environment }}
+        SEMGREP_RULES: ${{ inputs.rules }}
+        DD_API_KEY: ${{ inputs.api_key }}
+        DD_URL: ${{ inputs.url }}
+      run: |
+        echo "::add-mask::$DD_API_KEY"
+        work_dir=$(mktemp -d)
+        application=${APPLICATION:-${GITHUB_REPOSITORY#*/}}
+        product_name=$(printf '%s' "$application" | tr '_-' '  ' | awk '{for (i = 1; i <= NF; i++) $i = toupper(substr($i, 1, 1)) tolower(substr($i, 2)); print}')
+        set --
+        for rule in $SEMGREP_RULES; do set -- "$@" --config "$rule"; done
+        echo "Running Semgrep and importing the findings into DefectDojo ($product_name / $DD_ENVIRONMENT)..."
+        # Semgrep CE 1.185.0; without --error it exits 0 when findings exist, so non-zero means a real failure
+        if [ -d "$SCAN_PATH" ] && SCAN_ABS_PATH=$(realpath "$SCAN_PATH") \
+          && docker run --rm -v "$SCAN_ABS_PATH:/src:ro" -v "$work_dir:/out" semgrep/semgrep:1.185.0@sha256:67518c174185a2043fdbed16c70631b79209499b3671178e7194379b48295a0d semgrep scan --metrics=off --json --output /out/semgrep.json "$@" /src \
+          && echo "Semgrep findings: $(jq '.results | length' "$work_dir/semgrep.json")" \
+          && printf 'Authorization: Token %s\n' "$DD_API_KEY" > "$work_dir/dd-header" \
+          && curl -fsS --max-time 300 -X POST "$DD_URL/api/v2/reimport-scan/" \
+            -H @"$work_dir/dd-header" \
+            --form-string "scan_type=Semgrep JSON Report" --form-string "product_type_name=Applications" \
+            --form-string "product_name=$product_name" --form-string "engagement_name=$DD_ENVIRONMENT" \
+            --form-string "test_title=Semgrep" --form-string auto_create_context=true --form-string close_old_findings=true \
+            -F file=@"$work_dir/semgrep.json"; then
+          echo "Semgrep results imported."
+        else
+          echo "::warning::Semgrep scan or DefectDojo import failed; the build is not affected."
+        fi
+        rm -rf "$work_dir"
+        exit 0

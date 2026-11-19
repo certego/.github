@@ -10,6 +10,10 @@ inputs:
   project_version:
     description: Dependency-Track project version (release tag, "stag", "prod"...)
     required: true
+  application:
+    description: Application name for the "app:<application>" project tag (lowercase slug). Defaults to the repository name. Dependency-Track applies tags only when it creates the project
+    required: false
+    default: ""
   is_latest:
     description: Mark the uploaded version as the latest one of the project ("true" or "false")
     required: false
@@ -31,12 +35,14 @@ runs:
         SCAN_PATH: ${{ inputs.path }}
         DT_PROJECT_NAME: ${{ inputs.project_name }}
         DT_PROJECT_VERSION: ${{ inputs.project_version }}
+        DT_APPLICATION: ${{ inputs.application }}
         DT_IS_LATEST: ${{ inputs.is_latest }}
         DT_API_KEY: ${{ inputs.api_key }}
         DT_URL: ${{ inputs.url }}
       run: |
         echo "::add-mask::$DT_API_KEY"
         work_dir=$(mktemp -d)
+        application=$(printf '%s' "${DT_APPLICATION:-${GITHUB_REPOSITORY#*/}}" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '-')
         echo "Generating SBOM and uploading it to Dependency-Track..."
         if [ -d "$SCAN_PATH" ] && SCAN_ABS_PATH=$(realpath "$SCAN_PATH") \
           && docker run --rm -v "$SCAN_ABS_PATH:/scan:ro" -e SYFT_FILE_METADATA_SELECTION=none ghcr.io/anchore/syft:v1.55.0@sha256:4cc92b64ca74ffca4c94d4c8fcc01f217731375300be14d0b6eeb2e82eaa110a "dir:/scan" --source-name "$DT_PROJECT_NAME" --source-version "$DT_PROJECT_VERSION" -o cyclonedx-json > "$work_dir/sbom.raw.json" \
@@ -44,7 +50,7 @@ runs:
           && printf 'X-Api-Key: %s\n' "$DT_API_KEY" > "$work_dir/dt-header" \
           && curl -fsS --max-time 120 -X POST "$DT_URL/api/v1/bom" \
             -H @"$work_dir/dt-header" \
-            --form-string autoCreate=true --form-string "projectName=$DT_PROJECT_NAME" --form-string "projectVersion=$DT_PROJECT_VERSION" \
+            --form-string autoCreate=true --form-string "projectName=$DT_PROJECT_NAME" --form-string "projectVersion=$DT_PROJECT_VERSION" --form-string "projectTags=app:$application" \
             --form-string "isLatest=$DT_IS_LATEST" -F bom=@"$work_dir/sbom.json"; then
           echo "SBOM uploaded."
         else
