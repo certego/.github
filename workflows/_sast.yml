@@ -12,6 +12,11 @@ on:
         type: string
         required: false
         default: p/default p/secrets p/owasp-top-ten
+      exclude:
+        description: Space separated paths or patterns the scan skips, each passed as --exclude. Empty scans everything
+        type: string
+        required: false
+        default: .github
       working_directory:
         description: Directory to scan
         type: string
@@ -49,4 +54,5 @@ jobs:
           application: ${{ inputs.application }}
           environment: ${{ steps.environment.outputs.name }}
           rules: ${{ inputs.rules }}
+          exclude: ${{ inputs.exclude }}
           api_key: ${{ secrets.DEFECTDOJO_API_KEY }}
