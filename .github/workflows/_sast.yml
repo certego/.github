@@ -1,0 +1,52 @@
+name: Reusable SAST workflow
+on:
+  workflow_call:
+    inputs:
+      application:
+        description: Application name, the DefectDojo Product. Empty means the repository name.
+        type: string
+        required: false
+        default: ""
+      rules:
+        description: Space separated Semgrep rulesets, each passed as --config
+        type: string
+        required: false
+        default: p/default p/secrets p/owasp-top-ten
+      working_directory:
+        description: Directory to scan
+        type: string
+        required: false
+        default: .
+
+jobs:
+  semgrep:
+    name: Run Semgrep and import the findings into DefectDojo
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    steps:
+      - name: Map the branch to the DefectDojo environment
+        id: environment
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          case "$BRANCH" in
+            main|master) echo "name=prod" >> "$GITHUB_OUTPUT" ;;
+            develop|dev|stag) echo "name=stag" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Branch $BRANCH is not a release branch, nothing to import." ;;
+          esac
+
+      - name: Check out latest commit
+        if: steps.environment.outputs.name != ''
+        uses: actions/checkout@v5
+
+      - name: Run Semgrep
+        if: steps.environment.outputs.name != ''
+        uses: ./.github/actions/semgrep
+        with:
+          path: ${{ inputs.working_directory }}
+          application: ${{ inputs.application }}
+          environment: ${{ steps.environment.outputs.name }}
+          rules: ${{ inputs.rules }}
+          api_key: ${{ secrets.DEFECTDOJO_API_KEY }}

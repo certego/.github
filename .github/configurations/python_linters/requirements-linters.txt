@@ -1,5 +1,5 @@
 autoflake~=2.3.1
-bandit~=1.8.3
+bandit~=1.9.4
 black~=25.1.0
 # use fork since main repo is not updated
 # see https://github.com/rocioar/flake8-django/pull/134

@@ -287,10 +287,11 @@ jobs:
           apt_requirements_file_path: ${{ inputs.packages_path }}
           git_reference: ${{ github.base_ref }}
       
+      # Always refresh the APT index. Skipping this on an APT cache hit left a
+      # stale index, so `apt-get install` returned 404 when a pinned package
+      # version was rotated out of the mirror. The update is cheap; the cache
+      # still serves the .deb downloads.
       - name: Refresh APT repositories
-        if: >
-          steps.restore_apt_cache_pr.outputs.cache-hit != 'true' &&
-          steps.restore_apt_cache_target_branch.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
         shell: bash
@@ -395,7 +396,7 @@ jobs:
             steps.restore_python_virtual_environment_pr.outputs.cache-hit != 'true'
         id: license_check_report
         continue-on-error: true
-        uses: pilosus/action-pip-license-checker@v2
+        uses: pilosus/action-pip-license-checker@v3
         with:
           requirements: ${{ inputs.install_from }}/${{ inputs.requirements_path }}
           exclude: ${{ inputs.ignore_requirements_licenses_regex }}
@@ -513,7 +514,11 @@ jobs:
               CMD="coverage run --rcfile=${{ inputs.coverage_config_path }}"
           
               if [[ -n '${{ inputs.django_settings_module }}' ]]; then
-                CMD="${CMD} -a manage.py test"
+                # No '-a' (append): it is incompatible with coverage parallel
+                # mode (concurrency=multiprocessing / parallel=true) used by
+                # projects that run the Django test suite with --parallel.
+                # A single coverage run does not need append anyway.
+                CMD="${CMD} manage.py test"
                 # manage manual tags
                 if [[ -n '${{ inputs.tags_for_manual_tests }}' ]]; then
                   for tag in ${{ inputs.tags_for_manual_tests }}; do
@@ -541,6 +546,18 @@ jobs:
           $CMD
         working-directory: ${{ inputs.working_directory }}
         env: ${{ secrets }}
+        shell: bash
+
+      - name: Combine coverage data
+        if: inputs.use_coverage && inputs.upload_coverage
+        run: |
+          # When coverage runs in parallel mode (concurrency=multiprocessing),
+          # each worker process writes its own .coverage.* file; merge them
+          # before reporting. No-op for projects not using parallel coverage.
+          if ls .coverage.* >/dev/null 2>&1; then
+            coverage combine
+          fi
+        working-directory: ${{ inputs.working_directory }}
         shell: bash
 
       - name: Create coverage output

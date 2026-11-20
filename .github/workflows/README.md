@@ -215,3 +215,58 @@ TODO
 ## [Reusable release and tag workflow](_release_and_tag.yml)
 
 TODO
+
+### Dependency-Track SBOM
+
+When the optional input `dependency_track_project_name` is set and the PR title is a release tag, after the wheel is built the workflow installs it with its dependencies into an empty directory (`pip install --target "$RUNNER_TEMP/sbom-root"`) and uploads the SBOM of that directory with the [**dependency_track**](../actions/dependency_track/action.yml) action (version = tag, `is_latest` = `true`). The upload never fails the job.
+
+#### Inputs
+
+| Name | Description | Type | Required | Default |
+|------|-------------|------|----------|---------|
+| dependency_track_project_name | Dependency-Track project name. Empty disables the upload. Needs the `DEPENDENCY_TRACK_API_KEY` secret (`secrets: inherit`). | string | No | `""` |
+
+The [**dependency_track**](../actions/dependency_track/action.yml) action also takes an optional `application` input (default: the repository name): the project is created with the tag `app:<application>` (lowercase slug), which groups it with the other projects of the same application. Dependency-Track applies tags only when it creates the project.
+
+## [Reusable SAST workflow](_sast.yml)
+
+This sub workflow runs [Semgrep CE](https://semgrep.dev/docs/) and imports the findings into DefectDojo. It never fails the job: findings are only counted in the log, and a scan or import error produces a `::warning::` with DefectDojo's answer.
+
+It is composed of one job with three steps:
+
+1. **Map the branch to the DefectDojo environment** - `main` and `master` map to `prod`; `develop`, `dev` and `stag` map to `stag`; any other branch maps to nothing and the next steps are skipped.
+2. **Check out latest commit** - Uses GitHub's [**checkout**](https://github.com/actions/checkout) action.
+3. **Run Semgrep** - Uses the [**semgrep**](../actions/semgrep/README.md) action: the Product is the application (title case) and the Engagement is the environment.
+
+The job has `permissions: contents: read`.
+
+### Documentation
+
+#### Inputs
+
+| Name | Description | Type | Required | Default |
+|------|-------------|------|----------|---------|
+| application | Application name, the DefectDojo Product. Empty means the repository name. | string | No | `""` |
+| rules | Space separated Semgrep rulesets, each passed as `--config`. | string | No | `p/default p/secrets p/owasp-top-ten` |
+| working_directory | Directory to scan. | string | No | `.` |
+
+#### Secrets
+
+* `DEFECTDOJO_API_KEY` - DefectDojo API v2 token. Pass it with `secrets: inherit`.
+
+#### Example caller
+
+Run it only on push to the release branches; pull requests import nothing.
+
+```yaml
+# .github/workflows/sast.yml
+name: SAST
+on:
+  push:
+    branches: [main, master, develop, dev, stag]
+
+jobs:
+  sast:
+    uses: ./.github/workflows/_sast.yml
+    secrets: inherit
+```
