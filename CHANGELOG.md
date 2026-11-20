@@ -5,6 +5,8 @@
 * Added `dependency_track_project_name` input to `_release_and_tag.yml`: on release it uploads the SBOM of the built wheel installed with its dependencies. Requires the `DEPENDENCY_TRACK_API_KEY` secret.
 * Added `actions/semgrep` composite action and `_sast.yml` reusable workflow: Semgrep CE on push to the release branches (`main`/`master` → `prod`, `develop`/`dev`/`stag` → `stag`), findings imported into DefectDojo (Product = application, Engagement = environment) without ever failing the job. Requires the `DEFECTDOJO_API_KEY` secret.
 * Added `application` input to `actions/dependency_track`: the project is created with the tag `app:<application>` (default: repository name).
+#### Bugfix
+* `_python.yml` license check uses `pilosus/action-pip-license-checker@v3`, which reads the PEP 639 `License-Expression`: with v2, packages that declare only that field (Django 5.2 and later) were reported as `Error` and failed the job.
 ## 2.0.x
 ### 2.0.1
 #### Features
