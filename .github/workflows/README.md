@@ -248,6 +248,7 @@ The job has `permissions: contents: read`.
 |------|-------------|------|----------|---------|
 | application | Application name, the DefectDojo Product. Empty means the repository name. | string | No | `""` |
 | rules | Space separated Semgrep rulesets, each passed as `--config`. | string | No | `p/default p/secrets p/owasp-top-ten` |
+| exclude | Space separated paths or patterns the scan skips, each passed as `--exclude`; the default skips the `certego/.github` subtree. Empty scans everything. | string | No | `.github` |
 | working_directory | Directory to scan. | string | No | `.` |
 
 #### Secrets

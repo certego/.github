@@ -16,6 +16,10 @@ inputs:
     description: Space separated Semgrep rulesets, each passed as --config
     required: false
     default: p/default p/secrets p/owasp-top-ten
+  exclude:
+    description: Space separated paths or patterns the scan skips, each passed as --exclude. The default skips the certego/.github subtree
+    required: false
+    default: .github
   api_key:
     description: DefectDojo API v2 token allowed to import scans into the Applications product type
     required: true
@@ -34,6 +38,7 @@ runs:
         APPLICATION: ${{ inputs.application }}
         DD_ENVIRONMENT: ${{ inputs.environment }}
         SEMGREP_RULES: ${{ inputs.rules }}
+        SEMGREP_EXCLUDE: ${{ inputs.exclude }}
         DD_API_KEY: ${{ inputs.api_key }}
         DD_URL: ${{ inputs.url }}
       run: |
@@ -45,6 +50,7 @@ runs:
         set -f
         set --
         for rule in $SEMGREP_RULES; do set -- "$@" --config "$rule"; done
+        for pattern in $SEMGREP_EXCLUDE; do set -- "$@" --exclude "$pattern"; done
         set +f
         echo "Running Semgrep and importing the findings into DefectDojo ($product_name / $DD_ENVIRONMENT)..."
         # Semgrep CE 1.185.0; without --error it exits 0 when findings exist, so non-zero means a real failure
