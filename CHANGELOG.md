@@ -1,4 +1,7 @@
 ## 2.1.x
+### 2.1.1
+#### Changes
+* `actions/semgrep` and `_sast.yml` take an `exclude` input (default `.github`): the scan skips the vendored `certego/.github` subtree, whose findings belong to this repository and would repeat in every consumer's DefectDojo Product.
 ### 2.1.0
 #### Features
 * Added `actions/dependency_track` composite action: it generates a CycloneDX SBOM of a directory with syft and uploads it to Dependency-Track, without ever failing the job.
